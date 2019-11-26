@@ -78,26 +78,29 @@ SET website = ?
 WHERE email = ?
 
 -- show events
-SELECT eventId
+SELECT id
 FROM events 
 WHERE dateTime >= ?
+ORDER BY (SELECT COUNT(customerEmail)
+          FROM subscriptions
+          WHERE id = eventId)
 
 -- select possible event places
 SELECT DISTINCT place 
 FROM events
 
 -- show events filtered by place
-SELECT eventId
+SELECT id
 FROM events 
 WHERE place = ?
 
 -- show events filtered by date
-SELECT eventId
+SELECT id
 FROM events 
 WHERE dateTime = ?
 
 -- show still free events 
-SELECT eventId 
+SELECT id 
 FROM events e 
 WHERE seats > (SELECT COUNT(customerEmail) 
                 FROM subscriptions 
@@ -123,15 +126,16 @@ WHERE e.id = ?
 GROUP BY e.id
 
 -- show my events
-SELECT eventId
-FROM subscriptions
-WHERE customerEmail = ?
+SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, p.organizationName
+FROM events e, subscriptions s
+WHERE s.customerEmail = ?
+    AND e.id = s.eventId
 
 -- put a ticket in the cart
 INSERT INTO carts(eventId, customerEmail)
 SELECT ?, ?
 FROM events
-WHERE id IN (SELECT eventId 
+WHERE id IN (SELECT e.id 
                 FROM events e 
                 WHERE seats > (SELECT COUNT(customerEmail) 
                                 FROM subscriptions 
@@ -141,7 +145,7 @@ WHERE id IN (SELECT eventId
 INSERT INTO subscriptions(eventId, customerEmail)
 SELECT ?, ?
 FROM events
-WHERE id IN (SELECT eventId 
+WHERE id IN (SELECT e.id 
                 FROM events e 
                 WHERE seats > (SELECT COUNT(customerEmail) 
                                 FROM subscriptions 
