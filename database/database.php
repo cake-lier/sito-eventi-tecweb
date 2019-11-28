@@ -181,6 +181,18 @@ class DatabaseHelper{
         }
     }
 
+    public function deleteLoggedUser() {
+        // assuming there will be a cascade delete for customers and promoters tables
+        $query = "DELETE FROM users
+                  WHERE email = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("s", $_SESSION["email"]);
+        $stmt->execute();
+        $result = ($stmt->affected_rows != 1);
+        $stmt->close();
+        return $result;
+    }
+
     /*****************************/
     /***** EVENTS FUNCTIONS *****/
     /*****************************/
