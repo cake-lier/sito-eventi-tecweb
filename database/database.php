@@ -1,5 +1,6 @@
 <?php
 
+// TODO: check if $_SESSION["email"] is set
 class DatabaseHelper{
     private $db;
 
@@ -22,11 +23,7 @@ class DatabaseHelper{
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("ssbis", $email, $password, $profilePhoto, $type, $salt);
         $stmt->execute();
-        if ($stmt->affected_rows != 1) {
-            $result = false;
-        } else {
-            $result = true;
-        }
+        $result = $stmt->affected_rows != 1;
         $stmt->close();
         return $result;
     }
@@ -41,11 +38,7 @@ class DatabaseHelper{
             $stmt = $this->db->prepare($query);
             $stmt->bind_param("sssssssis", $email, $billingAddress, $birthDate, $birthplace, $name, $surname, $username, $telephone, $currentAddress);
             $stmt->execute();
-            if ($stmt->affected_rows != 1) {
-                $result = false;
-            } else {
-                $result = true;
-            }
+            $result = ($stmt->affected_rows != 1);
             $stmt->close();
             return $result;
         } else {
@@ -60,11 +53,7 @@ class DatabaseHelper{
             $stmt = $this->db->prepare($query);
             $stmt->bind_param("ssis", $email, $organizationName, $VATid, $website);
             $stmt->execute();
-            if ($stmt->affected_rows != 1) {
-                $result = false;
-            } else {
-                $result = true;
-            }
+            $result = ($stmt->affected_rows != 1);
             $stmt->close();
             return $result;
         } else {
@@ -108,11 +97,7 @@ class DatabaseHelper{
                 $stmt2 = $this->db->prepare($query2);
                 $stmt2->bind_param("ss", hashPassword($newPassword, $salt), $email);
                 $stmt2->execute();
-                if ($stmt2->affected_rows != 1) {
-                    $result = false;
-                } else {
-                    $result = true;
-                }
+                $result = ($stmt2->affected_rows != 1);
                 $stmt->close();
                 $stmt2->close();
                 return $result;
@@ -130,11 +115,7 @@ class DatabaseHelper{
             $stmt = $this->db->prepare($query);
             $stmt->bind_param("bs", $photo, $email);
             $stmt->execute();
-            if ($stmt->affected_rows != 1) {
-                $result = false;
-            } else {
-                $result = true;
-            }
+            $result = ($stmt->affected_rows != 1);
             $stmt->close();
             return $result;
         } else {
@@ -152,11 +133,7 @@ class DatabaseHelper{
             $stmt = $this->db->prepare($query);
             $stmt->bind_param("sssssssis", $username, $name, $surname, $birthDate, $birthplace, $currentAddress, $billingAddress, $telephone, $email);
             $stmt->execute();
-            if ($stmt->affected_rows != 1) {
-                $result = false;
-            } else {
-                $result = true;
-            }
+            $result = ($stmt->affected_rows != 1);
             $stmt->close();
             return $result;
         } else {
@@ -172,11 +149,7 @@ class DatabaseHelper{
             $stmt = $this->db->prepare($query);
             $stmt->bind_param("ss", $website, $email);
             $stmt->execute();
-            if ($stmt->affected_rows != 1) {
-                $result = false;
-            } else {
-                $result = true;
-            }
+            $result = ($stmt->affected_rows != 1);
             $stmt->close();
             return $result;
         } else {
@@ -294,13 +267,9 @@ class DatabaseHelper{
             $query = "INSERT INTO events(name, place, dateTime, seats, description, site, promoterEmail)
                       VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param("ssiisss", $name, $place, $dateTime, $seats, $description, $site, $_SESSION["email"]);
+            $stmt->bind_param("sssisss", $name, $place, $dateTime, $seats, $description, $site, $_SESSION["email"]);
             $stmt->execute();
-            if ($stmt->affected_rows != 1) {
-                $result = false;
-            } else {
-                $result = true;
-            }
+            $result = ($stmt->affected_rows != 1);
             $stmt->close();
             return $result;
         } else {
@@ -348,11 +317,7 @@ class DatabaseHelper{
             $stmt = $this->db->prepare($query);
             $stmt->bind_param("is", $eventId, $_SESSION["email"]);
             $stmt->execute();
-            if ($stmt->affected_rows != 1) {
-                $result = false;
-            } else {
-                $result = true;
-            }
+            $result = ($stmt->affected_rows != 1);
             $stmt->close();
             return $result;
         } else {
@@ -367,11 +332,7 @@ class DatabaseHelper{
         $stmt = $this->db->prepare($query);
         $stmt->bind_param("si", $_SESSION["email"], $eventId);
         $stmt->execute();
-        if ($stmt->affected_rows != 1) {
-            $result = false;
-        } else {
-            $result = true;
-        }
+        $result = ($stmt->affected_rows != 1);
         $stmt->close();
         return $result;
     }
@@ -401,6 +362,83 @@ class DatabaseHelper{
     /************************************/
     /***** NOTIFICATIONS FUNCTIONS *****/
     /**********************************/
+    public function insertNewNotification($message) {
+        $query = "INSERT INTO notifications(message)
+                  VALUES (?)";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("s", $message);
+        $stmt->execute();
+        $result = $stmt->affected_rows != 1 ? null : $stmt->insert_id;
+        $stmt->close();
+        return $result;
+    }
+
+    public function sendNotification($message) {
+        $notificationId = insertNewNotification($message);
+        if ($notificationId != null) {
+            $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
+                      SELECT customerEmail, ?, ?, false
+                      FROM subscriptions
+                      WHERE eventId = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->bind_param("ss", date("Y-m-d H:i:s"), $notificationId);
+            $stmt->execute();
+            $result = ($stmt->affected_rows != -1);
+            $stmt->close();
+            return $result;
+        } else {
+            return false;
+        }
+    }
+
+    public function getLoggedUserNotifications() {
+        $query = "SELECT notificationId, dateTime, visualized, message
+                  FROM usersNotifications, notifications
+                  WHERE notificationId = id
+                    AND email = ?";
+        $stmt = $this->db->prepare($query);
+        $stm->bind_param("s", $_SESSION["email"]);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        return $result->fetch_all(MYSQLI_ASSOC);
+    }
+
+    public function deleteUserNotification($notificationId, $email, $dateTime) {
+        $query = "DELETE FROM usersNotifications
+                  WHERE notificationId = ? AND email = ? AND dateTime = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("iss", $notificationId, $email, $dateTime);
+        $stmt->execute();
+        $result = ($stmt->affected_rows != -1);
+        $stmt->close();
+        deleteNotificationTypesIfNotUsedAnymore();
+        return $result;
+    }
+
+    public function toggleNotificationView($notificationId, $dateTime) {
+        $query = "UPDATE usersNotifications
+                  SET visualized = not visualized
+                  WHERE email = ?
+                    AND notificationId = ?
+                    AND dateTime = ?";
+        $stmt = $this->db->prepare($query);
+        $stmt->bind_param("sis", $_SESSION["email"], $notificationId, $dateTime);
+        $stmt->execute();
+        $result = ($stmt->affected_rows != -1);
+        $stmt->close();
+        return $result;
+    }
+
+    private function deleteNotificationTypesIfNotUsedAnymore() {
+        $query = "DELETE FROM notifications
+                  WHERE id NOT IN (SELECT notificationId
+                                   FROM usersNotifications)";
+        $stmt = $this->db->prepare($query);
+        $stmt->execute();
+        $result = ($stmt->affected_rows != -1);
+        $stmt->close();
+        return $result;
+    }
 
     /**********************/
     /***** UTILITIES *****/
