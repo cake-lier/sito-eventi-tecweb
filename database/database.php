@@ -212,7 +212,7 @@ class DatabaseHelper{
 
     public function getEventInfo($eventId) {
         // TODO: maybe it will be necessary to usa aliases for the fields
-        $query = "SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, e.type, p.organizationName, e.seats - COUNT(*) as freeSeats
+        $query = "SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, e.type, p.organizationName, e.promoterEmail, e.seats - COUNT(*) as freeSeats
                   FROM events e, subscriptions s, promoters p
                   WHERE e.id = ?
                     AND e.id = s.eventId
@@ -313,6 +313,24 @@ class DatabaseHelper{
         return $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    public function changeEventDate($eventId, $newDate, $notificationMessage) {
+        if (isLoggedUserEventOwner($eventId)) {
+            $query = "UPDATE events
+                      SET date = ?
+                      WHERE id = ?";
+            $stmt = $this->db->prepare($query);
+            $stmt->bind_param("si", $newDate, $eventId);
+            $stmt->execute();
+            $result = $stmt->affected_rows == 1
+                        ? sendNotificationToEventSubscribers($eventId, $notificationMessage)
+                        : false;
+            $stmt->close();
+            return $result;
+        } else {
+            return false;
+        }
+    }
+
     /***************************/
     /***** CART FUNCTIONS *****/
     /*************************/
@@ -385,7 +403,7 @@ class DatabaseHelper{
         return $result;
     }
 
-    public function sendNotification($message) {
+    public function sendNotificationToEventSubscribers($eventId, $message) {
         $notificationId = insertNewNotification($message);
         if ($notificationId != null) {
             $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
@@ -393,7 +411,7 @@ class DatabaseHelper{
                       FROM subscriptions
                       WHERE eventId = ?";
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param("ss", date("Y-m-d H:i:s"), $notificationId);
+            $stmt->bind_param("ssi", date("Y-m-d H:i:s"), $notificationId, $eventId);
             $stmt->execute();
             $result = ($stmt->affected_rows != -1);
             $stmt->close();
@@ -567,6 +585,11 @@ class DatabaseHelper{
     
     private function isUserLoggedIn($email) {
         return $_SESSION["email"] == $email;
+    }
+
+    private function isLoggedUserEventOwner($eventId) {
+        $eventInfo = getEventInfo($eventId);
+        return isUserLoggedIn($eventInfo["promoterEmail"]);
     }
 }
 ?>
