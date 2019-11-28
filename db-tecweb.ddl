@@ -16,6 +16,7 @@ create table events (
     description varchar(280) not null,
     site varchar(30),
     promoterEmail int,
+    type int,
     constraint ID_EVENT primary key (id)
 );
 
@@ -74,6 +75,12 @@ create table promoters (
     constraint ID_PROMOTER primary key (email)
 );
 
+create table eventCategories (
+    id int not null auto_increment,
+    name varchar(30) not null,
+    constraint ID_CATEGORY primary key (id)
+);
+
 alter table carts add constraint FKeventId
     foreign key (eventId)
     references events (id);
@@ -113,3 +120,7 @@ alter table promoters add constraint FKemail
 alter table administrators add constraint FKemail
     foreign key (email)
     references users (email);
+    
+alter table events add constraint FKtype
+    foreign key (type)
+    references eventCategories (id);
