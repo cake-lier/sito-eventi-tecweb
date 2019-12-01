@@ -1,6 +1,7 @@
 <?php
 
 // TODO: check if $_SESSION["email"] is set
+// TODO: check if prepare() returns false
 class DatabaseHelper{
     private $db;
 
@@ -15,19 +16,26 @@ class DatabaseHelper{
     /***** USERS FUNCTIONS *****/
     /**************************/
     // TODO: where is type definition?
+    /*
+     * Inserts a new user into the database, returns true if everything went well, false otherwise.
+     */
     private function insertUser($email, $password, $profilePhoto, $type) {
         $query = "INSERT INTO users(email, password, profilePhoto, type, salt) 
                   VALUES (?, ?, ?, ?, ?)";
         $salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true)); // TODO: check if this is ok
         $password = hashPassword($password, $salt);
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("ssbis", $email, $password, $profilePhoto, $type, $salt);
-        $stmt->execute();
-        $result = $stmt->affected_rows != 1;
-        $stmt->close();
-        return $result;
+        $stmt = prepareBindExecute($query, "ssbis", $email, $password, $profilePhoto, $type, $salt);
+        if ($stmt !== false) {
+            $result = $stmt->affected_rows != 1;
+            $stmt->close();
+            return $result;
+        }
+        return false;
     }
 
+    /*
+     * Inserts a new customer into the database, returns true if everything went well, false otherwise.
+     */
     public function insertCustomer($email, $password, $profilePhoto, 
                                    $billingAddress, $birthDate, 
                                    $birthplace, $name, $surname, 
@@ -35,162 +43,212 @@ class DatabaseHelper{
         if (insertUser($email, $password, $profilePhoto, $type)) { // TODO: the type is fixed
             $query = "INSERT INTO customers(email, billingAddress, birthDate, birthplace, name, surname, username, telephone, currentAddress) 
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("sssssssis", $email, $billingAddress, $birthDate, $birthplace, $name, $surname, $username, $telephone, $currentAddress);
-            $stmt->execute();
-            $result = ($stmt->affected_rows != 1);
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+            $stmt = prepareBindExecute($query, "sssssssis", $email, 
+                                       $billingAddress, $birthDate, $birthplace, 
+                                       $name, $surname, $username, 
+                                       $telephone, $currentAddress);
+            if ($stmt !== false) {
+                $result = $stmt->affected_rows != 1;
+                $stmt->close();
+                return $result;
+            }
         }
+        return false;
     }
 
+    /*
+     * Inserts a new promoter into the database, returns true if everything went well, false otherwise.
+     */
     public function insertPromoter($email, $password, $profilePhoto, $organizationName, $VATid, $website = null) {
         if (insertUser($email, $password, $profilePhoto, $type)) { // TODO: the type is fixed
             $query = "INSERT INTO promoters(email, organizationName, VATid, website)
                       VALUES (?, ?, ?, ?)";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("ssis", $email, $organizationName, $VATid, $website);
-            $stmt->execute();
-            $result = ($stmt->affected_rows != 1);
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+            $stmt = prepareBindExecute($query, "ssis", $email, $organizationName, $VATid, $website);
+            if ($stmt !== false) {
+                $result = $stmt->affected_rows != 1;
+                $stmt->close();
+                return $result;
+            }
         }
+        return false;
     }
 
+    /*
+     * Given the $email and the $plainPassword, checks if there is an account bound to them.
+     * If there are problems executing the query, or if $email or $plainPassword are wrong, 
+     * returns false.
+     */
     public function checkLogin($email, $plainPassword) {
         $query = "SELECT email, password, salt
                   FROM users
                   WHERE email = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $stmt->bind_result($userEmail, $db_password, $salt); // recupera il risultato della query e lo memorizza nelle relative variabili.
-        $stmt->fetch();
-        $result = false;
-        if ($stmt->num_rows == 1) {
-            if ($db_password == hashPassword($plainPassword, $salt)) {
-                $result = true;
+        $stmt = prepareBindExecute($query, "s", $email);
+        if ($stmt !== false) {
+            $userEmail = "";
+            $db_password = "";
+            $salt = "";
+            $stmt->bind_result($userEmail, $db_password, $salt); // recupera il risultato della query e lo memorizza nelle relative variabili.
+            $stmt->fetch();
+            $result = false;
+            if ($stmt->num_rows == 1) {
+                if ($db_password == hashPassword($plainPassword, $salt)) {
+                    $result = true;
+                }
             }
+            $stmt->close();
+            return $result;
         }
-        $stmt->close();
-        return $result;
+        return false;
     }
     
+    /*
+     * Changes the password of the account with the given $email, only if the $oldPassword is correct and
+     * the user is logged in. If problems arise or if the above conditions are not respected, returns false.
+     */
     public function changePassword($email, $oldPassword, $newPassword) {
         if (checkLogin($email, $oldPassword) && isUserLoggedIn($email)) {
             $query = "SELECT email, salt
                       FROM users
                       WHERE email = ?";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $stmt->bind_result($userEmail, $salt);
-            if ($stmt->fetch()) {
-                // should be just one result
-                $query2 = "UPDATE users
-                           SET password = ?
-                           WHERE email = ?";
-                $stmt2 = $this->db->prepare($query2);
-                $stmt2->bind_param("ss", hashPassword($newPassword, $salt), $email);
-                $stmt2->execute();
-                $result = ($stmt2->affected_rows != 1);
-                $stmt->close();
-                $stmt2->close();
-                return $result;
+            $stmt = prepareBindExecute($query, "s", $email);
+            if ($stmt !== false) {
+                $userEmail = "";
+                $salt = "";
+                $stmt->bind_result($userEmail, $salt);
+                if ($stmt->fetch()) {
+                    // should be just one result
+                    $query2 = "UPDATE users
+                               SET password = ?
+                               WHERE email = ?";
+                    $stmt2 = prepareBindExecute($query2, "ss", hashPassword($newPassword, $salt), $email);
+                    $stmt->close();
+                    if ($stmt2 !== false) {
+                        $result = ($stmt2->affected_rows != 1);
+                        $stmt2->close();
+                        return $result;
+                    }
+                }
             }
-        } else {
-            return false;
         }
+        return false;
     }
 
-    public function changeProfilePhoto($email, $photo) {
-        if (isUserLoggedIn($email)) {
+    /*
+     * Changes the profile photo of the user logged in. If problems arise returns false.
+     */
+    public function changeProfilePhoto($photo) {
+        $email = getLoggedUserEmail();
+        if ($email !== false) {
             $query = "UPDATE users
                       SET profilePhoto = ?
                       WHERE email = ?";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("bs", $photo, $email);
-            $stmt->execute();
-            $result = ($stmt->affected_rows != 1);
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+            $stmt = prepareBindExecute($query, "bs", $photo, $email);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != 1);
+                $stmt->close();
+                return $result;
+            }
         }
+        return false;
     }
 
-    public function changeCustomerData($email, $username, $name, 
-                                       $surname, $birthDate, $birthplace, 
+    /*
+     * Changes the the data of the customer logged in. If problems arise returns false.
+     */
+    public function changeCustomerData($username, $name, $surname, $birthDate, $birthplace, 
                                        $billingAddress,  $currentAddress = null, $telephone = null) {
-        if (isUserLoggedIn($email)) {
+        $email = getLoggedUserEmail();
+        if ($email !== false || !isCustomer($email)) {
             $query = "UPDATE customers
                       SET username = ?, name = ?, surname = ?, birthDate = ?, birthplace = ?, currentAddress = ?, billingAddress = ?, telephone = ?
                       WHERE email = ?";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("sssssssis", $username, $name, $surname, $birthDate, $birthplace, $currentAddress, $billingAddress, $telephone, $email);
-            $stmt->execute();
-            $result = ($stmt->affected_rows != 1);
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+            $stmt = prepareBindExecute($query, "sssssssis", $username, $name, 
+                                       $surname, $birthDate, $birthplace, $currentAddress, 
+                                       $billingAddress, $telephone, $email);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != 1);
+                $stmt->close();
+                return $result;
+            }
         }
+        return false;
     }
 
-    public function changePromoterData($email, $website) {
-        if (isUserLoggedIn($email)) {
+    /*
+     * Changes the the data of the customer logged in. If problems arise returns false.
+     */
+    public function changePromoterData($website) {
+        $email = getLoggedUserEmail();
+        if ($email !== false || !isPromoter($email)) {
             $query = "UPDATE users
                       SET website = ?
                       WHERE email = ?";
-            $stmt = $this->db->prepare($query);
-            $stmt->bind_param("ss", $website, $email);
-            $stmt->execute();
-            $result = ($stmt->affected_rows != 1);
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+            $stmt = prepareBindExecute($query, "ss", $website, $email);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != 1);
+                $stmt->close();
+                return $result;
+            }
         }
+        return false;
     }
 
+    /*
+     * Returns a short version of the user with the given email.
+     * The profile is returned only if:
+     *      - it's a promoter's
+     *      - it's a customer's, and the request is either from a promoter, an admin or the customer themselves
+     *      - it's an admin's, and the request is from that admin
+     * Otherwise, false is returned
+     */
     public function getUserShortProfile($email) {
         if (isPromoter($email)) {
             return getShortPromoterProfile($email);
         } else if (isCustomer($email)) {
-            if (isPromoter($_SESSION["email"]) || isAdmin($_SESSION["email"]) || isUserLoggedIn($email)) { // TODO: check this
+            if (isPromoter(getLoggedUserEmail()) || isAdmin(getLoggedUserEmail()) || isUserLoggedIn($email)) {
                 return getShortCustomerProfile($email);
             }
-        } else {
+        } else if (isAdmin($email) && isUserLoggedIn($email)){
             return getAdminProfile($email);
+        } else {
+            return false;
         }
     }
 
-    public function getUserLongProfile($email) {
-        if (isUserLoggedIn($email)) {
+    /*
+     * Returns a long version of the logged in user profile. If problems arise, false is returned.
+     */
+    public function getLoggedUserLongProfile() {
+        $email = getLoggedUserEmail();
+        if ($email !== false) {
             if (isPromoter($email)) {
                 return getLongPromoterProfile($email);
             } else if (isCustomer($email)) {
                 return getShortCustomerProfile($email);
-            } else {
-                getAdminProfile($email);
+            } else if (isAdmin($email)) {
+                return getAdminProfile($email);
             }
         }
+        return false;
     }
 
-    public function deleteLoggedUser() {
+    /*
+     * Deletes the account of the logged user, if the $password is correct. Otherwise, or if problems arise, returns false;
+     */
+    public function deleteLoggedUser($password) {
         // assuming there will be a cascade delete for customers and promoters tables
-        $query = "DELETE FROM users
-                  WHERE email = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $_SESSION["email"]);
-        $stmt->execute();
-        $result = ($stmt->affected_rows != 1);
-        $stmt->close();
-        return $result;
+        $email = getLoggedUserEmail();
+        if (checkLogin($email, $password)) {
+            $query = "DELETE FROM users
+                      WHERE email = ?";
+            $stmt = prepareBindExecute($query, "s", $_SESSION["email"]);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != 1);
+                $stmt->close();
+                return $result;
+            }
+        }
+        return false;
     }
 
     /*****************************/
@@ -203,9 +261,7 @@ class DatabaseHelper{
                   ORDER BY (SELECT COUNT(customerEmail)
                             FROM subscriptions
                             WHERE id = eventId)";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("ss", $website, $email);
-        $stmt->execute();
+        $stmt = prepareBindExecute($query, "s", date("Y-m-d H:i:s"));
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
     }
@@ -218,9 +274,7 @@ class DatabaseHelper{
                     AND e.id = s.eventId
                     AND e.promoterEmail = p.email
                   GROUP BY e.id";
-        $stmt = $this->db->prepare($query);
-        $stmt->bind_param("ss", $website, $email);
-        $stmt->execute();
+        $stmt = prepareBindExecute($query, "s", $eventId, );
         return $stmt->fetch();
     }
 
@@ -228,7 +282,6 @@ class DatabaseHelper{
         $query = "SELECT DISTINCT place
                   FROM events";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("ss", $website, $email);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -268,7 +321,7 @@ class DatabaseHelper{
                   FROM events e
                   WHERE ".$condition;
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $place);
+        $stmt = prepareBindExecute($query, "s", $place);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -279,7 +332,7 @@ class DatabaseHelper{
             $query = "INSERT INTO events(name, place, dateTime, seats, description, site, promoterEmail)
                       VALUES (?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param("sssisss", $name, $place, $dateTime, $seats, $description, $site, $_SESSION["email"]);
+            $stmt = prepareBindExecute($query, "sssisss", $name, $place, $dateTime, $seats, $description, $site, $_SESSION["email"]);
             $stmt->execute();
             $result = ($stmt->affected_rows != 1);
             $stmt->close();
@@ -294,7 +347,7 @@ class DatabaseHelper{
                   FROM subscriptions
                   WHERE eventId = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("i", $eventId);
+        $stmt = prepareBindExecute($query, "i", $eventId);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -307,7 +360,7 @@ class DatabaseHelper{
                   WHERE s.customerEmail = ?
                     AND e.id = s.eventId";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $_SESSION["email"]);
+        $stmt = prepareBindExecute($query, "s", $_SESSION["email"]);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -319,7 +372,7 @@ class DatabaseHelper{
                       SET date = ?
                       WHERE id = ?";
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param("si", $newDate, $eventId);
+            $stmt = prepareBindExecute($query, "si", $newDate, $eventId);
             $stmt->execute();
             $result = $stmt->affected_rows == 1
                         ? sendNotificationToEventSubscribers($eventId, $notificationMessage)
@@ -345,7 +398,7 @@ class DatabaseHelper{
                                                   FROM subscriptions 
                                                   WHERE eventId = e.id))";
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param("is", $eventId, $_SESSION["email"]);
+            $stmt = prepareBindExecute($query, "is", $eventId, $_SESSION["email"]);
             $stmt->execute();
             $result = ($stmt->affected_rows != 1);
             $stmt->close();
@@ -360,7 +413,7 @@ class DatabaseHelper{
                   WHERE customerEmail = ?
                     AND eventId = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("si", $_SESSION["email"], $eventId);
+        $stmt = prepareBindExecute($query, "si", $_SESSION["email"], $eventId);
         $stmt->execute();
         $result = ($stmt->affected_rows != 1);
         $stmt->close();
@@ -377,7 +430,7 @@ class DatabaseHelper{
                                               FROM subscriptions 
                                               WHERE eventId = e.id))";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("is", $eventId, $_SESSION["email"]);
+        $stmt = prepareBindExecute($query, "is", $eventId, $_SESSION["email"]);
         $stmt->execute();
         if ($stmt->affected_rows != 1) {
             $result = false;
@@ -396,7 +449,7 @@ class DatabaseHelper{
         $query = "INSERT INTO notifications(message)
                   VALUES (?)";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $message);
+        $stmt = prepareBindExecute($query, "s", $message);
         $stmt->execute();
         $result = $stmt->affected_rows != 1 ? null : $stmt->insert_id;
         $stmt->close();
@@ -411,7 +464,7 @@ class DatabaseHelper{
                       FROM subscriptions
                       WHERE eventId = ?";
             $stmt = $this->db->prepare($query);
-            $stmt->bind_param("ssi", date("Y-m-d H:i:s"), $notificationId, $eventId);
+            $stmt = prepareBindExecute($query, "ssi", date("Y-m-d H:i:s"), $notificationId, $eventId);
             $stmt->execute();
             $result = ($stmt->affected_rows != -1);
             $stmt->close();
@@ -427,7 +480,7 @@ class DatabaseHelper{
                   WHERE notificationId = id
                     AND email = ?";
         $stmt = $this->db->prepare($query);
-        $stm->bind_param("s", $_SESSION["email"]);
+        $stm = prepareBindExecute($query, "s", $_SESSION["email"]);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -437,7 +490,7 @@ class DatabaseHelper{
         $query = "DELETE FROM usersNotifications
                   WHERE notificationId = ? AND email = ? AND dateTime = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("iss", $notificationId, $email, $dateTime);
+        $stmt = prepareBindExecute($query, "iss", $notificationId, $email, $dateTime);
         $stmt->execute();
         $result = ($stmt->affected_rows != -1);
         $stmt->close();
@@ -452,7 +505,7 @@ class DatabaseHelper{
                     AND notificationId = ?
                     AND dateTime = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("sis", $_SESSION["email"], $notificationId, $dateTime);
+        $stmt = prepareBindExecute($query, "sis", $_SESSION["email"], $notificationId, $dateTime);
         $stmt->execute();
         $result = ($stmt->affected_rows != -1);
         $stmt->close();
@@ -479,7 +532,7 @@ class DatabaseHelper{
                   WHERE u.email = ? 
                       AND u.email = c.email";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+        $stmt = prepareBindExecute($query, "s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -491,7 +544,7 @@ class DatabaseHelper{
                   WHERE u.email = ? 
                       AND u.email = c.email";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+        $stmt = prepareBindExecute($query, "s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -503,7 +556,7 @@ class DatabaseHelper{
                   WHERE u.email = ? 
                       AND u.email = p.email";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+        $stmt = prepareBindExecute($query, "s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -515,7 +568,7 @@ class DatabaseHelper{
                   WHERE u.email = ? 
                       AND u.email = p.email";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+        $stmt = prepareBindExecute($query, "s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -526,7 +579,7 @@ class DatabaseHelper{
                   FROM users u
                   WHERE u.email = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+        $stmt = prepareBindExecute($query, "s", $email);
         $stmt->execute();
         $result = $stmt->get_result();
         return $result->fetch_all(MYSQLI_ASSOC);
@@ -542,7 +595,7 @@ class DatabaseHelper{
                   WHERE email = ?
                     AND type = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("si", $email, $type);
+        $stmt = prepareBindExecute($query, "si", $email, $type);
         $stmt->execute();
         return ($stmt->fetch() != null);
     }
@@ -554,7 +607,7 @@ class DatabaseHelper{
                   FROM promoters
                   WHERE email = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+        $stmt = prepareBindExecute($query, "s", $email);
         $stmt->execute();
         return ($stmt->fetch() != null); // if there is no promoter with the given email returns false
     }
@@ -566,7 +619,7 @@ class DatabaseHelper{
                   FROM customers
                   WHERE email = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+        $stmt = prepareBindExecute($query, "s", $email);
         $stmt->execute();
         return ($stmt->fetch() != null); // if there is no promoter with the given email returns false
     }
@@ -578,7 +631,7 @@ class DatabaseHelper{
                   FROM administrators
                   WHERE email = ?";
         $stmt = $this->db->prepare($query);
-        $stmt->bind_param("s", $email);
+        $stmt = prepareBindExecute($query, "s", $email);
         $stmt->execute();
         return ($stmt->fetch() != null); // if there is no promoter with the given email returns false
     }
@@ -590,6 +643,27 @@ class DatabaseHelper{
     private function isLoggedUserEventOwner($eventId) {
         $eventInfo = getEventInfo($eventId);
         return isUserLoggedIn($eventInfo["promoterEmail"]);
+    }
+    
+    /*
+     * Prepares a statement from the given query, and binds the arguments to the statement using the given binding string.
+     * Then, the statement is executed and returned for use.
+     * If something fails, false is returned.
+     */
+    private function prepareBindExecute($query, $bindings, ...$arguments) {
+        $stmt = $this->db->prepare($query);
+        if ($stmt !== false) {
+            $stmt = prepareBindExecute($query, $bindings, ...$arguments);
+            $stmt->execute();
+        }
+        return $stmt;
+    }
+
+    /*
+     * Returns the email of the currently logged user, false if no user is logged
+     */
+    private function getLoggedUserEmail() {
+        return isset($_SESSION["email"]) ? $_SESSION["email"] : false;
     }
 }
 ?>
