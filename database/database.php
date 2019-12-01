@@ -355,7 +355,8 @@ class DatabaseHelper{
 
     /*
      * Inserts a new event in the database, by the promoter currently logged in.
-     * If problems arise, or if the logged user is not a promoter, returns false, otherwise returns true.
+     * If problems arise, or if the logged user is not a promoter, returns false, 
+     * otherwise returns the id of the new event.
      */
     public function createEvent($name, $place, $dateTime, $seats, $description, $type, $price, $site = null) {
         $email = getLoggedUserEmail();
@@ -365,7 +366,7 @@ class DatabaseHelper{
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = prepareBindExecute($query, "sssisss", $name, $place, $dateTime, $seats, $description, $site, $type, $price, $email);
             if ($stmt !== false) {
-                $result = ($stmt->affected_rows != 1);
+                $result = $stmt->affected_rows != 1 ? false : $stmt->insert_id;
                 $stmt->close();
                 return $result;
             }
@@ -434,8 +435,14 @@ class DatabaseHelper{
     /***************************/
     /***** CART FUNCTIONS *****/
     /*************************/
+    /*
+     * Insert a ticket into the logged user's cart, if such user is a customer.
+     * If problems arise, or if the logged user isn't a customer, returns false.
+     * Otherwise, returns true.
+     */
     public function putTicketIntoCart($eventId) {
-        if (isCustomer($_SESSION["email"])) {
+        $email = getLoggedUserEmail();
+        if ($email !== false && isCustomer($email)) {
             $query = "INSERT INTO carts(eventId, customerEmail)
                       SELECT ?, ?
                       FROM events
@@ -444,129 +451,177 @@ class DatabaseHelper{
                                    WHERE seats > (SELECT COUNT(customerEmail) 
                                                   FROM subscriptions 
                                                   WHERE eventId = e.id))";
-            $stmt = $this->db->prepare($query);
-            $stmt = prepareBindExecute($query, "is", $eventId, $_SESSION["email"]);
-            $stmt->execute();
-            $result = ($stmt->affected_rows != 1);
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+            $stmt = prepareBindExecute($query, "is", $eventId, $email);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != 1);
+                $stmt->close();
+                return $result;
+            }
         }
+        return false;
     }
 
+    /*
+     * Remove a ticket from the logged user's cart.
+     * If problems arise, returns false. Otherwise, returns true.
+     */
     public function removeTicketFromCart($eventId) {
-        $query = "DELETE FROM carts
-                  WHERE customerEmail = ?
-                    AND eventId = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt = prepareBindExecute($query, "si", $_SESSION["email"], $eventId);
-        $stmt->execute();
-        $result = ($stmt->affected_rows != 1);
-        $stmt->close();
-        return $result;
+        $email = getLoggedUserEmail();
+        if ($email !== false) {
+            $query = "DELETE FROM carts
+                      WHERE customerEmail = ?
+                        AND eventId = ?";
+            $stmt = prepareBindExecute($query, "si", $email, $eventId);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != 1); // TODO: if not ticket is found, what do we return?
+                $stmt->close();
+                return $result;
+            }
+        }
+        return false;
     }
 
+    /*
+     * Buys a ticket, and eventually removes it from the logged user's cart.
+     * If problems arise, returns false. Otherwise, returns true.
+     */
     public function buyEventTicket($eventId) {
-        $query = "INSERT INTO subscriptions(eventId, customerEmail)
-                  SELECT ?, ?
-                  FROM events
-                  WHERE id IN (SELECT e.id 
-                               FROM events e 
-                               WHERE seats > (SELECT COUNT(customerEmail) 
-                                              FROM subscriptions 
-                                              WHERE eventId = e.id))";
-        $stmt = $this->db->prepare($query);
-        $stmt = prepareBindExecute($query, "is", $eventId, $_SESSION["email"]);
-        $stmt->execute();
-        if ($stmt->affected_rows != 1) {
-            $result = false;
-        } else {
-            $result = true;
-            removeTicketFromCart($eventId);
+        $email = getLoggedUserEmail();
+        if ($email !== false) {
+            $query = "INSERT INTO subscriptions(eventId, customerEmail)
+                      SELECT ?, ?
+                      FROM events
+                      WHERE id IN (SELECT e.id 
+                                   FROM events e 
+                                   WHERE seats > (SELECT COUNT(customerEmail) 
+                                                  FROM subscriptions 
+                                                  WHERE eventId = e.id))";
+            $stmt = prepareBindExecute($query, "is", $eventId, $email);
+            if ($stmt !== false) {
+                if ($stmt->affected_rows != 1) {
+                    $result = false;
+                } else {
+                    $result = true;
+                    removeTicketFromCart($eventId);
+                }
+                $stmt->close();
+                return $result;
+            }
         }
-        $stmt->close();
-        return $result;
+        return false;
     }
 
     /************************************/
     /***** NOTIFICATIONS FUNCTIONS *****/
     /**********************************/
-    public function insertNewNotification($message) {
+    /* 
+     * Insert a new type of notification into the database.
+     * Returns false if problems arise.
+     */
+    private function insertNewNotification($message) {
         $query = "INSERT INTO notifications(message)
                   VALUES (?)";
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "s", $message);
-        $stmt->execute();
-        $result = $stmt->affected_rows != 1 ? null : $stmt->insert_id;
-        $stmt->close();
-        return $result;
+        if ($stmt !== false) {
+            $result = $stmt->affected_rows != 1 ? null : $stmt->insert_id;
+            $stmt->close();
+            return $result;
+        }
+        return false;
     }
 
-    public function sendNotificationToEventSubscribers($eventId, $message) {
+    /*
+     * Send a notification with the given $message to the subscribers of the event with the given $eventId.
+     * If problems arise, returns false.
+     */
+    private function sendNotificationToEventSubscribers($eventId, $message) { // TODO: should be public?
         $notificationId = insertNewNotification($message);
-        if ($notificationId != null) {
+        if ($notificationId != null) { // TODO: check typing
             $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
                       SELECT customerEmail, ?, ?, false
                       FROM subscriptions
                       WHERE eventId = ?";
-            $stmt = $this->db->prepare($query);
             $stmt = prepareBindExecute($query, "ssi", date("Y-m-d H:i:s"), $notificationId, $eventId);
-            $stmt->execute();
-            $result = ($stmt->affected_rows != -1);
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != -1);
+                $stmt->close();
+                return $result;
+            }
         }
+        return false;
     }
 
+    /*
+     * Returns the notification sent to the currently logged user.
+     * If problems arise, returns false.
+     */ 
     public function getLoggedUserNotifications() {
-        $query = "SELECT notificationId, dateTime, visualized, message
-                  FROM usersNotifications, notifications
-                  WHERE notificationId = id
-                    AND email = ?";
-        $stmt = $this->db->prepare($query);
-        $stm = prepareBindExecute($query, "s", $_SESSION["email"]);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        $email = getLoggedUserEmail();
+        if ($email !== false) {
+            $query = "SELECT notificationId, dateTime, visualized, message
+                      FROM usersNotifications, notifications
+                      WHERE notificationId = id
+                        AND email = ?";
+            $stmt = prepareBindExecute($query, "s", $email);
+            if ($stmt !== false) {
+                $result = $stmt->get_result(); // TODO: could merge these two lines?
+                return $result->fetch_all(MYSQLI_ASSOC);
+            }
+        }
+        return false;
     }
 
-    public function deleteUserNotification($notificationId, $email, $dateTime) {
-        $query = "DELETE FROM usersNotifications
-                  WHERE notificationId = ? AND email = ? AND dateTime = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt = prepareBindExecute($query, "iss", $notificationId, $email, $dateTime);
-        $stmt->execute();
-        $result = ($stmt->affected_rows != -1);
-        $stmt->close();
-        deleteNotificationTypesIfNotUsedAnymore();
-        return $result;
+    /*
+     * Delete a notification of the logged user, sent on $dateTime and of type $notificationId.
+     * If problems arise, returns false.
+     */
+    public function deleteUserNotification($notificationId, $dateTime) {
+        $email = getLoggedUserEmail();
+        if ($email !== false) {
+            $query = "DELETE FROM usersNotifications
+                      WHERE notificationId = ? AND email = ? AND dateTime = ?";
+            $stmt = prepareBindExecute($query, "iss", $notificationId, $email, $dateTime);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != -1);
+                $stmt->close();
+                deleteNotificationTypesIfNotUsedAnymore();
+                return $result;
+            }
+        }
+        return false;
     }
 
+    /*
+     * Change the state (visualized or not) of the notification of the currently logged user
+     * sent on $dateTime and with the given type $notificationId.
+     * If problems arise, returns false.
+     */
     public function toggleNotificationView($notificationId, $dateTime) {
-        $query = "UPDATE usersNotifications
-                  SET visualized = not visualized
-                  WHERE email = ?
-                    AND notificationId = ?
-                    AND dateTime = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt = prepareBindExecute($query, "sis", $_SESSION["email"], $notificationId, $dateTime);
-        $stmt->execute();
-        $result = ($stmt->affected_rows != -1);
-        $stmt->close();
-        return $result;
+        $email = getLoggedUserEmail();
+        if ($email !== false) {
+            $query = "UPDATE usersNotifications
+                      SET visualized = not visualized
+                      WHERE email = ?
+                        AND notificationId = ?
+                        AND dateTime = ?";
+            $stmt = prepareBindExecute($query, "sis", $email, $notificationId, $dateTime);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != -1);
+                $stmt->close();
+                return $result;
+            }
+        }
+        return false;
     }
 
+    /*
+     * Deletes the notification types that are not used anymore.
+     */
     private function deleteNotificationTypesIfNotUsedAnymore() {
         $query = "DELETE FROM notifications
                   WHERE id NOT IN (SELECT notificationId
                                    FROM usersNotifications)";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        $result = ($stmt->affected_rows != -1);
-        $stmt->close();
+        $result = $this->db->query($query); // no risk of SQL injection
         return $result;
     }
 
@@ -578,11 +633,13 @@ class DatabaseHelper{
                   FROM users u, customers c 
                   WHERE u.email = ? 
                       AND u.email = c.email";
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        if ($stmt !== false) {
+            $result = $stmt->get_result(); // TODO: could merge these two lines?
+            return $result->fetch_all(MYSQLI_ASSOC);
+        } else {
+            return false;
+        }
     }
 
     private function getLongCustomerProfile($email) {
@@ -590,11 +647,13 @@ class DatabaseHelper{
                   FROM users u, customers c 
                   WHERE u.email = ? 
                       AND u.email = c.email";
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        if ($stmt !== false) {
+            $result = $stmt->get_result(); // TODO: could merge these two lines?
+            return $result->fetch_all(MYSQLI_ASSOC);
+        } else {
+            return false;
+        }
     }
 
     private function getShortPromoterProfile($email) {
@@ -602,11 +661,13 @@ class DatabaseHelper{
                   FROM users u, promoters p 
                   WHERE u.email = ? 
                       AND u.email = p.email";
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        if ($stmt !== false) {
+            $result = $stmt->get_result(); // TODO: could merge these two lines?
+            return $result->fetch_all(MYSQLI_ASSOC);
+        } else {
+            return false;
+        }
     }
 
     private function getLongPromoterProfile($email) {
@@ -614,22 +675,26 @@ class DatabaseHelper{
                   FROM users u, promoter p 
                   WHERE u.email = ? 
                       AND u.email = p.email";
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        if ($stmt !== false) {
+            $result = $stmt->get_result(); // TODO: could merge these two lines?
+            return $result->fetch_all(MYSQLI_ASSOC);
+        } else {
+            return false;
+        }
     }
 
     private function getAdminProfile($email) {
         $query = "SELECT email, profilePhoto
                   FROM users u
                   WHERE u.email = ?";
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        if ($stmt !== false) {
+            $result = $stmt->get_result(); // TODO: could merge these two lines?
+            return $result->fetch_all(MYSQLI_ASSOC);
+        } else {
+            return false;
+        }
     }
 
     private function hashPassword($password, $salt) {
@@ -641,10 +706,8 @@ class DatabaseHelper{
                   FROM users
                   WHERE email = ?
                     AND type = ?";
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "si", $email, $type);
-        $stmt->execute();
-        return ($stmt->fetch() != null);
+        return ($stmt !== false && $stmt->fetch() != null);
     }
 
     private function isPromoter($email) {
