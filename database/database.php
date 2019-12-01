@@ -205,7 +205,8 @@ class DatabaseHelper{
         if (isPromoter($email)) {
             return getShortPromoterProfile($email);
         } else if (isCustomer($email)) {
-            if (isPromoter(getLoggedUserEmail()) || isAdmin(getLoggedUserEmail()) || isUserLoggedIn($email)) {
+            $loggedEmail = getLoggedUserEmail();
+            if ($loggedEmail !== false && (isPromoter($loggedEmail) || isAdmin($loggedEmail) || isUserLoggedIn($loggedEmail))) {
                 return getShortCustomerProfile($email);
             }
         } else if (isAdmin($email) && isUserLoggedIn($email)){
@@ -238,7 +239,7 @@ class DatabaseHelper{
     public function deleteLoggedUser($password) {
         // assuming there will be a cascade delete for customers and promoters tables
         $email = getLoggedUserEmail();
-        if (checkLogin($email, $password)) {
+        if ($email !== false && checkLogin($email, $password)) {
             $query = "DELETE FROM users
                       WHERE email = ?";
             $stmt = prepareBindExecute($query, "s", $_SESSION["email"]);
@@ -253,7 +254,11 @@ class DatabaseHelper{
 
     /*****************************/
     /***** EVENTS FUNCTIONS *****/
-    /*****************************/
+    /***************************/
+    /*
+     * Returns all the ids of the events with still open seats with a date in the future.
+     * If problems arise, returns false.
+     */
     public function getEventIds() {
         $query = "SELECT id
                   FROM events 
@@ -262,40 +267,60 @@ class DatabaseHelper{
                             FROM subscriptions
                             WHERE id = eventId)";
         $stmt = prepareBindExecute($query, "s", date("Y-m-d H:i:s"));
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        if ($stmt !== false) {
+            $result = $stmt->get_result(); // TODO: could merge these two lines?
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+        return false;
     }
 
+    /*
+     * Returns info about the event with the given $eventId.
+     * If problems arise, returns false.
+     */
     public function getEventInfo($eventId) {
         // TODO: maybe it will be necessary to usa aliases for the fields
-        $query = "SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, e.type, p.organizationName, e.promoterEmail, e.seats - COUNT(*) as freeSeats
+        // TODO: price is the correct name?
+        $query = "SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, e.type, e.price, p.organizationName, e.promoterEmail, e.seats - COUNT(*) as freeSeats
                   FROM events e, subscriptions s, promoters p
                   WHERE e.id = ?
                     AND e.id = s.eventId
                     AND e.promoterEmail = p.email
                   GROUP BY e.id";
-        $stmt = prepareBindExecute($query, "s", $eventId, );
-        return $stmt->fetch();
+        $stmt = prepareBindExecute($query, "s", $eventId);
+        if ($stmt !== false) {
+            return $stmt->fetch();
+        }
+        return false;
     }
 
+    /*
+     * Returns all the possible places for the events.
+     * If problems arise, returns false.
+     */
     public function getEventsPlaces() {
         $query = "SELECT DISTINCT place
                   FROM events";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        $result = $this->db->query($query); // no risk of SQL injection
+        return $result === false ? false : $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    /*
+     * Returns all the possible types of the events.
+     * If problems arise, returns false.
+     */
     public function getEventsTypes() {
         $query = "SELECT DISTINCT id, name
                   FROM eventCategories";
-        $stmt = $this->db->prepare($query);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        $result = $this->db->query($query); // no risk of SQL injection
+        return $result === false ? false : $result->fetch_all(MYSQLI_ASSOC);
     }
 
+    /*
+     * Returns all the ids of the events in the given $place, on the given $date, 
+     * of the given $typeId and with $free or not seats.
+     * If problems arise, returns false.
+     */
     public function getEventIdsFiltered($place, $date, $typeId, $free = true) {
         $condition = "";
         $bindings = "";
@@ -320,68 +345,90 @@ class DatabaseHelper{
         $query = "SELECT id
                   FROM events e
                   WHERE ".$condition;
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "s", $place);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function createEvent($name, $place, $dateTime, $seats, $description, $site = null) {
-        if (isPromoter($_SESSION["email"])) { // only promoters can add events
-            $query = "INSERT INTO events(name, place, dateTime, seats, description, site, promoterEmail)
-                      VALUES (?, ?, ?, ?, ?, ?, ?)";
-            $stmt = $this->db->prepare($query);
-            $stmt = prepareBindExecute($query, "sssisss", $name, $place, $dateTime, $seats, $description, $site, $_SESSION["email"]);
-            $stmt->execute();
-            $result = ($stmt->affected_rows != 1);
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+        if ($stmt !== false) {
+            $result = $stmt->get_result(); // TODO: could merge these two lines?
+            return $result->fetch_all(MYSQLI_ASSOC);
         }
+        return false;
     }
 
+    /*
+     * Inserts a new event in the database, by the promoter currently logged in.
+     * If problems arise, or if the logged user is not a promoter, returns false, otherwise returns true.
+     */
+    public function createEvent($name, $place, $dateTime, $seats, $description, $type, $price, $site = null) {
+        $email = getLoggedUserEmail();
+        if ($email !== false && isPromoter($email) { // only promoters can add events
+            // TODO: price is the correct name?
+            $query = "INSERT INTO events(name, place, dateTime, seats, description, site, type, price, promoterEmail)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = prepareBindExecute($query, "sssisss", $name, $place, $dateTime, $seats, $description, $site, $type, $price, $email);
+            if ($stmt !== false) {
+                $result = ($stmt->affected_rows != 1);
+                $stmt->close();
+                return $result;
+            }
+        }
+        return false;
+    }
+
+    /* 
+     * Returns the emails of the subscribers to a certain event. If problems arise, returns false.
+     */
     public function getSubscribers($eventId) {
         $query = "SELECT customerEmail as email
                   FROM subscriptions
                   WHERE eventId = ?";
-        $stmt = $this->db->prepare($query);
         $stmt = prepareBindExecute($query, "i", $eventId);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        if ($stmt !== false) {
+            $result = $stmt->get_result(); // TODO: could merge these two lines?
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+        return false;
     }
 
+    /* 
+     * Returns the emails of the subscribers to a certain event. If problems arise, returns false.
+     */
     public function getSubscribedEvents() {
         // TODO: maybe it will be necessary to usa aliases for the fields
-        $query = "SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, p.organizationName
-                  FROM events e, subscriptions s
-                  WHERE s.customerEmail = ?
-                    AND e.id = s.eventId";
-        $stmt = $this->db->prepare($query);
-        $stmt = prepareBindExecute($query, "s", $_SESSION["email"]);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
+        $email = getLoggedUserEmail();
+        if ($email !== false) {
+            $query = "SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, p.organizationName
+                      FROM events e, subscriptions s
+                      WHERE s.customerEmail = ?
+                        AND e.id = s.eventId";
+            $stmt = prepareBindExecute($query, "s", $email);
+            if ($stmt !== false) {
+                $result = $stmt->get_result(); // TODO: could merge these two lines?
+                return $result->fetch_all(MYSQLI_ASSOC);
+            }
+        }
+        return false;
     }
 
+    /*
+     * Changes the date of the given event, sending to the users the given message, if the 
+     * user logged in is the owner of the event.
+     * If problems arise, or the logged user is not the owner of the event, returns false.
+     * Otherwise, returns true;
+     */
     public function changeEventDate($eventId, $newDate, $notificationMessage) {
         if (isLoggedUserEventOwner($eventId)) {
             $query = "UPDATE events
                       SET date = ?
                       WHERE id = ?";
-            $stmt = $this->db->prepare($query);
             $stmt = prepareBindExecute($query, "si", $newDate, $eventId);
-            $stmt->execute();
-            $result = $stmt->affected_rows == 1
+            if ($stmt !== false) {
+                $result = $stmt->affected_rows == 1
                         ? sendNotificationToEventSubscribers($eventId, $notificationMessage)
                         : false;
-            $stmt->close();
-            return $result;
-        } else {
-            return false;
+                $stmt->close();
+                return $result;
+            }
         }
+        return false;
     }
 
     /***************************/
