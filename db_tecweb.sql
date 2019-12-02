@@ -1,16 +1,6 @@
 create database my_seatheat;
 use my_seatheat;
 
-create table tickets (
-    eventId int not null,
-    seatId int not null,
-    id int not null auto_increment,
-    name varchar(30) not null,
-    customerEmailPurchase varchar(30),
-    customerEmailChoice varchar(30),
-    constraint ID_TICKET primary key (eventId, seatId, id)
-);
-
 create table eventCategories (
     id int not null auto_increment,
     name varchar(30) not null,
@@ -48,6 +38,22 @@ create table usersNotifications (
     dateTime datetime not null,
     visualized boolean not null,
     constraint ID_USER_NOTIFICATION primary key (notificationId, email, dateTime)
+);
+
+create table purchases (
+    eventId int not null,
+    seatId int not null,
+    customerEmail int not null,
+    amount int not null,
+    constraint ID_PURCHASE primary key (eventId, seatId, customerEmail)
+);
+
+create table carts (
+    eventId int not null,
+    seatId int not null,
+    customerEmail int not null,
+    amount int not null,
+    constraint ID_CART primary key (eventId, seatId, customerEmail)
 );
 
 create table eventsToCategories (
@@ -91,22 +97,6 @@ create table promoters (
     constraint FK_IS_PROMOTER_ID primary key (email)
 );
 
-alter table tickets add constraint FK_PURCHASE
-    foreign key (customerEmailPurchase)
-    references customers (email);
-
-alter table tickets add constraint FK_CHOICE
-    foreign key (customerEmailChoice)
-    references customers (email);
-
-alter table tickets add constraint FK_TYPE
-    foreign key (eventId, seatId)
-    references seatCategories (eventId, id);
-
--- alter table seatCategories add constraint ID_SEAT_CATEGORY_CHK
---     check(exists(select * from tickets
---                  where tickets.eventId = eventId and tickets.seatId = id)); 
-
 alter table seatCategories add constraint FK_OFFER
      foreign key (eventId)
      references eventId (id);
@@ -127,11 +117,27 @@ alter table usersNotifications add constraint FK_USER
     foreign key (email)
     references users (email);
 
+alter table purchases add constraint FK_EVENT
+     foreign key (eventId, seatId)
+     references seatCategories (eventId, id);
+
+alter table purchases add constraint FK_CUSTOMER
+     foreign key (customerEmail)
+     references customers (email);
+
+alter table carts add constraint FK_EVENT
+     foreign key (eventId, seatId)
+     references seatCategories (eventId, id);
+
+alter table carts add constraint FK_CUSTOMER
+     foreign key (customerEmail)
+     references customers (email);
+
 alter table eventsToCategories add constraint FK_CATEGORY
     foreign key (categoryId)
     references eventCategories (id);
 
-alter table eventsToCategories add constraint FK_EVENTS
+alter table eventsToCategories add constraint FK_EVENT
      foreign key (eventId)
      references events (id);
 

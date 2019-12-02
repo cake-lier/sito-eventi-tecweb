@@ -78,12 +78,12 @@ SET website = ?
 WHERE email = ?
 
 -- show events
-SELECT id
-FROM events 
-WHERE dateTime >= ?
-ORDER BY (SELECT COUNT(customerEmail)
-          FROM subscriptions
-          WHERE id = eventId)
+SELECT e.id, COUNT(*) - COUNT(p.customerEmail) - COUNT(c.customerEmail) AS freeSeats
+FROM events e, seatCategories s, purchases p, carts c
+WHERE s.eventId = e.id AND p.seatId = s.id AND p.eventId = e.id AND c.seatId = s.id AND c.eventId = e.id
+GROUP BY e.id
+HAVING e.dateTime >= ?
+ORDER BY freeSeats
 
 -- select possible event places
 SELECT DISTINCT place 
