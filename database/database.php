@@ -1,32 +1,32 @@
 <?php
 
-// TODO: check if $_SESSION["email"] is set
-// TODO: check if prepare() returns false
 class DatabaseHelper{
+    define("CUSTOMER_TYPE_CODE", "c");
+    define("PROMOTER_TYPE_CODE", "p");
+    define("ADMIN_TYPE_CODE", "a");
+
     private $db;
 
-    public function __construct($servername, $username, $password, $dbname){
-        $this->db = new mysqli($servername, $username, $password, $dbname);
-        if($this->db->connect_error){
-            die("Connesione fallita al db");
+    public function __construct($server_name, $username, $password, $db_name){
+        $this->db = new mysqli($server_name, $username, $password, $db_name);
+        if($this->db->connect_error) {
+            die("Failed to connect to the database, error: " . $this->db->connect_error);
         }
     }
 
     /****************************/
-    /***** USERS FUNCTIONS *****/
-    /**************************/
-    // TODO: where is type definition?
+    /***** USERS FUNCTIONS ******/
+    /****************************/
     /*
      * Inserts a new user into the database, returns true if everything went well, false otherwise.
      */
-    private function insertUser($email, $password, $profilePhoto, $type) {
-        $query = "INSERT INTO users(email, password, profilePhoto, type, salt) 
+    private function insert_user($email, $password, $profile_photo, $type) {
+        $query = "INSERT INTO users(email, password, profilePhoto, type)
                   VALUES (?, ?, ?, ?, ?)";
-        $salt = hash('sha512', uniqid(mt_rand(1, mt_getrandmax()), true)); // TODO: check if this is ok
-        $password = hashPassword($password, $salt);
-        $stmt = prepareBindExecute($query, "ssbis", $email, $password, $profilePhoto, $type, $salt);
+        $stmt = prepare_bind_execute($query, "ssbs", $email, password_hash($password, PASSWORD_DEFAULT), $profile_photo,
+                                     $type);
         if ($stmt !== false) {
-            $result = $stmt->affected_rows != 1;
+            $result = $stmt->affected_rows === 1;
             $stmt->close();
             return $result;
         }
@@ -36,19 +36,16 @@ class DatabaseHelper{
     /*
      * Inserts a new customer into the database, returns true if everything went well, false otherwise.
      */
-    public function insertCustomer($email, $password, $profilePhoto, 
-                                   $billingAddress, $birthDate, 
-                                   $birthplace, $name, $surname, 
-                                   $username, $telephone = null, $currentAddress = null) {
-        if (insertUser($email, $password, $profilePhoto, $type)) { // TODO: the type is fixed
-            $query = "INSERT INTO customers(email, billingAddress, birthDate, birthplace, name, surname, username, telephone, currentAddress) 
+    public function insert_customer($email, $password, $profile_photo, $billing_address, $birth_date, $birthplace,
+                                    $name, $surname, $username, $telephone = null, $current_address = null) {
+        if (insert_user($email, $password, $profile_photo, CUSTOMER_TYPE_CODE)) {
+            $query = "INSERT INTO customers(email, billingAddress, birthDate, birthplace, name, surname, username,
+                                  telephone, currentAddress)
                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = prepareBindExecute($query, "sssssssis", $email, 
-                                       $billingAddress, $birthDate, $birthplace, 
-                                       $name, $surname, $username, 
-                                       $telephone, $currentAddress);
+            $stmt = prepare_bind_execute($query, "sssssssis", $email, $billing_address, $birth_date, $birthplace, $name,
+                                         $surname, $username, $telephone, $current_address);
             if ($stmt !== false) {
-                $result = $stmt->affected_rows != 1;
+                $result = $stmt->affected_rows === 1;
                 $stmt->close();
                 return $result;
             }
@@ -59,13 +56,13 @@ class DatabaseHelper{
     /*
      * Inserts a new promoter into the database, returns true if everything went well, false otherwise.
      */
-    public function insertPromoter($email, $password, $profilePhoto, $organizationName, $VATid, $website = null) {
-        if (insertUser($email, $password, $profilePhoto, $type)) { // TODO: the type is fixed
+    public function insert_promoter($email, $password, $profile_photo, $organization_name, $VAT_id, $website = null) {
+        if (insert_user($email, $password, $profile_photo, PROMOTER_TYPE_CODE)) {
             $query = "INSERT INTO promoters(email, organizationName, VATid, website)
                       VALUES (?, ?, ?, ?)";
-            $stmt = prepareBindExecute($query, "ssis", $email, $organizationName, $VATid, $website);
+            $stmt = prepare_bind_execute($query, "ssis", $email, $organization_name, $VAT_id, $website);
             if ($stmt !== false) {
-                $result = $stmt->affected_rows != 1;
+                $result = $stmt->affected_rows === 1;
                 $stmt->close();
                 return $result;
             }
@@ -78,23 +75,18 @@ class DatabaseHelper{
      * If there are problems executing the query, or if $email or $plainPassword are wrong, 
      * returns false.
      */
-    public function checkLogin($email, $plainPassword) {
-        $query = "SELECT email, password, salt
+    public function check_login($email, $plain_password) {
+        $query = "SELECT email, password
                   FROM users
                   WHERE email = ?";
-        $stmt = prepareBindExecute($query, "s", $email);
+        $stmt = prepare_bind_execute($query, "s", $email);
         if ($stmt !== false) {
-            $userEmail = "";
+            $user_email = "";
             $db_password = "";
-            $salt = "";
-            $stmt->bind_result($userEmail, $db_password, $salt); // recupera il risultato della query e lo memorizza nelle relative variabili.
+            // Recupera il risultato della query e lo memorizza nelle relative variabili
+            $stmt->bind_result($user_email, $db_password);
             $stmt->fetch();
-            $result = false;
-            if ($stmt->num_rows == 1) {
-                if ($db_password == hashPassword($plainPassword, $salt)) {
-                    $result = true;
-                }
-            }
+            $result = ($stmt->num_rows === 1) && password_verify($plain_password, $db_password);
             $stmt->close();
             return $result;
         }
@@ -102,32 +94,19 @@ class DatabaseHelper{
     }
     
     /*
-     * Changes the password of the account with the given $email, only if the $oldPassword is correct and
+     * Changes the password of the account with the given $email, only if the $old_password is correct and
      * the user is logged in. If problems arise or if the above conditions are not respected, returns false.
      */
-    public function changePassword($email, $oldPassword, $newPassword) {
-        if (checkLogin($email, $oldPassword) && isUserLoggedIn($email)) {
-            $query = "SELECT email, salt
-                      FROM users
+    public function change_password($email, $old_password, $new_password) {
+        if (check_login($email, $old_password) && is_user_logged_in($email)) {
+            $query = "UPDATE users
+                      SET password = ?
                       WHERE email = ?";
-            $stmt = prepareBindExecute($query, "s", $email);
+            $stmt = prepare_bind_execute($query, "ss", password_hash($new_password, PASSWORD_DEFAULT), $email);
             if ($stmt !== false) {
-                $userEmail = "";
-                $salt = "";
-                $stmt->bind_result($userEmail, $salt);
-                if ($stmt->fetch()) {
-                    // should be just one result
-                    $query2 = "UPDATE users
-                               SET password = ?
-                               WHERE email = ?";
-                    $stmt2 = prepareBindExecute($query2, "ss", hashPassword($newPassword, $salt), $email);
-                    $stmt->close();
-                    if ($stmt2 !== false) {
-                        $result = ($stmt2->affected_rows != 1);
-                        $stmt2->close();
-                        return $result;
-                    }
-                }
+                $result = $stmt->affected_rows === 1;
+                $stmt->close();
+                return $result;
             }
         }
         return false;
@@ -136,15 +115,15 @@ class DatabaseHelper{
     /*
      * Changes the profile photo of the user logged in. If problems arise returns false.
      */
-    public function changeProfilePhoto($photo) {
-        $email = getLoggedUserEmail();
+    public function change_profile_photo($photo) {
+        $email = get_logged_user_email();
         if ($email !== false) {
             $query = "UPDATE users
                       SET profilePhoto = ?
                       WHERE email = ?";
-            $stmt = prepareBindExecute($query, "bs", $photo, $email);
+            $stmt = prepare_bind_execute($query, "bs", $photo, $email);
             if ($stmt !== false) {
-                $result = ($stmt->affected_rows != 1);
+                $result = $stmt->affected_rows === 1;
                 $stmt->close();
                 return $result;
             }
@@ -153,20 +132,20 @@ class DatabaseHelper{
     }
 
     /*
-     * Changes the the data of the customer logged in. If problems arise returns false.
+     * Changes the data of the customer logged in. If problems arise returns false.
      */
-    public function changeCustomerData($username, $name, $surname, $birthDate, $birthplace, 
-                                       $billingAddress,  $currentAddress = null, $telephone = null) {
-        $email = getLoggedUserEmail();
-        if ($email !== false || !isCustomer($email)) {
+    public function change_customer_data($username, $name, $surname, $birth_date, $birthplace, $billing_address,
+                                         $current_address = null, $telephone = null) {
+        $email = get_logged_user_email();
+        if ($email !== false && is_customer($email)) {
             $query = "UPDATE customers
-                      SET username = ?, name = ?, surname = ?, birthDate = ?, birthplace = ?, currentAddress = ?, billingAddress = ?, telephone = ?
+                      SET username = ?, name = ?, surname = ?, birthDate = ?, birthplace = ?, currentAddress = ?,
+                          billingAddress = ?, telephone = ?
                       WHERE email = ?";
-            $stmt = prepareBindExecute($query, "sssssssis", $username, $name, 
-                                       $surname, $birthDate, $birthplace, $currentAddress, 
-                                       $billingAddress, $telephone, $email);
+            $stmt = prepare_bind_execute($query, "sssssssis", $username, $name, $surname, $birth_date, $birthplace,
+                                         $current_address, $billing_address, $telephone, $email);
             if ($stmt !== false) {
-                $result = ($stmt->affected_rows != 1);
+                $result = $stmt->affected_rows === 1;
                 $stmt->close();
                 return $result;
             }
@@ -177,15 +156,15 @@ class DatabaseHelper{
     /*
      * Changes the the data of the customer logged in. If problems arise returns false.
      */
-    public function changePromoterData($website) {
-        $email = getLoggedUserEmail();
-        if ($email !== false || !isPromoter($email)) {
+    public function change_promoter_data($website) {
+        $email = get_logged_user_email();
+        if ($email !== false && is_promoter($email)) {
             $query = "UPDATE users
                       SET website = ?
                       WHERE email = ?";
-            $stmt = prepareBindExecute($query, "ss", $website, $email);
+            $stmt = prepare_bind_execute($query, "ss", $website, $email);
             if ($stmt !== false) {
-                $result = ($stmt->affected_rows != 1);
+                $result = $stmt->affected_rows === 1;
                 $stmt->close();
                 return $result;
             }
@@ -201,50 +180,51 @@ class DatabaseHelper{
      *      - it's an admin's, and the request is from that admin
      * Otherwise, false is returned
      */
-    public function getUserShortProfile($email) {
-        if (isPromoter($email)) {
-            return getShortPromoterProfile($email);
-        } else if (isCustomer($email)) {
-            $loggedEmail = getLoggedUserEmail();
-            if ($loggedEmail !== false && (isPromoter($loggedEmail) || isAdmin($loggedEmail) || isUserLoggedIn($loggedEmail))) {
-                return getShortCustomerProfile($email);
+    public function get_user_short_profile($email) {
+        if (is_promoter($email)) {
+            return get_short_promoter_profile($email);
+        } else if (is_customer($email)) {
+            $logged_email = get_logged_user_email();
+            if ($logged_email !== false
+                && (is_promoter($loggedEmail) || is_admin($loggedEmail) || is_user_logged_in($loggedEmail))) {
+                return get_short_customer_profile($email);
             }
-        } else if (isAdmin($email) && isUserLoggedIn($email)){
-            return getAdminProfile($email);
-        } else {
-            return false;
+        } else if (is_admin($email) && is_user_logged_in($email)){
+            return get_admin_profile($email);
         }
+        return false;
     }
 
     /*
      * Returns a long version of the logged in user profile. If problems arise, false is returned.
      */
-    public function getLoggedUserLongProfile() {
-        $email = getLoggedUserEmail();
+    public function get_logged_user_long_profile() {
+        $email = get_logged_user_email();
         if ($email !== false) {
-            if (isPromoter($email)) {
-                return getLongPromoterProfile($email);
-            } else if (isCustomer($email)) {
-                return getShortCustomerProfile($email);
-            } else if (isAdmin($email)) {
-                return getAdminProfile($email);
+            if (is_promoter($email)) {
+                return get_long_promoter_profile($email);
+            } else if (is_customer($email)) {
+                return get_long_customer_profile($email);
+            } else if (is_admin($email)) {
+                return get_admin_profile($email);
             }
         }
         return false;
     }
 
     /*
-     * Deletes the account of the logged user, if the $password is correct. Otherwise, or if problems arise, returns false;
+     * Deletes the account of the logged user, if the $password is correct. Otherwise, or if problems arise, returns
+     * false.
      */
-    public function deleteLoggedUser($password) {
+    public function delete_logged_user($password) {
         // assuming there will be a cascade delete for customers and promoters tables
-        $email = getLoggedUserEmail();
-        if ($email !== false && checkLogin($email, $password)) {
+        $email = get_logged_user_email();
+        if ($email !== false && check_login($email, $password)) {
             $query = "DELETE FROM users
                       WHERE email = ?";
-            $stmt = prepareBindExecute($query, "s", $_SESSION["email"]);
+            $stmt = prepare_bind_execute($query, "s", $email);
             if ($stmt !== false) {
-                $result = ($stmt->affected_rows != 1);
+                $result = $stmt->affected_rows === 1;
                 $stmt->close();
                 return $result;
             }
@@ -253,8 +233,8 @@ class DatabaseHelper{
     }
 
     /*****************************/
-    /***** EVENTS FUNCTIONS *****/
-    /***************************/
+    /***** EVENTS FUNCTIONS ******/
+    /*****************************/
     /*
      * Returns all the ids of the events with still open seats with a date in the future.
      * If problems arise, returns false.
@@ -268,8 +248,7 @@ class DatabaseHelper{
                             WHERE id = eventId)";
         $stmt = prepareBindExecute($query, "s", date("Y-m-d H:i:s"));
         if ($stmt !== false) {
-            $result = $stmt->get_result(); // TODO: could merge these two lines?
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
         return false;
     }
@@ -347,8 +326,7 @@ class DatabaseHelper{
                   WHERE ".$condition;
         $stmt = prepareBindExecute($query, "s", $place);
         if ($stmt !== false) {
-            $result = $stmt->get_result(); // TODO: could merge these two lines?
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
         return false;
     }
@@ -383,8 +361,7 @@ class DatabaseHelper{
                   WHERE eventId = ?";
         $stmt = prepareBindExecute($query, "i", $eventId);
         if ($stmt !== false) {
-            $result = $stmt->get_result(); // TODO: could merge these two lines?
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
         return false;
     }
@@ -564,8 +541,7 @@ class DatabaseHelper{
                         AND email = ?";
             $stmt = prepareBindExecute($query, "s", $email);
             if ($stmt !== false) {
-                $result = $stmt->get_result(); // TODO: could merge these two lines?
-                return $result->fetch_all(MYSQLI_ASSOC);
+                return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             }
         }
         return false;
@@ -635,8 +611,7 @@ class DatabaseHelper{
                       AND u.email = c.email";
         $stmt = prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result(); // TODO: could merge these two lines?
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         } else {
             return false;
         }
@@ -649,8 +624,7 @@ class DatabaseHelper{
                       AND u.email = c.email";
         $stmt = prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result(); // TODO: could merge these two lines?
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         } else {
             return false;
         }
@@ -663,8 +637,7 @@ class DatabaseHelper{
                       AND u.email = p.email";
         $stmt = prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result(); // TODO: could merge these two lines?
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         } else {
             return false;
         }
@@ -677,8 +650,7 @@ class DatabaseHelper{
                       AND u.email = p.email";
         $stmt = prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result(); // TODO: could merge these two lines?
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         } else {
             return false;
         }
@@ -690,64 +662,38 @@ class DatabaseHelper{
                   WHERE u.email = ?";
         $stmt = prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result(); // TODO: could merge these two lines?
-            return $result->fetch_all(MYSQLI_ASSOC);
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         } else {
             return false;
         }
-    }
-
-    private function hashPassword($password, $salt) {
-        return hash('sha512', $password.$salt);
     }
 
     private function isUserType($email, $type) {
         $query = "SELECT *
                   FROM users
                   WHERE email = ?
-                    AND type = ?";
-        $stmt = prepareBindExecute($query, "si", $email, $type);
+                  AND type = ?";
+        $stmt = prepareBindExecute($query, "ss", $email, $type);
         return ($stmt !== false && $stmt->fetch() != null);
     }
 
     private function isPromoter($email) {
-        // TODO: change to use type
-        /* return isUserType($email, TYPE); */
-        $query = "SELECT *
-                  FROM promoters
-                  WHERE email = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt = prepareBindExecute($query, "s", $email);
-        $stmt->execute();
-        return ($stmt->fetch() != null); // if there is no promoter with the given email returns false
+        return isUserType($email, PROMOTER_TYPE_CODE);
     }
 
     private function isCustomer($email) {
-        // TODO: change to use type
-        /* return isUserType($email, TYPE); */
-        $query = "SELECT *
-                  FROM customers
-                  WHERE email = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt = prepareBindExecute($query, "s", $email);
-        $stmt->execute();
-        return ($stmt->fetch() != null); // if there is no promoter with the given email returns false
+        return isUserType($email, CUSTOMER_TYPE_CODE);
     }
 
     private function isAdmin($email) {
-        // TODO: change to use type
-        /* return isUserType($email, TYPE); */
-        $query = "SELECT *
-                  FROM administrators
-                  WHERE email = ?";
-        $stmt = $this->db->prepare($query);
-        $stmt = prepareBindExecute($query, "s", $email);
-        $stmt->execute();
-        return ($stmt->fetch() != null); // if there is no promoter with the given email returns false
+        return isUserType($email, ADMIN_TYPE_CODE);
     }
     
-    private function isUserLoggedIn($email) {
-        return $_SESSION["email"] == $email;
+    /*
+     * Checks if the user on which the current operation is being done is the user that is currently logged in.
+     */
+    private function is_user_logged_in($email) {
+        return $_SESSION["email"] === $email;
     }
 
     private function isLoggedUserEventOwner($eventId) {
@@ -756,23 +702,23 @@ class DatabaseHelper{
     }
     
     /*
-     * Prepares a statement from the given query, and binds the arguments to the statement using the given binding string.
-     * Then, the statement is executed and returned for use.
+     * Prepares a statement from the given query, and binds the arguments to the statement using the given binding
+     * string. Then, the statement is executed and returned for use.
      * If something fails, false is returned.
      */
-    private function prepareBindExecute($query, $bindings, ...$arguments) {
+    private function prepare_bind_execute($query, $bindings, ...$arguments) {
         $stmt = $this->db->prepare($query);
         if ($stmt !== false) {
-            $stmt = prepareBindExecute($query, $bindings, ...$arguments);
+            $stmt = bind_param($query, $bindings, ...$arguments);
             $stmt->execute();
         }
         return $stmt;
     }
 
     /*
-     * Returns the email of the currently logged user, false if no user is logged
+     * Returns the email of the currently logged user, false if no user is logged.
      */
-    private function getLoggedUserEmail() {
+    private function get_logged_user_email() {
         return isset($_SESSION["email"]) ? $_SESSION["email"] : false;
     }
 }
