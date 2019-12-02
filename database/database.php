@@ -239,14 +239,11 @@ class DatabaseHelper{
      * Returns all the ids of the events with still open seats with a date in the future.
      * If problems arise, returns false.
      */
-    public function getEventIds() {
+    public function get_event_ids() {
         $query = "SELECT id
                   FROM events 
-                  WHERE dateTime >= ?
-                  ORDER BY (SELECT COUNT(customerEmail)
-                            FROM subscriptions
-                            WHERE id = eventId)";
-        $stmt = prepareBindExecute($query, "s", date("Y-m-d H:i:s"));
+                  WHERE dateTime >= ?";
+        $stmt = prepare_bind_execute($query, "s", date("Y-m-d H:i:s"));
         if ($stmt !== false) {
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
@@ -254,30 +251,45 @@ class DatabaseHelper{
     }
 
     /*
-     * Returns info about the event with the given $eventId.
+     * Returns info about the event with the given $event_id.
      * If problems arise, returns false.
      */
-    public function getEventInfo($eventId) {
-        // TODO: maybe it will be necessary to usa aliases for the fields
-        // TODO: price is the correct name?
-        $query = "SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, e.type, e.price, p.organizationName, e.promoterEmail, e.seats - COUNT(*) as freeSeats
-                  FROM events e, subscriptions s, promoters p
-                  WHERE e.id = ?
-                    AND e.id = s.eventId
-                    AND e.promoterEmail = p.email
-                  GROUP BY e.id";
-        $stmt = prepareBindExecute($query, "s", $eventId);
-        if ($stmt !== false) {
-            return $stmt->fetch();
+    public function get_event_info($event_id) {
+        $query = "SELECT e.name AS name, e.place AS place, e.dateTime AS dateTime, e.description AS description,
+                         e.site AS site, p.organizationName AS organizationName, e.promoterEmail AS promoterEmail
+                  FROM events e, promoters p
+                  WHERE e.id = ? AND e.promoterEmail = p.email";
+        $stmt = prepare_bind_execute($query, "i", $event_id);
+        if (!$stmt) {
+            return false;
         }
-        return false;
+        $event = $stmt->get_result()->fetch();
+        $tickets_query = "SELECT sc.name AS name, sc.price AS price, COUNT(*) - COUNT(t.customerEmailPurchase)
+                                - COUNT(t.customerEmailChoice) AS freeSeats
+                          FROM events e, seatCategories sc, tickets t
+                          WHERE e.id = ? AND e.id = sc.eventId AND t.seatId = sc.id AND t.eventId = e.id
+                          GROUP BY sc.name, sc.price";
+        $tickets_stmt = prepare_bind_execute($tickets_query, "i", $event_id);
+        if (!$tickets_stmt) {
+            return false;
+        }
+        $event["seatCategories"] = $tickets_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $cat_query = "SELECT ec.name AS name
+                      FROM events e, eventCategories ec, eventsToCategories etc
+                      WHERE e.id = ? AND e.id = etc.eventId AND etc.categoryId = ec.id";
+        $cat_stmt = prepare_bind_execute($cat_query, "i", $event_id);
+        if (!$cat_stmt) {
+            return false;
+        }
+        $event["categories"] = $cat_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        return $event;
     }
 
     /*
      * Returns all the possible places for the events.
      * If problems arise, returns false.
      */
-    public function getEventsPlaces() {
+    public function get_events_places() {
         $query = "SELECT DISTINCT place
                   FROM events";
         $result = $this->db->query($query); // no risk of SQL injection
@@ -288,31 +300,32 @@ class DatabaseHelper{
      * Returns all the possible types of the events.
      * If problems arise, returns false.
      */
-    public function getEventsTypes() {
-        $query = "SELECT DISTINCT id, name
+    public function get_events_types() {
+        $query = "SELECT DISTINCT name
                   FROM eventCategories";
         $result = $this->db->query($query); // no risk of SQL injection
         return $result === false ? false : $result->fetch_all(MYSQLI_ASSOC);
     }
 
     /*
-     * Returns all the ids of the events in the given $place, on the given $date, 
-     * of the given $typeId and with $free or not seats.
+     * Returns all the ids of the events in the given $place, on the given $date, of the given $typeId and with $free or
+     * not seats.
      * If problems arise, returns false.
      */
+    //TODO: How to properly filter events? Maybe more functions?
     public function getEventIdsFiltered($place, $date, $typeId, $free = true) {
         $condition = "";
         $bindings = "";
-        if ($place != null) {
+        if ($place !== null) {
             $condition = "place = ?";
             $bindings = "s";
         }
-        if ($date != null) {
+        if ($date !== null) {
             $condition = $condition == "" ? "" : $condition." AND ";
             $condition = $condition."date = ?";
             $bindings = $bindings."s";
         }
-        if ($typeId != null) {
+        if ($type !== null) {
             $condition = $condition == "" ? "" : $condition." AND ";
             $condition = $condition."type = ?";
             $bindings = $bindings."i";
@@ -323,8 +336,8 @@ class DatabaseHelper{
         }
         $query = "SELECT id
                   FROM events e
-                  WHERE ".$condition;
-        $stmt = prepareBindExecute($query, "s", $place);
+                  WHERE " . $condition;
+        $stmt = prepareBindExecute($query, $bindings, NULL); //TODO: Correct this function call
         if ($stmt !== false) {
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
@@ -353,9 +366,9 @@ class DatabaseHelper{
     }
 
     /* 
-     * Returns the emails of the subscribers to a certain event. If problems arise, returns false.
+     * Returns the emails of the buyers of a certain event. If problems arise, returns false.
      */
-    public function getSubscribers($eventId) {
+    public function get_buyers($event_id) {
         $query = "SELECT customerEmail as email
                   FROM subscriptions
                   WHERE eventId = ?";
@@ -602,91 +615,110 @@ class DatabaseHelper{
     }
 
     /**********************/
-    /***** UTILITIES *****/
-    /********************/
-    private function getShortCustomerProfile($email) {
+    /***** UTILITIES ******/
+    /**********************/
+
+    /*
+     * Returns the short version of a customer profile, or false if an error occured.
+     */
+    private function get_short_customer_profile($email) {
         $query = "SELECT username, name, surname, birthDate, birthplace, profilePhoto
                   FROM users u, customers c 
-                  WHERE u.email = ? 
-                      AND u.email = c.email";
-        $stmt = prepareBindExecute($query, "s", $email);
+                  WHERE u.email = ? AND u.email = c.email";
+        $stmt = prepare_bind_execute($query, "s", $email);
         if ($stmt !== false) {
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        } else {
-            return false;
-        }
+        } 
+        return false;
     }
 
-    private function getLongCustomerProfile($email) {
-        $query = "SELECT username, name, surname, birthDate, birthplace, profilePhoto, currentAddress, billingAddress, telephone, email
+    /*
+     * Returns the long version of a customer profile, or false if an error occured.
+     */
+    private function get_long_customer_profile($email) {
+        $query = "SELECT username, name, surname, birthDate, birthplace, profilePhoto, currentAddress, billingAddress,
+                         telephone, email
                   FROM users u, customers c 
-                  WHERE u.email = ? 
-                      AND u.email = c.email";
-        $stmt = prepareBindExecute($query, "s", $email);
+                  WHERE u.email = ? AND u.email = c.email";
+        $stmt = prepare_bind_execute($query, "s", $email);
         if ($stmt !== false) {
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        } else {
-            return false;
-        }
+        } 
+        return false;
     }
 
-    private function getShortPromoterProfile($email) {
+    /*
+     * Returns the short version of a promoter profile, or false if an error occured.
+     */
+    private function get_short_promoter_profile($email) {
         $query = "SELECT email, profilePhoto, organizationName, website
                   FROM users u, promoters p 
-                  WHERE u.email = ? 
-                      AND u.email = p.email";
-        $stmt = prepareBindExecute($query, "s", $email);
+                  WHERE u.email = ? AND u.email = p.email";
+        $stmt = prepare_bind_execute($query, "s", $email);
         if ($stmt !== false) {
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        } else {
-            return false;
-        }
+        } 
+        return false;
     }
 
-    private function getLongPromoterProfile($email) {
+    /*
+     * Returns the long version of a customer profile, or false if an error occured.
+     */
+    private function get_long_promoter_profile($email) {
         $query = "SELECT email, profilePhoto, organizationName, website, VATid
                   FROM users u, promoter p 
-                  WHERE u.email = ? 
-                      AND u.email = p.email";
+                  WHERE u.email = ? AND u.email = p.email";
         $stmt = prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        } else {
-            return false;
         }
+        return false;
     }
 
-    private function getAdminProfile($email) {
+    /*
+     * Returns the data inherent to an admin profile, or false if an error occured.
+     */
+    private function get_admin_profile($email) {
         $query = "SELECT email, profilePhoto
                   FROM users u
                   WHERE u.email = ?";
         $stmt = prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
             return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        } else {
-            return false;
-        }
+        } 
+        return false;
     }
 
-    private function isUserType($email, $type) {
+    /*
+     * Checks if the given $email is associated to an user of the given $type. It returns false also in case of error.
+     */
+    private function is_user_type($email, $type) {
         $query = "SELECT *
                   FROM users
-                  WHERE email = ?
-                  AND type = ?";
-        $stmt = prepareBindExecute($query, "ss", $email, $type);
+                  WHERE email = ? AND type = ?";
+        $stmt = prepare_bind_execute($query, "ss", $email, $type);
         return ($stmt !== false && $stmt->fetch() != null);
     }
 
-    private function isPromoter($email) {
-        return isUserType($email, PROMOTER_TYPE_CODE);
+    /*
+     * Checks if the given $email is associated to a promoter user. It returns false also in case of error.
+     */
+    private function is_promoter($email) {
+        return is_user_type($email, PROMOTER_TYPE_CODE);
     }
 
-    private function isCustomer($email) {
-        return isUserType($email, CUSTOMER_TYPE_CODE);
+    /*
+     * Checks if the given $email is associated to a customer user. It returns false also in case of error.
+     */
+    private function is_customer($email) {
+        return is_user_type($email, CUSTOMER_TYPE_CODE);
     }
 
-    private function isAdmin($email) {
-        return isUserType($email, ADMIN_TYPE_CODE);
+    /*
+     * Checks if the given $email is associated to an admin user. It returns false also in case of error.
+     */
+    private function is_admin($email) {
+        return is_user_type($email, ADMIN_TYPE_CODE);
     }
     
     /*
