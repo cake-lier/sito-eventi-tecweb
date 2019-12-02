@@ -1,25 +1,28 @@
 create database my_seatheat;
 use my_seatheat;
 
-create table purchases (
-    eventId int not null,
-    ticketId int not null,
-    amount int not null,
-    customerEmail varchar(30) not null,
-    constraint ID_PURCHASE primary key (eventId, ticketId, customerEmail)
-);
-
 create table tickets (
     eventId int not null,
+    seatId int not null,
     id int not null auto_increment,
     name varchar(30) not null,
-    constraint ID_TICKET primary key (eventId, id)
+    customerEmailPurchase varchar(30),
+    customerEmailChoice varchar(30),
+    constraint ID_TICKET primary key (eventId, seatId, id)
 );
 
 create table eventCategories (
     id int not null auto_increment,
     name varchar(30) not null,
-    constraint ID_CATEGORY primary key (id)
+    constraint ID_EVENT_CATEGORY primary key (id)
+);
+
+create table seatCategories (
+    eventId int not null,
+    id int not null auto_increment,
+    name varchar(30) not null,
+    price decimal(13,2) not null,
+    constraint ID_SEAT_CATEGORY_ID primary key (eventId, id)
 );
 
 create table events (
@@ -27,19 +30,16 @@ create table events (
     name varchar(30) not null,
     place varchar(30) not null,
     dateTime datetime not null,
-    seats int not null,
     description varchar(280) not null,
     site varchar(30),
-    promoterEmail int,
+    promoterEmail varchar(30),
     constraint ID_EVENT primary key (id)
 );
 
-create table carts (
-    customerEmail varchar(30) not null,
-    eventId int not null,
-    ticketId int not null,
-    amount int not null,
-    constraint ID_CART primary key (customerEmail, eventId, ticketId)
+create table notifications (
+    id int not null auto_increment,
+    message varchar(280) not null,
+    constraint ID_NOTIFICATION primary key (id)
 );
 
 create table usersNotifications (
@@ -50,10 +50,10 @@ create table usersNotifications (
     constraint ID_USER_NOTIFICATION primary key (notificationId, email, dateTime)
 );
 
-create table notifications (
-    id int not null auto_increment,
-    message varchar(280) not null,
-    constraint ID_NOTIFICATION primary key (id)
+create table eventsToCategories (
+    categoryId int not null,
+    eventId int not null,
+    constraint ID_ASSOCIATION primary key (categoryId, eventId)
 );
 
 create table users (
@@ -67,12 +67,6 @@ create table users (
 create table administrators (
     email varchar(30) not null,
     constraint FK_IS_ADMINISTRATOR_ID primary key (email)
-);
-
-create table eventsToCategories (
-    eventId int not null,
-    categoryId int not null,
-    constraint ID_ASSOCIATION primary key (categoryId, eventId)
 );
 
 create table customers (
@@ -97,25 +91,29 @@ create table promoters (
     constraint FK_IS_PROMOTER_ID primary key (email)
 );
 
-alter table purchases add constraint FK_TICKET
-    foreign key (eventId, ticketId)
-    references tickets (eventId, id);
-
-alter table purchases add constraint FK_CUSTOMER
-    foreign key (customerEmail)
+alter table tickets add constraint FK_PURCHASE
+    foreign key (customerEmailPurchase)
     references customers (email);
 
-alter table tickets add constraint FK_EVENTS
-    foreign key (eventId)
-    references events (id);
-
-alter table carts add constraint FK_CUSTOMER
-    foreign key (customerEmail)
+alter table tickets add constraint FK_CHOICE
+    foreign key (customerEmailChoice)
     references customers (email);
 
-alter table carts add constraint FK_TICKET
-    foreign key (eventId, ticketId)
-    references tickets (eventId, id);
+alter table tickets add constraint FK_TYPE
+    foreign key (eventId, seatId)
+    references seatCategories (eventId, id);
+
+-- alter table seatCategories add constraint ID_SEAT_CATEGORY_CHK
+--     check(exists(select * from tickets
+--                  where tickets.eventId = eventId and tickets.seatId = id)); 
+
+alter table seatCategories add constraint FK_OFFER
+     foreign key (eventId)
+     references eventId (id);
+
+-- alter table events add constraint ID_EVENT_CHK
+--     check(exists(select * from seatCategories
+--                  where seatCategories.eventId = id)); 
 
 alter table events add constraint FK_PROMOTER
     foreign key (promoterEmail)
