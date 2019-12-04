@@ -7,6 +7,7 @@ class DatabaseHelper{
     define("ADMIN_TYPE_CODE", "a");
     define("QUERY_ERROR", "An error occured while executing the query");
     define("PRIVILEGE_ERROR", "The user performing the operation hasn't enough privileges to do so");
+    define("DATE_ERROR", "The date should be a future date from now");
 
     private $db;
 
@@ -351,16 +352,26 @@ class DatabaseHelper{
      * Returns all the ids of the events with a date in the future. Throws an exception if something went wrong.
      */
     public function get_event_ids() {
-        $query = "SELECT e.id, SUM(s.seats) AS totalSeats
-                  FROM events e, seatCategories s
-                  WHERE s.eventId = e.id
-                  GROUP BY e.id
-                  HAVING e.dateTime >= ?";
-        $stmt = prepare_bind_execute($query, "s", date("Y-m-d H:i:s"));
-        if ($stmt !== false) {
-            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $query = "SELECT id
+                  FROM events
+                  WHERE dateTime >= ?";
+        $stmt = $this->prepare_bind_execute($query, "s", date("Y-m-d H:i:s"));
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
         }
-        return false;
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        $free_seats = $this->get_events_free_seats(array_column($result, "id"));
+        if ($free_seats === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        array_walk($result, function($e, $i) {
+            $e["freeSeats"] = $free_seats[$i];
+        });
+        usort($result, function($fst, $snd) {
+            return $snd["freeSeats"] - $fst["freeSeats"];
+        });
+        return array_column($result, "id");
     }
 
     /*
@@ -373,60 +384,67 @@ class DatabaseHelper{
                   FROM events e, promoters p, seatCategories s
                   WHERE e.id = ? AND e.promoterEmail = p.email AND s.eventId = e.id
                   GROUP BY e.name, e.place, e.dateTime, e.description, e.site, p.organizationName, e.promoterEmail";
-        $stmt = prepare_bind_execute($query, "i", $event_id);
-        if (!$stmt) {
-            return false;
+        $stmt = $this->prepare_bind_execute($query, "i", $event_id);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
         }
         $event = $stmt->get_result()->fetch();
+        $free_seats = $this->get_events_free_seats($event_id);
+        if ($free_seats === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        $event["freeSeats"] = $free_seats[0];
         $seats_query = "SELECT sc.name AS name, sc.price AS price, sc.seats AS seats, COUNT(p.customerEmail) 
                         + COUNT(c.customerEmail) AS occupiedSeats
                         FROM events e, seatCategories s, purchases p, carts c
                         WHERE e.id = ? AND e.id = s.eventId AND p.seatId = s.id AND p.eventId = s.eventId
                               AND c.seatId = s.id AND c.eventId = s.eventId
                         GROUP BY sc.name, sc.price, sc.seats";
-        $seats_stmt = prepare_bind_execute($tickets_query, "i", $event_id);
-        if (!$seats_stmt) {
-            return false;
+        $seats_stmt = $this->prepare_bind_execute($tickets_query, "i", $event_id);
+        if ($seats_stmt === false) {
+            throw new Exception(QUERY_ERROR);
         }
         $event["seatCategories"] = $tickets_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $event["occupiedTotalSeats"] = array_sum(array_column($event["seatCategories"], "occupiedSeats"));
         $cat_query = "SELECT ec.name AS name
                       FROM events e, eventCategories ec, eventsToCategories etc
                       WHERE e.id = ? AND e.id = etc.eventId AND etc.categoryId = ec.id";
-        $cat_stmt = prepare_bind_execute($cat_query, "i", $event_id);
-        if (!$cat_stmt) {
-            return false;
+        $cat_stmt = $this->prepare_bind_execute($cat_query, "i", $event_id);
+        if ($cat_stmt === false) {
+            throw new Exception(QUERY_ERROR);
         }
         $event["categories"] = $cat_stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         return $event;
     }
 
     /*
-     * Returns all the possible places for the events.
-     * If problems arise, returns false.
+     * Returns all the possible places for the events. Throws an exception if something went wrong.
      */
     public function get_events_places() {
         $query = "SELECT DISTINCT place
                   FROM events";
         $result = $this->db->query($query); // no risk of SQL injection
-        return $result === false ? false : $result->fetch_all(MYSQLI_ASSOC);
+        if ($result === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     /*
-     * Returns all the possible types of the events.
-     * If problems arise, returns false.
+     * Returns all the possible types of the events. Throws an exception if something went wrong.
      */
     public function get_events_types() {
         $query = "SELECT DISTINCT name
                   FROM eventCategories";
         $result = $this->db->query($query); // no risk of SQL injection
-        return $result === false ? false : $result->fetch_all(MYSQLI_ASSOC);
+        if ($result === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        return $result->fetch_all(MYSQLI_ASSOC);
     }
 
     /*
      * Returns all the ids of the events in the given $place, on the given $date, of the given $typeId and with $free or
-     * not seats.
-     * If problems arise, returns false.
+     * not seats. Throws an exception if something went wrong.
      */
     public function get_event_ids_filtered($place = null, $date = null, $free = true) {
         $condition = "";
@@ -456,93 +474,207 @@ class DatabaseHelper{
         $query = "SELECT id
                   FROM events e, seatCategories s
                   WHERE " . $condition;
-        $stmt = prepare_bind_execute($query, $bindings, $parameters);
-        if ($stmt !== false) {
-            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt = $this->prepare_bind_execute($query, $bindings, $parameters);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
         }
-        return false;
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     /*
-     * Inserts a new event in the database, by the promoter currently logged in.
-     * If problems arise, or if the logged user is not a promoter, returns false, 
-     * otherwise returns the id of the new event.
+     * Inserts a new event in the database, by the promoter currently logged in. If problems arise, or if the logged
+     * user is not a promoter, throws an exception. It returns the id of the new event.
      */
-    public function createEvent($name, $place, $dateTime, $description, $promoter_email, $seat_categories, 
-                                $site = null) {
-        $email = get_logged_user_email();
-        if ($email !== false && is_promoter($email) { // only promoters can add events
-            $query = "INSERT INTO events(name, place, dateTime, description, site, promoterEmail)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            $stmt = prepare_bind_execute($query, "ssssss", $name, $place, $dateTime, $description, $site,
-                                         $promoter_email);
-            if ($stmt !== false) {
-                $result = $stmt->affected_rows !== 1 ? false : $stmt->insert_id;
-                $stmt->close();
-                array_walk($promoter_email, function($category) {
-
-                });
-                return $result;
+    public function create_event(string $name, string $place, string $date_time, string $description,
+                                 string $promoter_email, array $seat_categories, array $event_categories,
+                                 string $site = null) {
+        $email = $this->get_logged_user_email();
+        // Only promoters can add events
+        if ($email === false || !is_promoter($email)) {
+            throw new Exception(PRIVILEGE_ERROR);
+        }
+        $query = "INSERT INTO events(name, place, dateTime, description, site, promoterEmail)
+                  VALUES (?, ?, ?, ?, ?, ?)";
+        try {
+            $event_date = new Date($date_time);
+            if ($event_date <= new Date()) {
+                throw new Exception(DATE_ERROR);
+            }
+        } catch (\Exception $e) {
+            throw $e;
+        }
+        $stmt = prepare_bind_execute($query, "ssssss", $name, $place, $date_time, $description, $site, $promoter_email);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
+        } else if ($stmt->affected_rows !== 1) {
+            $stmt->close();
+            throw new Exception(QUERY_ERROR);
+        }
+        $event_id = $stmt->insert_id;
+        $stmt->close();
+        $seat_query = "INSERT INTO seatCategories(eventId, name, seats, price)
+                       VALUES (?, ?, ?, ?)";
+        foreach ($seat_categories as $seat_category) {
+            $seat_stmt = prepare_bind_execute($seat_query, "isii", $event_id, $seat_category["name"],
+                                              $seat_category["seats"], $seat_category["price"]);
+            if ($seat_stmt === false) {
+                throw new Exception(QUERY_ERROR);
+            } else if ($seat_stmt->affected_rows !== 1) {
+                $seat_stmt->close();
+                throw new Exception(QUERY_ERROR);
+            }
+            $seat_stmt->close();
+        }
+        $categories_query = "INSERT INTO eventCategories(name)
+                             SELECT * FROM (SELECT ?) AS tmp
+                             WHERE NOT EXISTS (
+                                SELECT name FROM eventCategories WHERE name = ?
+                             ) LIMIT 1";
+        $category_id_query = "SELECT id
+                              FROM eventCategories
+                              WHERE name = ?
+                              LIMIT 1";
+        $categories_events_query = "INSERT INTO eventsToCategories(eventId, categoryId)
+                                    VALUES (?, ?)";
+        foreach ($event_categories as $event_category) {
+            $categories_stmt = $this->prepare_bind_execute($categories_query, "ss", $event_category, $event_category);
+            if ($categories_stmt === false) {
+                throw new Exception(QUERY_ERROR);
+            } 
+            $categories_stmt->close();
+            $category_id = -1;
+            switch ($categories_stmt->affected_rows) {
+                case 1:
+                    $category_id = $categories_stmt->insert_id;
+                    break;
+                case 0:
+                    $category_id_stmt = $this->prepare_bind_execute($category_id_query, "s", $event_category);
+                    if ($category_id_stmt === false) {
+                        throw new Exception(QUERY_ERROR);
+                    }
+                    $category_id_stmt->bind_result($category_id);
+                    $category_id_stmt->fetch();
+                    if ($category_id === -1) {
+                        throw new Exception(QUERY_ERROR);
+                    }
+                default:
+                    throw new Exception(QUERY_ERROR);
+                    break;
+            }
+            $categories_events_stmt = $this->prepare_bind_execute($categories_events_query, "ii", $event_id, 
+                                                                  $category_id);
+            if ($categories_events_stmt === false) {
+                throw new Exception(QUERY_ERROR);
+            } else if ($categories_events_stmt->affected_rows !== 1) {
+                $categories_events_stmt->close();
+                throw new Exception(QUERY_ERROR);
             }
         }
-        return false;
+        return $event_id;
     }
 
     /* 
-     * Returns the emails of the buyers of a certain event. If problems arise, returns false.
+     * Returns the emails of the buyers of a certain event. Throws an exception if something went wrong.
      */
-    public function get_buyers($event_id) {
-        $query = "SELECT customerEmail as email
-                  FROM subscriptions
+    public function get_buyers(int $event_id) {
+        $query = "SELECT DISTINCT customerEmail as email
+                  FROM purchases
                   WHERE eventId = ?";
         $stmt = prepareBindExecute($query, "i", $eventId);
-        if ($stmt !== false) {
-            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
         }
-        return false;
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     /* 
-     * Returns the emails of the subscribers to a certain event. If problems arise, returns false.
+     * Returns the events the logged user has bought. Throws an exception if something went wrong.
      */
-    public function getSubscribedEvents() {
-        // TODO: maybe it will be necessary to usa aliases for the fields
-        $email = getLoggedUserEmail();
-        if ($email !== false) {
-            $query = "SELECT e.id, e.name, e.place, e.dateTime, e.description, e.site, p.organizationName
-                      FROM events e, subscriptions s
-                      WHERE s.customerEmail = ?
-                        AND e.id = s.eventId";
-            $stmt = prepareBindExecute($query, "s", $email);
-            if ($stmt !== false) {
-                $result = $stmt->get_result(); // TODO: could merge these two lines?
-                return $result->fetch_all(MYSQLI_ASSOC);
-            }
+    public function get_purchased_events() {
+        $email = $this->get_logged_user_email();
+        if ($email === false) {
+            throw new Exception(PRIVILEGE_ERROR);
         }
-        return false;
+        $query = "SELECT DISTINCT e.name AS name, e.place AS place, e.dateTime AS dateTime,
+                         e.description AS description, e.site AS site, p.organizationName AS organizationName
+                  FROM events e, purchases p
+                  WHERE p.customerEmail = ? AND e.id = p.eventId";
+        $stmt = $this->prepare_bind_execute($query, "s", $email);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     }
 
     /*
-     * Changes the date of the given event, sending to the users the given message, if the 
-     * user logged in is the owner of the event.
-     * If problems arise, or the logged user is not the owner of the event, returns false.
-     * Otherwise, returns true;
+     * Changes the date of the given event, sending to the users the given message, if the user logged in is the owner
+     * of the event. If problems arise, or the logged user is not the owner of the event, throws an exception.
      */
-    public function changeEventDate($eventId, $newDate, $notificationMessage) {
-        if (isLoggedUserEventOwner($eventId)) {
-            $query = "UPDATE events
-                      SET date = ?
-                      WHERE id = ?";
-            $stmt = prepareBindExecute($query, "si", $newDate, $eventId);
-            if ($stmt !== false) {
-                $result = $stmt->affected_rows == 1
-                        ? sendNotificationToEventSubscribers($eventId, $notificationMessage)
-                        : false;
-                $stmt->close();
-                return $result;
-            }
+    public function change_event_date(int $event_id, string $new_date, string $notification_message) {
+        if (!$this->is_logged_user_event_owner($event_id)) {
+            throw new Exception(PRIVILEGE_ERROR);
         }
-        return false;
+        $query = "UPDATE events
+                  SET dateTime = ?
+                  WHERE id = ?";
+        $stmt = $this->prepare_bind_execute($query, "si", $new_date, $event_id);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
+        } else if ($stmt->affected_rows !== 1) {
+            $stmt->close();
+            throw new Exception(QUERY_ERROR);
+        }
+        $stmt->close();
+        $this->send_notification_to_event_purchasers($event_id, $notification_message)
+    }
+
+    /*
+     * Gets the remaining free seats for every event which event id was passed as a parameter.
+     */
+    private function get_events_free_seats(...int $event_ids) {
+        $query_total_seats = "SELECT SUM(s.seats) as totalSeats
+                              FROM events e, seatCategories s
+                              WHERE e.id = s.eventId AND e.id = ?
+                              GROUP BY e.id";
+        $query_reserved_seats = "SELECT COUNT(p.customerEmail) + (c.customerEmail) as reservedSeats
+                                 FROM seatCategories s, purchases p, carts c
+                                 WHERE s.eventId = ? AND p.seatId = s.id AND p.eventId = s.id AND c.seatId = s.id
+                                       AND c.eventId = s.id
+                                 GROUP BY e.id";
+        $free_seats = array();
+        foreach ($event_ids as $event_id) {
+            $stmt_total_seats = $this->prepare_bind_execute($query_total_seats, "i", $event_id);
+            if ($stmt_total_seats === false) {
+                return false;
+            }
+            $total_seats = -1;
+            $stmt_total_seats->bind_result($totalSeats);
+            $stmt_total_seats->fetch();
+            $stmt_total_seats->close();
+            if ($total_seats === -1) {
+                return false;
+            }
+            $stmt_reserved_seats = $this->prepare_bind_execute($query_reserved_seats, "i", $event_id);
+            if ($stmt_reserved_seats === false) {
+                return false;
+            }
+            $reserved_seats = -1;
+            $stmt_reserved_seats->bind_result($totalSeats);
+            $stmt_reserved_seats->fetch();
+            $stmt_reserved_seats->close();
+            if ($reserved_seats === -1) {
+                return false;
+            }
+            $free_seats[] = $total_seats - $reserved_seats;
+        }
+    }
+
+    /*
+     * Checks if the event with the given $event_id was created by the user which is currenly logged in.
+     */
+    private function is_logged_user_event_owner($event_id) {
+        $event_info = $this->get_event_info($event_id);
+        return $this->is_user_logged_in($event_info["promoterEmail"]);
     }
 
     /***************************/
@@ -713,7 +845,7 @@ class DatabaseHelper{
      * arise, returns false.
      */
     // TODO: should be public? In that case, change the return false statement with an exception thrown
-    private function send_notification_to_event_subscribers(int $event_id, string $message) {
+    private function send_notification_to_event_purchasers(int $event_id, string $message) {
         $notification_id = $this->insert_new_notification($message);
         if ($notification_id !== false) {
             $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
@@ -781,12 +913,6 @@ class DatabaseHelper{
      */
     private function is_user_logged_in(string $email) {
         return $_SESSION["email"] === $email;
-    }
-
-    //TODO: What is this...?
-    private function isLoggedUserEventOwner($eventId) {
-        $eventInfo = getEventInfo($eventId);
-        return isUserLoggedIn($eventInfo["promoterEmail"]);
     }
     
     /*
