@@ -2,6 +2,7 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
+require_once("./DatabaseServiceManager.php");
 
 /*
  * The class offering services regarding notifications. It can create, send, delete them and toggle the visualized

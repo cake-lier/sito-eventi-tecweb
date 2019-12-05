@@ -2,6 +2,7 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
+require_once("./DatabaseServiceManager.php");
 
 class DatabaseUsersManager extends DatabaseServiceManager {
     private const QUERY_ERROR = "An error occured while executing the query";

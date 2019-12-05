@@ -2,6 +2,11 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
+require_once("./iDatabaseHelper.php");
+require_once("./DatabaseNotificationsManager.php");
+require_once("./DatabaseCartsManager.php");
+require_once("./DatabaseUsersManager.php");
+require_once("./DatabaseEventsManager.php");
 
 /*
  * This class allows to use functionalities which needs to interact with the database, the one which parameters are
