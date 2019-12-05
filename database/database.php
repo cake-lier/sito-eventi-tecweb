@@ -394,8 +394,8 @@ class DatabaseHelper{
             throw new Exception(QUERY_ERROR);
         }
         $event["freeSeats"] = $free_seats[0];
-        $seats_query = "SELECT sc.name AS name, sc.price AS price, sc.seats AS seats, COUNT(p.customerEmail) 
-                        + COUNT(c.customerEmail) AS occupiedSeats
+        $seats_query = "SELECT sc.name AS name, sc.price AS price, sc.seats AS seats, SUM(p.amount) 
+                        + SUM(c.amount) AS occupiedSeats
                         FROM events e, seatCategories s, purchases p, carts c
                         WHERE e.id = ? AND e.id = s.eventId AND p.seatId = s.id AND p.eventId = s.eventId
                               AND c.seatId = s.id AND c.eventId = s.eventId
@@ -636,7 +636,7 @@ class DatabaseHelper{
                               FROM events e, seatCategories s
                               WHERE e.id = s.eventId AND e.id = ?
                               GROUP BY e.id";
-        $query_reserved_seats = "SELECT COUNT(p.customerEmail) + (c.customerEmail) as reservedSeats
+        $query_reserved_seats = "SELECT SUM(p.amount) + SUM(c.amount) as reservedSeats
                                  FROM seatCategories s, purchases p, carts c
                                  WHERE s.eventId = ? AND p.seatId = s.id AND p.eventId = s.id AND c.seatId = s.id
                                        AND c.eventId = s.id
@@ -648,7 +648,7 @@ class DatabaseHelper{
                 return false;
             }
             $total_seats = -1;
-            $stmt_total_seats->bind_result($totalSeats);
+            $stmt_total_seats->bind_result($total_seats);
             $stmt_total_seats->fetch();
             $stmt_total_seats->close();
             if ($total_seats === -1) {
@@ -659,7 +659,7 @@ class DatabaseHelper{
                 return false;
             }
             $reserved_seats = -1;
-            $stmt_reserved_seats->bind_result($totalSeats);
+            $stmt_reserved_seats->bind_result($reserved_seats);
             $stmt_reserved_seats->fetch();
             $stmt_reserved_seats->close();
             if ($reserved_seats === -1) {
@@ -678,82 +678,169 @@ class DatabaseHelper{
     }
 
     /***************************/
-    /***** CART FUNCTIONS *****/
-    /*************************/
+    /***** CART FUNCTIONS ******/
+    /***************************/
     /*
-     * Insert a ticket into the logged user's cart, if such user is a customer.
-     * If problems arise, or if the logged user isn't a customer, returns false.
-     * Otherwise, returns true.
+     * Insert a ticket into the logged user's cart, if such user is a customer. If problems arise, throws an exception.
      */
-    public function putTicketIntoCart($eventId) {
-        $email = getLoggedUserEmail();
-        if ($email !== false && isCustomer($email)) {
-            $query = "INSERT INTO carts(eventId, customerEmail)
-                      SELECT ?, ?
-                      FROM events
-                      WHERE id IN (SELECT e.id 
-                                   FROM events e 
-                                   WHERE seats > (SELECT COUNT(customerEmail) 
-                                                  FROM subscriptions 
-                                                  WHERE eventId = e.id))";
-            $stmt = prepareBindExecute($query, "is", $eventId, $email);
-            if ($stmt !== false) {
-                $result = ($stmt->affected_rows != 1);
-                $stmt->close();
-                return $result;
-            }
+    public function put_tickets_into_cart(int $event_id, int $seat_category, int $amount) {
+        $email = $this->get_logged_user_email();
+        if ($email === false || !$this->isCustomer($email)) {
+            throw new Exception(PRIVILEGE_ERROR);
         }
-        return false;
+        $free_seats = $this->get_free_seat_tickets($event_id, $seat_category);
+        if ($free_seats === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        if ($free_seats < $amount) {
+            return false;
+        }
+        $query = "INSERT INTO carts(eventId, seatId, amount, customerEmail)
+                  VALUES ?, ?, ?, ?";
+        $stmt = $this->prepare_bind_execute($query, "iiis", $event_id, $seat_category, $amount, $email);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        $rows = $stmt->affected_rows;
+        $stmt->close();
+        if ($rows !== 1) {
+            throw new Exception(QUERY_ERROR);
+        }
+        return true;
     }
 
     /*
-     * Remove a ticket from the logged user's cart.
-     * If problems arise, returns false. Otherwise, returns true.
+     * Remove a category of seats from the logged user's cart. If problems arise, throw exception.
      */
-    public function removeTicketFromCart($eventId) {
-        $email = getLoggedUserEmail();
-        if ($email !== false) {
-            $query = "DELETE FROM carts
-                      WHERE customerEmail = ?
-                        AND eventId = ?";
-            $stmt = prepareBindExecute($query, "si", $email, $eventId);
-            if ($stmt !== false) {
-                $result = ($stmt->affected_rows != 1); // TODO: if not ticket is found, what do we return?
-                $stmt->close();
-                return $result;
-            }
+    public function remove_seat_category_from_cart(int $event_id, int $seat_category) {
+        $email = $this->get_logged_user_email();
+        if ($email === false) {
+            throw new Exception(QUERY_ERROR);
         }
-        return false;
+        $query = "DELETE FROM carts
+                  WHERE customerEmail = ? AND eventId = ? AND seatId = ?";
+        $stmt = $this->prepare_bind_execute($query, "sii", $email, $event_id, $seat_category);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        $rows = $stmt->affected_rows;
+        $stmt->close();
+        if ($rows !== 1) {
+            throw new Exception(QUERY_ERROR);
+        }
     }
 
     /*
-     * Buys a ticket, and eventually removes it from the logged user's cart.
-     * If problems arise, returns false. Otherwise, returns true.
+     * Increments the number of tickets into the cart of the logged user. If it can't be made, because all tickets were
+     * sold, it will return false, otherwise true. If problems arise, throw exception.
      */
-    public function buyEventTicket($eventId) {
-        $email = getLoggedUserEmail();
-        if ($email !== false) {
-            $query = "INSERT INTO subscriptions(eventId, customerEmail)
-                      SELECT ?, ?
-                      FROM events
-                      WHERE id IN (SELECT e.id 
-                                   FROM events e 
-                                   WHERE seats > (SELECT COUNT(customerEmail) 
-                                                  FROM subscriptions 
-                                                  WHERE eventId = e.id))";
-            $stmt = prepareBindExecute($query, "is", $eventId, $email);
-            if ($stmt !== false) {
-                if ($stmt->affected_rows != 1) {
-                    $result = false;
-                } else {
-                    $result = true;
-                    removeTicketFromCart($eventId);
-                }
-                $stmt->close();
-                return $result;
-            }
+    public function increment_seat_tickets(int $event_id, int $seat_category) {
+        $free_seats = $this->get_free_seat_tickets($event_id, $seat_category);
+        if ($free_seats === false) {
+            throw new Exception(QUERY_ERROR);
         }
-        return false;
+        if ($free_seats < 1) {
+            return false;
+        }
+        return $this->change_tickets_into_cart($event_id, $seat_category, 1);
+    }
+
+    /*
+     * Decrements the number of tickets into the cart of the logged user. If it can't be made, it will return false,
+     * otherwise true. If problems arise, throw exception.
+     */
+    public function decrement_seat_tickets(int $event_id, int $seat_category) {
+        $email = $this->get_logged_user_email();
+        if ($email === false) {
+            return false;
+        }
+        $query = "SELECT amount
+                  FROM carts
+                  WHERE seatId = ? AND eventId = ? AND customerEmail = ?";
+        $stmt = $this->prepare_bind_execute($query, "iis", $seat_id, $event_id, $email);
+        if ($stmt === false) {
+            return false;
+        }
+        $reserved_seats = -1;
+        $stmt->bind_result($reserved_seats);
+        $stmt->fetch();
+        $stmt->close();
+        if ($reserved_seats < 1) {
+            throw new Exception(QUERY_ERROR);
+        } else if ($reserved_seats === 1) {
+            $this->remove_seat_category_from_cart($event_id, $seat_category);
+        } else {
+            $this->change_tickets_into_cart($event_id, $seat_category, -1);
+        }
+    }
+
+    /*
+     * Buys a ticket, and eventually removes it from the logged user's cart. If problems arise, throws an exception.
+     */
+    public function buy_event_ticket(int $event_id, int $seat_category) {
+        $email = $this->get_logged_user_email();
+        if ($email === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        $query = "INSERT INTO purchases(seatId, eventId, customerEmail, amount)
+                  SELECT seatId, eventId, customerEmail, amount
+                  FROM carts
+                  WHERE seatId = ? AND eventId = ? AND customerEmail = ?";
+        $stmt = $this->prepare_bind_execute($query, "iis", $event_id, $seat_category, $email);
+        if ($stmt === false) {
+            throw new Exception(QUERY_ERROR);
+        }
+        $rows = $stmt->affected_rows;
+        $stmt->close();
+        if ($rows !== 1) {
+            throw new Exception(QUERY_ERROR);
+        }
+        $this->remove_seat_category_from_cart($event_id, $seat_category);
+    }
+
+    /*
+     * Gets the remaining free seats for the given seat category in the given event. If something went wrong, returns
+     * false.
+     */
+    private function get_free_seat_tickets(int $event_id, int $seat_category) {
+        $query = "SELECT s.seats - SUM(p.amount) - SUM(c.amount) as freeSeats
+                  FROM seatCategories s, purchases p, carts c
+                  WHERE s.id = ? AND s.eventId = ? AND s.id = p.seatId AND s.eventId = p.eventId AND s.id = c.seatId
+                        AND s.eventId = c.eventId
+                  GROUP BY s.id, s.eventId, s.seats";
+        $stmt = $this->prepare_bind_execute($query, "ii", $seat_category, $event_id);
+        if ($stmt === false) {
+            return false;
+        }
+        $free_seats = -1;
+        $stmt->bind_result($free_seats);
+        $stmt->fetch();
+        $stmt->close();
+        if ($free_seats === -1) {
+            return false;
+        }
+        return $free_seats;
+    }
+
+    /*
+     * Changes the amount of tickets of $change_amount into the logged user's cart with a specific seat category, if
+     * such user is a customer. If problems arise, throws an exception.
+     */
+    private function change_tickets_into_cart(int $event_id, int $seat_category, int $change_amount) {
+        $email = $this->get_logged_user_email();
+        if ($email === false) {
+            return false;
+        }
+        $query = "UPDATE seatCategories
+                  SET amount = amount + ?
+                  WHERE customerEmail = ? AND seatId = ? AND eventId = ?";
+        $stmt = $this->prepare_bind_execute($query, "isii", $change_amount, $email, $seat_category, $event_id);
+        if ($stmt === false) {
+            return false;
+        }
+        $rows = $stmt->affected_rows;
+        $stmt->close();
+        return $rows !== 1;
     }
 
     /************************************/
