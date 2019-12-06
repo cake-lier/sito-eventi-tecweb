@@ -2,10 +2,10 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
-require_once("./DatabaseServiceManager.php");
-require_once("./DatabaseNotificationsManager.php");
+require_once("./database/DatabaseServiceManager.php");
+require_once("./database/DatabaseNotificationsManager.php");
 
-class DatabaseUsersManager extends DatabaseServiceManager {
+class DatabaseEventsManager extends DatabaseServiceManager {
     private const QUERY_ERROR = "An error occured while executing the query";
     private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
     private const DATE_ERROR = "The date should be a future date from now";
@@ -14,7 +14,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     /*
      *  Default constructor.
      */
-    public __construct(mysqli $db, DatabaseNotificationsManager $notificationsManager) {
+    public function __construct(\mysqli $db, DatabaseNotificationsManager $notificationsManager) {
         DatabaseServiceManager::__construct($db);
         $this->notificationsManager = $notificationsManager;
     }
@@ -27,15 +27,16 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE dateTime >= ?";
         $stmt = $this->prepareBindExecute($query, "s", date("Y-m-d H:i:s"));
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
-        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        // FIXME: does this work?
+        $result = array_column($stmt->get_result()->fetch_all(MYSQLI_ASSOC), "id");
         $stmt->close();
         $freeSeats = $this->getEventsFreeSeats(array_column($result, "id"));
         if ($freeSeats === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
-        array_walk($result, function($e, $i) {
+        array_walk($result, function($e, $i) use (&$freeSeats) {
             $e["freeSeats"] = $freeSeats[$i];
         });
         usort($result, function($fst, $snd) {
@@ -55,13 +56,13 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   GROUP BY e.name, e.place, e.dateTime, e.description, e.site, p.organizationName, e.promoterEmail";
         $stmt = $this->prepareBindExecute($query, "i", $eventId);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $event = $stmt->get_result()->fetch();
         $stmt->close();
         $freeSeats = $this->getEventsFreeSeats($eventId);
         if ($freeSeats === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $event["freeSeats"] = $freeSeats[0];
         $seatsQuery = "SELECT sc.name AS name, sc.price AS price, sc.seats AS seats, SUM(p.amount) 
@@ -72,7 +73,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                         GROUP BY sc.name, sc.price, sc.seats";
         $seatsStmt = $this->prepareBindExecute($seatsQuery, "i", $eventId);
         if ($seatsStmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $event["seatCategories"] = $seatsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $seatsStmt->close();
@@ -81,7 +82,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                       WHERE e.id = ? AND e.id = etc.eventId AND etc.categoryId = ec.id";
         $catStmt = $this->prepareBindExecute($catQuery, "i", $eventId);
         if ($catStmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $event["categories"] = $catStmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $catStmt->close();
@@ -95,7 +96,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   FROM events";
         $result = $this->query($query); // no risk of SQL injection
         if ($result === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $data = $result->fetch_all(MYSQLI_ASSOC);
         $result->close();
@@ -110,7 +111,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   FROM eventCategories";
         $result = $this->query($query); // no risk of SQL injection
         if ($result === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $data = $result->fetch_all(MYSQLI_ASSOC);
         $result->close();
@@ -150,7 +151,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE " . $condition;
         $stmt = $this->prepareBindExecute($query, $bindings, $parameters);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
@@ -166,14 +167,14 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $email = $this->getLoggedUserEmail();
         // Only promoters can add events
         if ($email === false || !$this->isPromoter($email)) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "INSERT INTO events(name, place, dateTime, description, site, promoterEmail)
                   VALUES (?, ?, ?, ?, ?, ?)";
         try {
-            $eventDate = new Date($dateTime);
-            if ($eventDate <= new Date()) {
-                throw new Exception(self::DATE_ERROR);
+            $eventDate = new \DateTime($dateTime);
+            if ($eventDate <= new \DateTime()) {
+                throw new \Exception(self::DATE_ERROR);
             }
         } catch (\Exception $e) {
             throw $e;
@@ -181,12 +182,12 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $stmt = $this->prepareBindExecute($query, "ssssss", $name, $place, $dateTime, $description, $site,
                                           $promoterEmail);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $eventId = $stmt->insert_id;
         $stmt->close();
@@ -196,12 +197,12 @@ class DatabaseUsersManager extends DatabaseServiceManager {
             $seatStmt = $this->prepareBindExecute($seatQuery, "isii", $eventId, $seatCategory["name"],
                                                   $seatCategory["seats"], $seatCategory["price"]);
             if ($seatStmt === false) {
-                throw new Exception(self::QUERY_ERROR);
+                throw new \Exception(self::QUERY_ERROR);
             }
             $seatRows = $seatStmt->affected_rows;
             $seatStmt->close();
             if ($seatRows !== 1) {
-                throw new Exception(self::QUERY_ERROR);
+                throw new \Exception(self::QUERY_ERROR);
             }
         }
         $categoriesQuery = "INSERT INTO eventCategories(name)
@@ -218,7 +219,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         foreach ($eventCategories as $eventCategory) {
             $categoriesStmt = $this->prepareBindExecute($categoriesQuery, "ss", $eventCategory, $eventCategory);
             if ($categoriesStmt === false) {
-                throw new Exception(self::QUERY_ERROR);
+                throw new \Exception(self::QUERY_ERROR);
             } 
             $categoriesStmt->close();
             $categoryId = -1;
@@ -229,25 +230,25 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                 case 0:
                     $categoryIdStmt = $this->prepareBindExecute($categoryIdQuery, "s", $eventCategory);
                     if ($categoryIdStmt === false) {
-                        throw new Exception(self::QUERY_ERROR);
+                        throw new \Exception(self::QUERY_ERROR);
                     }
                     $categoryIdStmt->bind_result($categoryId);
                     $categoryIdStmt->fetch();
                     if ($categoryId === -1) {
-                        throw new Exception(self::QUERY_ERROR);
+                        throw new \Exception(self::QUERY_ERROR);
                     }
                 default:
-                    throw new Exception(self::QUERY_ERROR);
+                    throw new \Exception(self::QUERY_ERROR);
                     break;
             }
             $categoriesEventsStmt = $this->prepareBindExecute($categoriesEventsQuery, "ii", $eventId, $categoryId);
             if ($categoriesEventsStmt === false) {
-                throw new Exception(self::QUERY_ERROR);
+                throw new \Exception(self::QUERY_ERROR);
             }
             $rowsCategoriesEvents = $categoriesEventsStmt->affected_rows;
             $categoriesEventsStmt->close();
             if ($rowsCategoriesEvents !== 1) {
-                throw new Exception(self::QUERY_ERROR);
+                throw new \Exception(self::QUERY_ERROR);
             }
         }
         return $eventId;
@@ -261,7 +262,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE eventId = ?";
         $stmt = $this->prepareBindExecute($query, "i", $eventId);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
@@ -273,7 +274,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     public function getPurchasedEvents() {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "SELECT DISTINCT e.name AS name, e.place AS place, e.dateTime AS dateTime,
                                   e.description AS description, e.site AS site, p.organizationName AS organizationName
@@ -281,7 +282,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE p.customerEmail = ? AND e.id = p.eventId";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
@@ -293,26 +294,26 @@ class DatabaseUsersManager extends DatabaseServiceManager {
      */
     public function changeEventDate(int $eventId, string $newDate, string $notificationMessage) {
         if (!$this->isLoggedUserEventOwner($eventId)) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "UPDATE events
                   SET dateTime = ?
                   WHERE id = ?";
         $stmt = $this->prepareBindExecute($query, "si", $newDate, $eventId);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
-        $this->notificationsManager->sendNotificationToEventPurchasers($eventId, $notificationMessage)
+        $this->notificationsManager->sendNotificationToEventPurchasers($eventId, $notificationMessage);
     }
     /*
      * Gets the remaining free seats for every event which event id was passed as a parameter.
      */
-    private function getEventsFreeSeats(...int $eventIds) {
+    private function getEventsFreeSeats(... $eventIds) {
         $queryTotalSeats = "SELECT SUM(s.seats) as totalSeats
                             FROM events e, seatCategories s
                             WHERE e.id = s.eventId AND e.id = ?

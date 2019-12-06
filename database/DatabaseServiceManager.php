@@ -11,11 +11,11 @@ abstract class DatabaseServiceManager {
     private const PROMOTER_TYPE_CODE = "p";
     private const ADMIN_TYPE_CODE = "a";
 
-    private mysqli $db;
+    private $db;
     /*
      * Default constructor.
      */
-    protected __construct(mysqli $db) {
+    protected function __construct(\mysqli $db) {
         $this->db = $db;
     }
     /*

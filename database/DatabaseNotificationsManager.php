@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
-require_once("./DatabaseServiceManager.php");
+require_once("./database/DatabaseServiceManager.php");
 
 /*
  * The class offering services regarding notifications. It can create, send, delete them and toggle the visualized
@@ -14,7 +14,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
     /*
      *  Default constructor.
      */
-    public __construct(mysqli $db) {
+    public function __construct(\mysqli $db) {
         DatabaseServiceManager::__construct($db);
     }
     /*
@@ -23,14 +23,14 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
     public function getLoggedUserNotifications() {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "SELECT notificationId, dateTime, visualized, message
                   FROM usersNotifications, notifications
                   WHERE notificationId = id AND email = ?";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
@@ -43,18 +43,18 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
     public function deleteUserNotification(int $notificationId, string $dateTime) {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "DELETE FROM usersNotifications
                   WHERE notificationId = ? AND email = ? AND dateTime = ?";
         $stmt = $this->prepareBindExecute($query, "iss", $notificationId, $email, $dateTime);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows === -1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $this->deleteUnusedNotificationTypes();
     }
@@ -65,7 +65,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
     public function toggleNotificationView(int $notificationId, string $dateTime) {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $query = "UPDATE usersNotifications
                   SET visualized = NOT visualized
@@ -74,12 +74,12 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
                   AND dateTime = ?";
         $stmt = $this->prepareBindExecute($query, "sis", $email, $notificationId, $dateTime);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows === -1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /*
@@ -89,7 +89,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
     public function sendNotificationToEventPurchasers(int $eventId, string $message) {
         $notificationId = $this->insertNewNotification($message);
         if ($notificationId === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
                   SELECT customerEmail, ?, ?, false
@@ -97,12 +97,12 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
                   WHERE eventId = ?";
         $stmt = $this->prepareBindExecute($query, "ssi", date("Y-m-d H:i:s"), $notificationId, $eventId);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /* 

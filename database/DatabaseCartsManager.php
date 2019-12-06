@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
-require_once("./DatabaseServiceManager.php");
+require_once("./database/DatabaseServiceManager.php");
 
 /*
  * The class offering services regarding carts. It can put tickets into it, remove them, increment the ones associated
@@ -14,7 +14,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
     /*
      *  Default constructor.
      */
-    public __construct(mysqli $db) {
+    public function __construct(\mysqli $db) {
         DatabaseServiceManager::__construct($db);
     }
     /*
@@ -24,11 +24,11 @@ class DatabaseCartsManager extends DatabaseServiceManager {
     public function putTicketsIntoCart(int $eventId, int $seatCategory, int $amount) {
         $email = $this->getLoggedUserEmail();
         if ($email === false || !$this->isCustomer($email)) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $freeSeats = $this->getFreeSeatTickets($eventId, $seatCategory);
         if ($freeSeats === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         if ($freeSeats < $amount) {
             return false;
@@ -37,12 +37,12 @@ class DatabaseCartsManager extends DatabaseServiceManager {
                   VALUES ?, ?, ?, ?";
         $stmt = $this->prepareBindExecute($query, "iiis", $eventId, $seatCategory, $amount, $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         return true;
     }
@@ -52,18 +52,18 @@ class DatabaseCartsManager extends DatabaseServiceManager {
     public function removeSeatCategoryFromCart(int $eventId, int $seatCategory) {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $query = "DELETE FROM carts
                   WHERE customerEmail = ? AND eventId = ? AND seatId = ?";
         $stmt = $this->prepareBindExecute($query, "sii", $email, $eventId, $seatCategory);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /*
@@ -73,7 +73,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
     public function incrementSeatTickets(int $eventId, int $seatCategory) {
         $freeSeats = $this->getFreeSeatTickets($eventId, $seatCategory);
         if ($freeSeats === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         if ($freeSeats < 1) {
             return false;
@@ -84,24 +84,24 @@ class DatabaseCartsManager extends DatabaseServiceManager {
      * Decrements the number of tickets into the cart of the logged user. If it can't be made, it will return false,
      * otherwise true. If problems arise, throws an exception.
      */
-    public function decrementSeatTickets(int $eventId, int $seatCategory) {
+    public function decrementSeatTickets(int $seatId, int $eventId, int $seatCategory) {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $query = "SELECT amount
                   FROM carts
                   WHERE seatId = ? AND eventId = ? AND customerEmail = ?";
-        $stmt = $this->prepareBindExecute($query, "iis", $seat_id, $eventId, $email);
+        $stmt = $this->prepareBindExecute($query, "iis", $seatId, $eventId, $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $reservedSeats = -1;
         $stmt->bind_result($reservedSeats);
         $stmt->fetch();
         $stmt->close();
         if ($reservedSeats < 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         } else if ($reservedSeats === 1) {
             try {
                 $this->removeSeatCategoryFromCart($eventId, $seatCategory);
@@ -118,7 +118,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
     public function buyTickets(int $eventId, int $seatCategory) {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $query = "INSERT INTO purchases(seatId, eventId, customerEmail, amount)
                   SELECT seatId, eventId, customerEmail, amount
@@ -126,17 +126,17 @@ class DatabaseCartsManager extends DatabaseServiceManager {
                   WHERE seatId = ? AND eventId = ? AND customerEmail = ?";
         $stmt = $this->prepareBindExecute($query, "iis", $eventId, $seatCategory, $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         try {
             $this->removeSeatCategoryFromCart($eventId, $seatCategory);
         } catch (\Exception $e) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /*

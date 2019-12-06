@@ -2,11 +2,11 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
-require_once("./DatabaseServiceManager.php");
+require_once("./database/DatabaseServiceManager.php");
 
 class DatabaseUsersManager extends DatabaseServiceManager {
     private const QUERY_ERROR = "An error occured while executing the query";
-    private const RIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
+    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
     private const CUSTOMER_TYPE_CODE = "c";
     private const PROMOTER_TYPE_CODE = "p";
     private const HASH_COST = 11;
@@ -15,7 +15,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     /*
      *  Default constructor.
      */
-    public __construct(mysqli $db) {
+    public function __construct(\mysqli $db) {
         DatabaseServiceManager::__construct($db);
     }
     /*
@@ -25,7 +25,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                                     string $birthDate, string $birthplace, string $name, string $surname,
                                     string $username, string $telephone = null, string $currentAddress = null) {
         if (!$this->insertUser($email, $password, $profilePhoto, self::CUSTOMER_TYPE_CODE)) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $query = "INSERT INTO customers(email, billingAddress, birthDate, birthplace, name, surname, username,
                               telephone, currentAddress)
@@ -33,12 +33,12 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $stmt = $this->prepareBindExecute($query, "sssssssss", $email, $billingAddress, $birthDate, $birthplace,
                                           $name, $surname, $username, $telephone, $currentAddress);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /*
@@ -46,19 +46,19 @@ class DatabaseUsersManager extends DatabaseServiceManager {
      */
     public function insertPromoter(string $email, string $password, $profilePhoto, string $organizationName,
                                     string $VATid, string $website = null) {
-        if (!$this->insertUser($email, $password, $profilePhoto, PROMOTER_TYPE_CODE)) {
-            throw new Exception(self::QUERY_ERROR);
+        if (!$this->insertUser($email, $password, $profilePhoto, self::PROMOTER_TYPE_CODE)) {
+            throw new \Exception(self::QUERY_ERROR);
         }
         $query = "INSERT INTO promoters(email, organizationName, VATid, website)
                   VALUES (?, ?, ?, ?)";
         $stmt = $this->prepareBindExecute($query, "ssss", $email, $organizationName, $VATid, $website);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         } 
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /*
@@ -71,12 +71,12 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE email = ?";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         } 
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $userEmail = "";
         $dbPassword = "";
@@ -84,7 +84,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $stmt->bind_result($userEmail, $dbPassword);
         $stmt->fetch();
         $stmt->close();
-        $pepper = file_get_contents(CONFIG_FILE);
+        $pepper = file_get_contents(self::CONFIG_FILE);
         if ($pepper === false) {
             return false;
         }
@@ -102,22 +102,22 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                 $query = "UPDATE users
                           SET password = ?
                           WHERE email = ?";
-                $pepper = file_get_contents(CONFIG_FILE);
+                $pepper = file_get_contents(self::CONFIG_FILE);
                 if ($pepper === false) {
                     return false;
                 }
                 $pepperedPassword = hash_hmac("sha256", $newPassword, $pepper);
                 $stmt = $this->prepareBindExecute($query, "ss", password_hash($pepperedPassword, 
                                                                               PASSWORD_BCRYPT,
-                                                                              ["cost" => HASH_COST]),
+                                                                              ["cost" => self::HASH_COST]),
                                                   $email);
                 if ($stmt === false) {
-                    throw new Exception(self::QUERY_ERROR);
+                    throw new \Exception(self::QUERY_ERROR);
                 }
                 $rows = $stmt->affected_rows;
                 $stmt->close();
                 if ($rows !== 1) {
-                    throw new Exception(self::QUERY_ERROR);
+                    throw new \Exception(self::QUERY_ERROR);
                 }
                 return true;
             }
@@ -132,17 +132,17 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     public function changeProfilePhoto($photo) {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "UPDATE users
                   SET profilePhoto = ?
                   WHERE email = ?";
         $stmt = $this->prepareBindExecute($query, "bs", $photo, $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         } else if ($stmt->affected_rows !== 1) {
             $stmt->close();
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /*
@@ -153,7 +153,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                                        string $telephone = null) {
         $email = $this->getLoggedUserEmail();
         if ($email === false || !$this->isCustomer($email)) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "UPDATE customers
                   SET username = ?, name = ?, surname = ?, birthDate = ?, birthplace = ?, currentAddress = ?,
@@ -162,12 +162,12 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $stmt = $this->prepareBindExecute($query, "sssssssss", $username, $name, $surname, $birthDate, $birthplace,
                                           $currentAddress, $billingAddress, $telephone, $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /*
@@ -176,19 +176,19 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     public function changePromoterData(string $website) {
         $email = $this->getLoggedUserEmail();
         if ($email === false || !$this->isPromoter($email)) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "UPDATE users
                   SET website = ?
                   WHERE email = ?";
         $stmt = $this->prepareBindExecute($query, "ss", $website, $email);
         if ($stmt === false) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         } 
         $rows = $stmt->affected_rows;
         $stmt->close();
         if ($rows !== 1) {
-            throw new Exception(self::QUERY_ERROR);
+            throw new \Exception(self::QUERY_ERROR);
         }
     }
     /*
@@ -201,7 +201,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
      */
     public function getUserShortProfile(string $email) {
         if ($this->isPromoter($email)) {
-            return getShortPromoterProfile($email);
+            return $this->getShortPromoterProfile($email);
         } else if ($this->isCustomer($email)) {
             $loggedEmail = $this->getLoggedUserEmail();
             if ($loggedEmail !== false && ($this->isPromoter($loggedEmail)
@@ -212,7 +212,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         } else if ($this->isAdmin($email) && $this->isUserLoggedIn($email)){
             return $this->getAdminProfile($email);
         }
-        throw new Exception(self::PRIVILEGE_ERROR);
+        throw new \Exception(self::PRIVILEGE_ERROR);
     }
     /*
      * Returns a long version of the logged in user profile. Throws an exception if something went wrong.
@@ -220,7 +220,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     public function getLoggedUserLongProfile() {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         if ($this->isPromoter($email)) {
             return $this->getLongPromoterProfile($email);
@@ -229,7 +229,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         } else if ($this->isAdmin($email)) {
             return $this->getAdminProfile($email);
         }
-        throw new Exception(self::PRIVILEGE_ERROR);
+        throw new \Exception(self::PRIVILEGE_ERROR);
     }
     /*
      * Deletes the account of the logged user, if the $password is correct, and returns true. Otherwise, it returns
@@ -239,20 +239,20 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         // Assuming there will be a cascade delete for customers and promoters tables
         $email = $this->getLoggedUserEmail();
         if (!$email) {
-            throw new Exception(self::PRIVILEGE_ERROR);
+            throw new \Exception(self::PRIVILEGE_ERROR);
         }
         try {
             if ($this->checkLogin($email, $password)) {
                 $query = "DELETE FROM users
                           WHERE email = ?";
-                $stmt = prepareBindExecute($query, "s", $email);
+                $stmt = $this->prepareBindExecute($query, "s", $email);
                 if ($stmt === false) {
-                    throw new Exception(self::QUERY_ERROR);
+                    throw new \Exception(self::QUERY_ERROR);
                 } 
                 $rows = $stmt->affected_rows;
                 $stmt->close();
                 if ($rows !== 1) {
-                    throw new Exception(self::QUERY_ERROR);
+                    throw new \Exception(self::QUERY_ERROR);
                 }
                 return true;
             }
@@ -267,13 +267,13 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     private function insertUser(string $email, string $password, $profilePhoto, string $type) {
         $query = "INSERT INTO users(email, password, profilePhoto, type)
                   VALUES (?, ?, ?, ?)";
-        $pepper = file_get_contents(CONFIG_FILE);
+        $pepper = file_get_contents(self::CONFIG_FILE);
         if ($pepper === false) {
             return false;
         }
         $pepperedPassword = hash_hmac("sha256", $password, $pepper);
         $stmt = $this->prepareBindExecute($query, "ssbs", $email, 
-                                          password_hash($pepperedPassword, PASSWORD_BCRYPT, ["cost" => HASH_COST]),
+                                          password_hash($pepperedPassword, PASSWORD_BCRYPT, ["cost" => self::HASH_COST]),
                                           $profilePhoto, $type);
         if ($stmt !== false) {
             $result = $stmt->affected_rows === 1;
@@ -350,7 +350,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $query = "SELECT email, profilePhoto
                   FROM users u
                   WHERE u.email = ?";
-        $stmt = prepareBindExecute($query, "s", $email);
+        $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
             $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
             $stmt->close();

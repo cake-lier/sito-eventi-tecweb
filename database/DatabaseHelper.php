@@ -2,11 +2,11 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
-require_once("./iDatabaseHelper.php");
-require_once("./DatabaseNotificationsManager.php");
-require_once("./DatabaseCartsManager.php");
-require_once("./DatabaseUsersManager.php");
-require_once("./DatabaseEventsManager.php");
+require_once("./database/iDatabaseHelper.php");
+require_once("./database/DatabaseNotificationsManager.php");
+require_once("./database/DatabaseCartsManager.php");
+require_once("./database/DatabaseUsersManager.php");
+require_once("./database/DatabaseEventsManager.php");
 
 /*
  * This class allows to use functionalities which needs to interact with the database, the one which parameters are
@@ -26,8 +26,8 @@ class DatabaseHelper implements iDatabaseHelper {
      * Constructor which needs the server name where the database is located, the username and password for accessing
      * the database and the database name itself for connecting to it. Only MySQL databases are supported.
      */
-    public __construct(string $serverName, string $username, string $password, string $dbName) {
-        $db = new mysqli($serverName, $username, $password, $dbName);
+    public function __construct(string $serverName, string $username, string $password, string $dbName) {
+        $db = new \mysqli($serverName, $username, $password, $dbName);
         if($db->connect_error) {
             die("Failed to connect to the database, error: " . $db->connect_error);
         }
