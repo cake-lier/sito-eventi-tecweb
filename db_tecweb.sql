@@ -12,6 +12,7 @@ create table seatCategories (
     id int not null auto_increment,
     name varchar(30) not null,
     price decimal(13,2) not null,
+    seats int not null,
     constraint ID_SEAT_CATEGORY_ID primary key (eventId, id)
 );
 
@@ -20,7 +21,7 @@ create table events (
     name varchar(30) not null,
     place varchar(30) not null,
     dateTime datetime not null,
-    description varchar(280) not null,
+    description mediumtext not null,
     site varchar(30),
     promoterEmail varchar(30),
     constraint ID_EVENT primary key (id)
@@ -28,7 +29,7 @@ create table events (
 
 create table notifications (
     id int not null auto_increment,
-    message varchar(280) not null,
+    message mediumtext not null,
     constraint ID_NOTIFICATION primary key (id)
 );
 
@@ -43,7 +44,7 @@ create table usersNotifications (
 create table purchases (
     eventId int not null,
     seatId int not null,
-    customerEmail int not null,
+    customerEmail varchar(30) not null,
     amount int not null,
     constraint ID_PURCHASE primary key (eventId, seatId, customerEmail)
 );
@@ -51,7 +52,7 @@ create table purchases (
 create table carts (
     eventId int not null,
     seatId int not null,
-    customerEmail int not null,
+    customerEmail varchar(30) not null,
     amount int not null,
     constraint ID_CART primary key (eventId, seatId, customerEmail)
 );
@@ -64,7 +65,7 @@ create table eventsToCategories (
 
 create table users (
     email varchar(30) not null,
-    password varchar(30) not null,
+    password varchar(255) not null,
     profilePhoto mediumblob not null,
     type enum('c', 'p', 'a') not null,
     constraint ID_USER primary key (email)
