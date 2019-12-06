@@ -9,6 +9,8 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     private const RIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
     private const CUSTOMER_TYPE_CODE = "c";
     private const PROMOTER_TYPE_CODE = "p";
+    private const HASH_COST = 11;
+    private const CONFIG_FILE = "config.txt";
 
     /*
      *  Default constructor.
@@ -82,7 +84,12 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $stmt->bind_result($userEmail, $dbPassword);
         $stmt->fetch();
         $stmt->close();
-        return password_verify($plainPassword, $dbPassword);
+        $pepper = file_get_contents(CONFIG_FILE);
+        if ($pepper === false) {
+            return false;
+        }
+        $pepperedPassword = hash_hmac("sha256", $plainPassword, $pepper);
+        return password_verify($pepperedPassword, $dbPassword);
     }
     /*
      * Changes the password of the account with the given $email, only if the $oldPassword is correct and
@@ -95,7 +102,15 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                 $query = "UPDATE users
                           SET password = ?
                           WHERE email = ?";
-                $stmt = $this->prepareBindExecute($query, "ss", password_hash($newPassword, PASSWORD_DEFAULT), $email);
+                $pepper = file_get_contents(CONFIG_FILE);
+                if ($pepper === false) {
+                    return false;
+                }
+                $pepperedPassword = hash_hmac("sha256", $newPassword, $pepper);
+                $stmt = $this->prepareBindExecute($query, "ss", password_hash($pepperedPassword, 
+                                                                              PASSWORD_BCRYPT,
+                                                                              ["cost" => HASH_COST]),
+                                                  $email);
                 if ($stmt === false) {
                     throw new Exception(self::QUERY_ERROR);
                 }
@@ -252,7 +267,13 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     private function insertUser(string $email, string $password, $profilePhoto, string $type) {
         $query = "INSERT INTO users(email, password, profilePhoto, type)
                   VALUES (?, ?, ?, ?)";
-        $stmt = $this->prepareBindExecute($query, "ssbs", $email, password_hash($password, PASSWORD_DEFAULT),
+        $pepper = file_get_contents(CONFIG_FILE);
+        if ($pepper === false) {
+            return false;
+        }
+        $pepperedPassword = hash_hmac("sha256", $password, $pepper);
+        $stmt = $this->prepareBindExecute($query, "ssbs", $email, 
+                                          password_hash($pepperedPassword, PASSWORD_BCRYPT, ["cost" => HASH_COST]),
                                           $profilePhoto, $type);
         if ($stmt !== false) {
             $result = $stmt->affected_rows === 1;
