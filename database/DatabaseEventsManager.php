@@ -29,10 +29,9 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        // FIXME: does this work?
-        $result = array_column($stmt->get_result()->fetch_all(MYSQLI_ASSOC), "id");
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
-        $freeSeats = $this->getEventsFreeSeats(array_column($result, "id"));
+        $freeSeats = $this->getEventsFreeSeats(...array_column($result, "id"));
         if ($freeSeats === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
@@ -58,19 +57,19 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        $event = $stmt->get_result()->fetch();
+        $event = $stmt->get_result()->fetch_assoc();
         $stmt->close();
         $freeSeats = $this->getEventsFreeSeats($eventId);
         if ($freeSeats === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
         $event["freeSeats"] = $freeSeats[0];
-        $seatsQuery = "SELECT sc.name AS name, sc.price AS price, sc.seats AS seats, SUM(p.amount) 
-                        + SUM(c.amount) AS occupiedSeats
-                        FROM events e, seatCategories s, purchases p, carts c
-                        WHERE e.id = ? AND e.id = s.eventId AND p.seatId = s.id AND p.eventId = s.eventId
-                              AND c.seatId = s.id AND c.eventId = s.eventId
-                        GROUP BY sc.name, sc.price, sc.seats";
+        $seatsQuery = "SELECT s.name AS name, s.price AS price, s.seats AS seats, SUM(p.amount) + SUM(c.amount)
+                       AS occupiedSeats
+                       FROM seatCategories s, purchases p, carts c
+                       WHERE s.id = ? AND p.seatId = s.id AND p.eventId = s.eventId AND c.seatId = s.id
+                             AND c.eventId = s.eventId
+                       GROUP BY s.name, s.price, s.seats";
         $seatsStmt = $this->prepareBindExecute($seatsQuery, "i", $eventId);
         if ($seatsStmt === false) {
             throw new \Exception(self::QUERY_ERROR);
@@ -84,7 +83,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         if ($catStmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        $event["categories"] = $catStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $event["categories"] = array_column($catStmt->get_result()->fetch_all(MYSQLI_ASSOC), "name");
         $catStmt->close();
         return $event;
     }
@@ -100,7 +99,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         }
         $data = $result->fetch_all(MYSQLI_ASSOC);
         $result->close();
-        return $data;
+        return array_column($data, "place");
     }
 
     /*
@@ -115,7 +114,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         }
         $data = $result->fetch_all(MYSQLI_ASSOC);
         $result->close();
-        return $data;
+        return array_column($data, "name");
     }
     /*
      * Returns all the ids of the events in the given $place, on the given $date, of the given $typeId and with $free or
@@ -313,16 +312,16 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     /*
      * Gets the remaining free seats for every event which event id was passed as a parameter.
      */
-    private function getEventsFreeSeats(... $eventIds) {
+    private function getEventsFreeSeats(...$eventIds) {
         $queryTotalSeats = "SELECT SUM(s.seats) as totalSeats
                             FROM events e, seatCategories s
                             WHERE e.id = s.eventId AND e.id = ?
                             GROUP BY e.id";
         $queryReservedSeats = "SELECT SUM(p.amount) + SUM(c.amount) as reservedSeats
                                FROM seatCategories s, purchases p, carts c
-                               WHERE s.eventId = ? AND p.seatId = s.id AND p.eventId = s.id AND c.seatId = s.id
-                                     AND c.eventId = s.id
-                               GROUP BY e.id";
+                               WHERE s.eventId = ? AND p.seatId = s.id AND p.eventId = s.eventId AND c.seatId = s.id
+                                     AND c.eventId = s.eventId
+                               GROUP BY s.id, s.eventId";
         $freeSeats = array();
         foreach ($eventIds as $eventId) {
             $stmtTotalSeats = $this->prepareBindExecute($queryTotalSeats, "i", $eventId);
@@ -333,6 +332,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             $stmtTotalSeats->bind_result($totalSeats);
             $stmtTotalSeats->fetch();
             $stmtTotalSeats->close();
+            $totalSeats = intval($totalSeats);
             if ($totalSeats === -1) {
                 return false;
             }
@@ -344,11 +344,13 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             $stmtReservedSeats->bind_result($reservedSeats);
             $stmtReservedSeats->fetch();
             $stmtReservedSeats->close();
+            $reservedSeats = intval($reservedSeats);
             if ($reservedSeats === -1) {
                 return false;
             }
             $freeSeats[] = $totalSeats - $reservedSeats;
         }
+        return $freeSeats;
     }
     /*
      * Checks if the event with the given $eventId was created by the user which is currenly logged in.

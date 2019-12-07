@@ -31,6 +31,7 @@ class DatabaseHelper implements iDatabaseHelper {
         if($db->connect_error) {
             die("Failed to connect to the database, error: " . $db->connect_error);
         }
+        $db->set_charset("utf8");
         $this->notificationsManager = new DatabaseNotificationsManager($db);
         $this->eventsManager = new DatabaseEventsManager($db, $this->notificationsManager);
         $this->usersManager = new DatabaseUsersManager($db);
