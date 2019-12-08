@@ -10,7 +10,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
     private const CUSTOMER_TYPE_CODE = "c";
     private const PROMOTER_TYPE_CODE = "p";
     private const HASH_COST = 11;
-    private const CONFIG_FILE = "config.txt";
+    private const CONFIG_FILE = "database/config.txt";
 
     /*
      *  Default constructor.
@@ -73,8 +73,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         } 
-        $rows = $stmt->affected_rows;
-        $stmt->close();
+        $rows = $stmt->num_rows;
         if ($rows !== 1) {
             throw new \Exception(self::QUERY_ERROR);
         }
@@ -89,7 +88,8 @@ class DatabaseUsersManager extends DatabaseServiceManager {
             return false;
         }
         $pepperedPassword = hash_hmac("sha256", $plainPassword, $pepper);
-        return password_verify($pepperedPassword, $dbPassword);
+        $result = password_verify($pepperedPassword, $dbPassword);
+        return $result;
     }
     /*
      * Changes the password of the account with the given $email, only if the $oldPassword is correct and
