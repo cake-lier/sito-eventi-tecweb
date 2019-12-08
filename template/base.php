@@ -17,7 +17,7 @@
 </head>
 <body>
     <header>
-        <a href=""><img src="<?php echo IMG_DIR; ?>SeatHeat.png" alt="SeatHeat logo"/></a><!-- TODO: il link -->
+        <a href="index.php"><img src="<?php echo IMG_DIR; ?>home-icon.png" alt="home"/><img src="<?php echo IMG_DIR; ?>SeatHeat.png" alt="SeatHeat logo"/></a><!-- TODO: il link -->
         <nav>
             <?php if (isset($_SESSION["email"])) {
                     $link_text = "./user_area.php";
@@ -53,10 +53,10 @@
             <a href="./info.php?type=privacy">Privacy</a>
         </div>
         <div class="home_links">
-            <a href="">SeatHeat s.r.l.s</a>
+            <a href="index.php">SeatHeat s.r.l.s</a>
         </div>
         <div class="info_links">
-            <a href="">Webmaster</a>
+            <a href="message_admin.php">Contatta gli amministratori</a>
         </div>
     </footer>
 </body>

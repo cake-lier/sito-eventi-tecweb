@@ -1,6 +1,5 @@
 <?php
-require_once 'bootstrap.php';
-
+require_once "bootstrap.php";
 
 if (isset($_SESSION["email"])) {
     $templateParams["title"] = "SeatHeat - Home";
@@ -10,5 +9,5 @@ if (isset($_SESSION["email"])) {
     $templateParams["name"] = "register_login.php";
 }
 
-require 'template/base.php';
+require "template/base.php";
 ?>

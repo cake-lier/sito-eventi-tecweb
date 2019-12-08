@@ -1,5 +1,5 @@
 <?php
-    require_once("./bootstrap.php");
+    require_once "bootstrap.php";
 
     $user = $_GET["user"];
     $userShortData = $dbh->getUsersManager()->getUserShortProfile($user);

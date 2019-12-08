@@ -88,8 +88,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
             return false;
         }
         $pepperedPassword = hash_hmac("sha256", $plainPassword, $pepper);
-        $result = password_verify($pepperedPassword, $dbPassword);
-        return $result;
+        return password_verify($pepperedPassword, $dbPassword);
     }
     /*
      * Changes the password of the account with the given $email, only if the $oldPassword is correct and
