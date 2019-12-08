@@ -1,15 +1,15 @@
-<section>
-    <?php
-        require("template/search_form.php");
-    ?>
-</section>
-<section>
-    <?php
-        if (isset($_GET["eventId"])) {
-            // a specific event was requested
-            // TODO: get data from db
-        } else {
-            header("location: ./search.php?keyword=\"\"");
-        }
-    ?>
-</section>
+<?php
+    require_once "bootstrap.php";
+    $id = $_GET["id"];
+    if (isset($id)) {
+        $templateParams["event"] = $dbh->getEventsManager()->getEventInfo($id);
+        $templateParams["places"] = $dbh->getEventsManager()->getEventsPlaces();
+        $templateParams["name"] = "search_form.php";
+        $templateParams["searchSecondSection"] = "event_display.php";
+        $templateParams["title"] = "SeatHeat - Evento: " . $templateParams["event"]["name"];
+        $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "purchase_flip.js"];
+        require "template/base.php";
+    } else {
+        header("location: ./search.php?keyword=\"\"");
+    }
+?>
