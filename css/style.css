@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans|Righteous&display=swap');
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Open Sans', sans-serif;
+}
+
+header, footer {
+    background: #DC2002;
+    color: #FFFFFF;
+}
+
+header a, footer a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+footer {
+    text-align: center;
+}
+
+header {
+    background: linear-gradient(rgba(220, 32, 2, 255) 0%, rgba(220, 32, 2, 255) 50%, rgba(220, 32, 2, 0) 100%);
+    height: 17em;
+}
+
+.home_links {
+    font-family: 'Righteous', cursive;
+    font-size: larger;
+}
+
+img.icon, #menu_icon {
+    max-height: 50px;
+}
+
+#home {
+    display: none;
+}
+
+#logo {
+    max-width: 50%;
+    padding: 3% 1%;
+}
+
+main > section > img {
+    width: 100%;
+    position: relative;
+    top: -18em;
+    z-index: -1;    
+}
+
+main > section > h1 {
+    position: relative;
+    top: -6em;
+    text-align: center;
+    font-family: 'Righteous', cursive;
+    color: #FFFFFF;
+    font-size: 200%;
+    margin: 20px;
+    box-shadow: #111111;
+}
+
+nav {
+    display: none;
+}
+
+@media screen and (min-width:768px) {
+    #home {
+        max-height: 50px;
+        display: inline-block;
+    }
+
+    #logo {
+        max-width: 30%;
+    }
+
+    .menu_links {
+        display: none;
+    }
+
+    nav {
+        display: inline-block;
+    }
+
+    main > section > h1 {
+        position: relative;
+        top: -2em;
+        font-size: 270%;
+    }
+}
