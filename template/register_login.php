@@ -1,12 +1,15 @@
+<?php
+    require_once "bootstrap.php";
+?>
 <section>
     <header>
         <p>Login</p><p>Registrazione</p>
     </header>
     <form id="login_form" method="POST" action="login.php" autocomplete>
         <?php
-        if (isset($templateParams["loginError"])) { // FIXME: i don't work
-            echo "<p>".$templateParams["loginError"]."</p>";
-            unset($templateParams["loginError"]); // TODO: check this
+        if (isset($_SESSION["loginError"])) { // FIXME: i don't work
+            echo "<p>".$_SESSION["loginError"]."</p>";
+            unset($_SESSION["loginError"]); // TODO: check this
         } ?>
         <label for="email_login">Email:</label>
         <input type="text" id="email_login" name="email" />
