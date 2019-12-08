@@ -49,7 +49,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     public function getEventInfo(int $eventId) {
         $query = "SELECT e.name AS name, e.place AS place, e.dateTime AS dateTime, e.description AS description,
                          e.site AS site, p.organizationName AS organizationName, e.promoterEmail AS promoterEmail,
-                         SUM(s.seats) as totalSeats
+                         CAST(SUM(s.seats) AS INT) AS totalSeats
                   FROM events e, promoters p, seatCategories s
                   WHERE e.id = ? AND e.promoterEmail = p.email AND s.eventId = e.id
                   GROUP BY e.name, e.place, e.dateTime, e.description, e.site, p.organizationName, e.promoterEmail";
@@ -64,18 +64,6 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             throw new \Exception(self::QUERY_ERROR);
         }
         $event["freeSeats"] = $freeSeats[0];
-        $seatsQuery = "SELECT s.name AS name, s.price AS price, s.seats AS seats, SUM(p.amount) + SUM(c.amount)
-                       AS occupiedSeats
-                       FROM seatCategories s, purchases p, carts c
-                       WHERE s.id = ? AND p.seatId = s.id AND p.eventId = s.eventId AND c.seatId = s.id
-                             AND c.eventId = s.eventId
-                       GROUP BY s.name, s.price, s.seats";
-        $seatsStmt = $this->prepareBindExecute($seatsQuery, "i", $eventId);
-        if ($seatsStmt === false) {
-            throw new \Exception(self::QUERY_ERROR);
-        }
-        $event["seatCategories"] = $seatsStmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $seatsStmt->close();
         $catQuery = "SELECT ec.name AS name
                       FROM events e, eventCategories ec, eventsToCategories etc
                       WHERE e.id = ? AND e.id = etc.eventId AND etc.categoryId = ec.id";
@@ -86,6 +74,24 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         $event["categories"] = array_column($catStmt->get_result()->fetch_all(MYSQLI_ASSOC), "name");
         $catStmt->close();
         return $event;
+    }
+    /*
+     * Returns informations about seat categories for the event with given $eventId.
+     */
+    public function getEventSeatCategories(int $eventId) {
+        $query = "SELECT s.id, s.eventId, s.name AS name, CAST(s.price AS FLOAT) AS price, s.seats AS seats,
+                         CAST(SUM(IFNULL(p.amount, 0)) + SUM(IFNULL(c.amount, 0)) AS INT) AS occupiedSeats
+                  FROM (seatCategories s LEFT OUTER JOIN purchases p ON s.id = p.seatId AND s.eventId = p.eventId)
+                       LEFT OUTER JOIN carts c ON c.seatId = s.id AND c.eventId = s.eventId
+                  WHERE s.eventId = ?
+                  GROUP BY s.id, s.eventId, s.name, s.price, s.seats";
+        $stmt = $this->prepareBindExecute($query, "i", $eventId);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $result;
     }
     /*
      * Returns all the possible places for the events. Throws an exception if something went wrong.
@@ -101,7 +107,6 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         $result->close();
         return array_column($data, "place");
     }
-
     /*
      * Returns all the possible types of the events. Throws an exception if something went wrong.
      */
