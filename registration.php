@@ -46,8 +46,6 @@ if (isset($_POST["email"])
                 $error = "Problema con il database";
             }                                
         }
-} else {
-
 }
 
 header("location: ".$location);

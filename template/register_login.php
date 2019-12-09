@@ -17,7 +17,7 @@
         <input type="password" id="password_login" name="password" />
         <input type="submit" value="Login">
     </form>
-    <form id="registration_form" method="POST" action="registration.php">
+    <form id="registration_form" method="POST" action="registration.php" enctype="multipart/form-data">
         <!-- based on radio checked, class customer or class promoter must be hidden/required -->
         <fieldset>
             <label for="check_customer">Cliente</label>
