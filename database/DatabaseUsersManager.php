@@ -73,6 +73,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         } 
+        $stmt->store_result();
         $rows = $stmt->num_rows;
         if ($rows !== 1) {
             throw new \Exception(self::QUERY_ERROR);

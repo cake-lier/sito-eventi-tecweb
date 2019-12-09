@@ -51,7 +51,6 @@ abstract class DatabaseServiceManager {
         if ($stmt !== false) {
             $stmt->bind_param($bindings, ...$arguments);
             $stmt->execute();
-            $stmt->store_result();
         }
         return $stmt;
     }
