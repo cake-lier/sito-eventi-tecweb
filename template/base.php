@@ -29,13 +29,15 @@
                     $link_image = IMG_DIR."/login.png"; 
                     $link_alt = "Login";
             }?>
-            <a href="<?php echo $link_text; ?>"><img class="icon" src="<?php echo $link_image; ?>" alt="<?php echo $link_alt; ?>"/><p class="menu_links"><?php echo $link_alt; ?></p></a>
-            <a href="./cart.php"><img class="icon" src="<?php echo IMG_DIR; ?>cart.png" alt="carrello"/><p class="menu_links">Carrello</p></a>
+            <ul>
+            <li><a href="<?php echo $link_text; ?>"><img class="icon" src="<?php echo $link_image; ?>" alt="<?php echo $link_alt; ?>"/><p class="menu_links"><?php echo $link_alt; ?></p></a></li>
+            <li><a href="./cart.php"><img class="icon" src="<?php echo IMG_DIR; ?>cart.png" alt="carrello"/><p class="menu_links">Carrello</p></a></li>
             <?php if (isset($_SESSION["email"])) {
                     $_GET["user_info"] = "user_events";
-                    echo '<a href="./user_area.php"><img class="icon" src="'.IMG_DIR.'calendar.png" alt="i miei eventi"/><p class="menu_links">I miei eventi</p></a>';
-                    echo '<a href="./logout.php"><img class="icon" src="'.IMG_DIR.'logout.png" alt="logout"/><p class="menu_links">Logout</p></a>';
+                    echo '<li><a href="./user_area.php"><img class="icon" src="'.IMG_DIR.'calendar.png" alt="i miei eventi"/><p class="menu_links">I miei eventi</p></a></li>';
+                    echo '<li><a href="./logout.php"><img class="icon" src="'.IMG_DIR.'logout.png" alt="logout"/><p class="menu_links">Logout</p></a></li>';
             }?>
+            </ul>
         </nav>
     </header>
     <main>
