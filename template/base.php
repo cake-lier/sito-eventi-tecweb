@@ -22,21 +22,19 @@
         <nav>
             <?php if (isset($_SESSION["email"])) {
                     $link_text = "./user_area.php";
-                    $link_image = "get_profile_photo.php?user=".$_SESSION["email"];
-                    $link_alt = "Area personale";
+                    $imgTag = "<img class=\"icon\" src=\"".getProfileImage($dbh, $_SESSION["email"])."\" alt=\"Area personale\"/>";
             } else {
                     $link_text = "./login_page.php";
-                    $link_image = IMG_DIR."/login.png"; 
-                    $link_alt = "Login";
+                    $imgTag = "<img class=\"icon\" src=\"".IMG_DIR."/login.png\" alt=\"Login\"/>";
             }?>
             <ul>
-            <li><a href="<?php echo $link_text; ?>"><img class="icon" src="<?php echo $link_image; ?>" alt="<?php echo $link_alt; ?>"/><p class="menu_links"><?php echo $link_alt; ?></p></a></li>
-            <li><a href="./cart.php"><img class="icon" src="<?php echo IMG_DIR; ?>cart.png" alt="carrello"/><p class="menu_links">Carrello</p></a></li>
-            <?php if (isset($_SESSION["email"])) {
-                    $_GET["user_info"] = "user_events";
-                    echo '<li><a href="./user_area.php"><img class="icon" src="'.IMG_DIR.'calendar.png" alt="i miei eventi"/><p class="menu_links">I miei eventi</p></a></li>';
-                    echo '<li><a href="./logout.php"><img class="icon" src="'.IMG_DIR.'logout.png" alt="logout"/><p class="menu_links">Logout</p></a></li>';
-            }?>
+                <li><a href="<?php echo $link_text; ?>"><?php echo $imgTag; ?><p class="menu_links"><?php echo $link_alt; ?></p></a></li>
+                <li><a href="./cart.php"><img class="icon" src="<?php echo IMG_DIR; ?>cart.png" alt="carrello"/><p class="menu_links">Carrello</p></a></li>
+                <?php if (isset($_SESSION["email"])) {
+                        $_GET["user_info"] = "user_events";
+                        echo '<li><a href="./user_area.php"><img class="icon" src="'.IMG_DIR.'calendar.png" alt="i miei eventi"/><p class="menu_links">I miei eventi</p></a></li>';
+                        echo '<li><a href="./logout.php"><img class="icon" src="'.IMG_DIR.'logout.png" alt="logout"/><p class="menu_links">Logout</p></a></li>';
+                }?>
             </ul>
         </nav>
     </header>

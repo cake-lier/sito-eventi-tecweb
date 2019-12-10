@@ -272,7 +272,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
             return false;
         }
         $pepperedPassword = hash_hmac("sha256", $password, $pepper);
-        $stmt = $this->prepareBindExecute($query, "ssbs", $email, 
+        $stmt = $this->prepareBindExecute($query, "ssss", $email, 
                                           password_hash($pepperedPassword, PASSWORD_BCRYPT, ["cost" => self::HASH_COST]),
                                           $profilePhoto, $type);
         if ($stmt !== false) {
