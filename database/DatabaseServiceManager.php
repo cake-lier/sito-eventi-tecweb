@@ -49,7 +49,9 @@ abstract class DatabaseServiceManager {
     protected function prepareBindExecute(string $query, string $bindings, ...$arguments) {
         $stmt = $this->db->prepare($query);
         if ($stmt !== false) {
-            $stmt->bind_param($bindings, ...$arguments);
+            if ($bindings !== "" && count($arguments) > 0) {
+                $stmt->bind_param($bindings, ...$arguments);
+            }
             $stmt->execute();
         }
         return $stmt;

@@ -9,6 +9,7 @@ define("PASSWORD", "");
 define("DATABASE", "my_seatheat");
 define("IMG_DIR", "img/");
 define("JS_DIR", "js/");
+define ("LOG_FILE", "log.txt");
 
 $dbh = new \it\unibo\tecweb\seatheat\DatabaseHelper(SERVER_NAME, USER_NAME, PASSWORD, DATABASE);
 

@@ -21,27 +21,29 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     /*
      * Returns all the ids of the events with a date in the future. Throws an exception if something went wrong.
      */
+    //TODO: Are we sure this will be needed?
     public function getEventIds() {
         $query = "SELECT id
                   FROM events
-                  WHERE dateTime >= ?";
-        $stmt = $this->prepareBindExecute($query, "s", date("Y-m-d H:i:s"));
-        if ($stmt === false) {
+                  WHERE dateTime >= CURRENT_TIMESTAMP";
+        // No risk of SQL injection 
+        $result = $this->query($query);
+        if ($result === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $stmt->close();
-        $freeSeats = $this->getEventsFreeSeats(...array_column($result, "id"));
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        $result->close();
+        $freeSeats = $this->getEventsFreeSeats(...array_column($data, "id"));
         if ($freeSeats === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        array_walk($result, function($e, $i) use (&$freeSeats) {
+        array_walk($data, function($e, $i) use (&$freeSeats) {
             $e["freeSeats"] = $freeSeats[$i];
         });
-        usort($result, function($fst, $snd) {
+        usort($data, function($fst, $snd) {
             return $snd["freeSeats"] - $fst["freeSeats"];
         });
-        return array_column($result, "id");
+        return array_column($data, "id");
     }
     /*
      * Returns info about the event with the given $eventId. Throws an exception if something went wrong.
@@ -99,7 +101,8 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     public function getEventsPlaces() {
         $query = "SELECT DISTINCT place
                   FROM events";
-        $result = $this->query($query); // no risk of SQL injection
+        // No risk of SQL injection
+        $result = $this->query($query);
         if ($result === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
@@ -110,10 +113,12 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     /*
      * Returns all the possible types of the events. Throws an exception if something went wrong.
      */
+    //TODO: Are we sure this will be needed?
     public function getEventsTypes() {
         $query = "SELECT DISTINCT name
                   FROM eventCategories";
-        $result = $this->query($query); // no risk of SQL injection
+        // No risk of SQL injection
+        $result = $this->query($query);
         if ($result === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
@@ -122,10 +127,27 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         return array_column($data, "name");
     }
     /*
+     * Returns the number of events currently disponible to purchasing.
+     */
+    public function getEventsCount() {
+        $query = "SELECT COUNT(*) AS num
+                  FROM events
+                  WHERE dateTime >= CURRENT_TIMESTAMP";
+        // No risk of SQL injection
+        $result = $this->query($query);
+        if ($result === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $data = $result->fetch_assoc();
+        $result->close();
+        return $data["num"];
+    }
+    /*
      * Returns all the ids of the events in the given $place, on the given $date, of the given $typeId and with $free or
      * not seats. Throws an exception if something went wrong.
      */
-    public function getEventIdsFiltered($place = null, $date = null, $free = true) {
+    public function getEventIdsFiltered(int $min, int $max, string $keyword = "", bool $free = true, string $place = null,
+                                        string $date = null) {
         $condition = "";
         $bindings = "";
         $parameters = array();
@@ -140,26 +162,40 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             $bindings = $bindings . "s";
             $parameters[] = $date;
         }
+        if ($keyword !== "") {
+            $condition = $condition === "" ? "" : $condition . " AND ";
+            $condition .= "INSTR(e.name, ?) > 0";
+            $bindings = $bindings . "s";
+            $parameters[] = $keyword;
+        }
         if ($free) {
             $condition = $condition == "" ? "" : $condition . " AND ";
             $condition .= "e.id = s.eventId
-                           GROUP BY e1.id
-                           HAVING SUM(s.seats) > (SELECT COUNT(p.customerEmail) + COUNT(c.customerEmail)
+                           GROUP BY e.id, e.name
+                           HAVING SUM(s.seats) > (SELECT SUM(IFNULL(p.amount, 0)) + SUM(IFNULL(c.amount, 0))
                                                   FROM events e1, seatCategories s1, purchases p, carts c
                                                   WHERE e1.id = e.id AND p.seatId = s1.id AND p.eventId = s1.eventId 
                                                         AND c.seatId = s1.id AND c.eventId = s1.eventId
                                                         AND s1.eventId = e1.id)";
         }
-        $query = "SELECT id
-                  FROM events e, seatCategories s
-                  WHERE " . $condition;
-        $stmt = $this->prepareBindExecute($query, $bindings, $parameters);
+        $query = "SELECT e.id AS id, e.name AS name
+                  FROM events e, seatCategories s";
+        if ($condition !== "") {
+            $query .= " WHERE " . $condition;
+        }
+        if (!$free) {
+            $query .= " GROUP BY e.id, e.name";
+        }
+        $query .= " LIMIT ?, ?";
+        $bindings .= "ii";
+        array_push($parameters, $min, $max);
+        $stmt = $this->prepareBindExecute($query, $bindings, ...$parameters);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
-        return $result;
+        return array_column($result, "id");
     }
     /*
      * Inserts a new event in the database, by the promoter currently logged in. If problems arise, or if the logged

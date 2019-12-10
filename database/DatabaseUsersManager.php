@@ -291,7 +291,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE u.email = ? AND u.email = c.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $result = $stmt->get_result()->fetch_assoc();
             $stmt->close();
             return $result;
         } 
@@ -307,7 +307,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE u.email = ? AND u.email = c.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $result = $stmt->get_result()->fetch_assoc();
             $stmt->close();
             return $result;
         } 
@@ -322,7 +322,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE u.email = ? AND u.email = p.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $result = $stmt->get_result()->fetch_assoc();
             $stmt->close();
             return $result;
         } 
@@ -337,7 +337,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE u.email = ? AND u.email = p.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $result = $stmt->get_result()->fetch_assoc();
             $stmt->close();
             return $result;
         }
@@ -352,7 +352,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                   WHERE u.email = ?";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
-            $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+            $result = $stmt->get_result()->fetch_assoc();
             $stmt->close();
             return $result;
         } 

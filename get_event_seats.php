@@ -1,17 +1,18 @@
 <?php
 require_once "bootstrap.php";
 
-$eventId = $_GET["eventId"];
-$data = ["result" => "failure"];
-if (isset($eventId)) {
+$data = ["result" => false];
+if (isset($_GET["eventId"])) {
+    $eventId = $_GET["eventId"];
     try {
         $event = $dbh->getEventsManager()->getEventInfo($eventId);
         $data["freeSeats"] = $event["freeSeats"];
         $data["totalSeats"] = $event["totalSeats"];
-        $data["result"] = "success";
-    } catch(\Exception $e) {}
+        $data["result"] = true;
+    } catch(\Exception $e) {
+        error_log($e->getMessage(), 3, LOG_FILE);
+    }
 }
-
 echo json_encode($data);
 header("Content-type: application/json");
 ?>
