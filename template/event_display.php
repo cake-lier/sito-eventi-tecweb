@@ -2,10 +2,7 @@
     <h1><?php echo $templateParams["event"]["name"]; ?></h1>
     <p>Luogo: <?php echo $templateParams["event"]["place"]; ?></p>
     <p>Data e ora: <?php 
-                        $date = new \DateTime($templateParams["event"]["dateTime"]);
-                        $formatter = new \IntlDateFormatter("it_IT", null, null);
-                        $formatter->setPattern("d MMMM yyyy");
-                        echo $formatter->format($date) . " ore " . $date->format("H:i");
+                        echo convertDateTimeToLocale($templateParams["event"]["dateTime"]);
                    ?>
     </p>
     <p>Organizzato da: <?php echo $templateParams["event"]["organizationName"]; ?></p>

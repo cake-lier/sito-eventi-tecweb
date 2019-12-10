@@ -61,8 +61,12 @@ main > section > h1 {
     box-shadow: #111111;
 }
 
-nav {
+body > header > nav {
     display: none;
+}
+
+main > nav > ul > li {
+    cursor: pointer;
 }
 
 @media screen and (min-width:768px) {

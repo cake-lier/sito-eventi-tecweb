@@ -1,7 +1,7 @@
 <nav>
     <ul>
         <li class="selected" id="notifications_button">Notifiche</li>
-        <li id="user_area_button">Dati personale</li>
+        <li id="user_area_button">Dati personali</li>
         <li id="change_password_button">Cambia password</li>
         <li id="change_data_button">Modifica dati</li>
         <li id="events_button">I miei eventi</li>

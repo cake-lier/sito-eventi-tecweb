@@ -302,7 +302,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
      */
     private function getLongCustomerProfile(string $email) {
         $query = "SELECT username, name, surname, birthDate, birthplace, profilePhoto, currentAddress, billingAddress,
-                         telephone, email
+                         telephone, u.email
                   FROM users u, customers c 
                   WHERE u.email = ? AND u.email = c.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);
@@ -310,7 +310,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
             $result = $stmt->get_result()->fetch_assoc();
             $stmt->close();
             return $result;
-        } 
+        }
         return false;
     }
     /*
