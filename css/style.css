@@ -6,21 +6,21 @@ body {
     font-family: 'Open Sans', sans-serif;
 }
 
-header, footer {
+body > header, body > footer {
     background: #DC2002;
     color: #FFFFFF;
 }
 
-header a, footer a {
+body > header a, body > footer a {
     color: #FFFFFF;
     text-decoration: none;
 }
 
-footer {
+body > footer {
     text-align: center;
 }
 
-header {
+body > header {
     background: linear-gradient(rgba(220, 32, 2, 255) 0%, rgba(220, 32, 2, 255) 50%, rgba(220, 32, 2, 0) 100%);
     height: 17em;
 }

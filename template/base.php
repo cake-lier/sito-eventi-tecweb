@@ -22,7 +22,7 @@
         <nav>
             <?php if (isset($_SESSION["email"])) {
                     $link_text = "./user_area.php";
-                    $link_image = "profile_photo?user=".$_SESSION["email"];
+                    $link_image = "get_profile_photo.php?user=".$_SESSION["email"];
                     $link_alt = "Area personale";
             } else {
                     $link_text = "./login_page.php";

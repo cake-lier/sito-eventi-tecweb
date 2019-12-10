@@ -7,9 +7,9 @@
     </header>
     <form id="login_form" method="POST" action="login.php" autocomplete>
         <?php
-        if (isset($_SESSION["loginError"])) { // FIXME: i don't work
+        if (isset($_SESSION["loginError"])) {
             echo "<p>".$_SESSION["loginError"]."</p>";
-            unset($_SESSION["loginError"]); // TODO: check this
+            unset($_SESSION["loginError"]);
         } ?>
         <label for="email_login">Email:</label>
         <input type="text" id="email_login" name="email" />
@@ -27,7 +27,13 @@
         </fieldset>
         <fieldset>
             <!-- TODO: maybe add non strictly necessary fields? Like website for promoters, ... -->
-            <!-- TODO: add also in registratio.php! -->
+            <!-- TODO: add also in registration.php! -->
+            <!-- TODO: check for email existence in db with ajax -->
+            <?php
+            if (isset($_SESSION["registrationError"])) {
+                echo "<p>".$_SESSION["registrationError"]."</p>";
+                unset($_SESSION["registrationError"]);
+            } ?>
             <label for="email_register">Email:</label>
             <input type="text" id="email_register" name="email" required/>
             <label class="customer" for="name">Nome:</label>
@@ -51,7 +57,7 @@
             <label for="password_register">Password:</label>
             <input type="password" id="password_register" name="password" required/>
             <label for="password_register_repeat">Conferma password:</label>
-            <input type="password" id="password_register_repeat" name="password" required/>
+            <input type="password" id="password_register_repeat" name="password_repeat" required/>
             <input type="submit" value="Registrati">
         </fieldset>
     </form>
