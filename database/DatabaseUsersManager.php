@@ -166,7 +166,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
-        if ($rows !== 1) {
+        if ($rows !== 1 && $rows !== 0) {
             throw new \Exception(self::QUERY_ERROR);
         }
     }
@@ -178,7 +178,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         if ($email === false || !$this->isPromoter($email)) {
             throw new \Exception(self::PRIVILEGE_ERROR);
         }
-        $query = "UPDATE users
+        $query = "UPDATE promoters
                   SET website = ?
                   WHERE email = ?";
         $stmt = $this->prepareBindExecute($query, "ss", $website, $email);
@@ -187,7 +187,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         } 
         $rows = $stmt->affected_rows;
         $stmt->close();
-        if ($rows !== 1) {
+        if ($rows !== 1 && $rows !== 0) {
             throw new \Exception(self::QUERY_ERROR);
         }
     }
@@ -335,7 +335,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
      * Returns the short version of a promoter profile, or false if an error occured.
      */
     private function getShortPromoterProfile(string $email) {
-        $query = "SELECT email, profilePhoto, organizationName, website
+        $query = "SELECT u.email, profilePhoto, organizationName, website
                   FROM users u, promoters p 
                   WHERE u.email = ? AND u.email = p.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);
@@ -350,8 +350,8 @@ class DatabaseUsersManager extends DatabaseServiceManager {
      * Returns the long version of a customer profile, or false if an error occured.
      */
     private function getLongPromoterProfile(string $email) {
-        $query = "SELECT email, profilePhoto, organizationName, website, VATid
-                  FROM users u, promoter p 
+        $query = "SELECT u.email, profilePhoto, organizationName, website, VATid
+                  FROM users u, promoters p 
                   WHERE u.email = ? AND u.email = p.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt !== false) {
