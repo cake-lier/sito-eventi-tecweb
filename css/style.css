@@ -83,7 +83,7 @@ main > nav > ul > li {
         display: none;
     }
 
-    nav {
+    body > header > nav {
         display: inline-block;
     }
 
