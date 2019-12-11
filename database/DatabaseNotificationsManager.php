@@ -15,7 +15,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
      *  Default constructor.
      */
     public function __construct(\mysqli $db) {
-        DatabaseServiceManager::__construct($db);
+        parent::__construct($db);
     }
     /*
      * Returns the notifications sent to the currently logged user. If problems arise, throws and exception.

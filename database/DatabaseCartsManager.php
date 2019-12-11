@@ -15,7 +15,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
      *  Default constructor.
      */
     public function __construct(\mysqli $db) {
-        DatabaseServiceManager::__construct($db);
+        parent::__construct($db);
     }
     /*
      * Insert a ticket into the logged user's cart, if such user is a customer. If the amount of tickets requested is

@@ -15,7 +15,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
      *  Default constructor.
      */
     public function __construct(\mysqli $db, DatabaseNotificationsManager $notificationsManager) {
-        DatabaseServiceManager::__construct($db);
+        parent::__construct($db);
         $this->notificationsManager = $notificationsManager;
     }
     /*

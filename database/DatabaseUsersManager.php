@@ -16,7 +16,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
      *  Default constructor.
      */
     public function __construct(\mysqli $db) {
-        DatabaseServiceManager::__construct($db);
+        parent::__construct($db);
     }
     /*
      * Inserts a new customer into the database. Throws an exception if something went wrong.
@@ -260,6 +260,24 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         } catch (\Exception $e) {
             throw $e;
         }
+    }
+     /*
+     * Checks if the given $email is associated to a promoter user. It returns false also in case of error.
+     */
+    public function isPromoter(string $email) {
+        return parent::isPromoter($email);
+    }
+    /*
+     * Checks if the given $email is associated to a customer user. It returns false also in case of error.
+     */
+    public function isCustomer(string $email) {
+        return parent::isCustomer($email);
+    }
+    /*
+     * Checks if the given $email is associated to an admin user. It returns false also in case of error.
+     */
+    public function isAdmin(string $email) {
+        return parent::isAdmin($email);
     }
     /*
      * Inserts a new user into the database. Returns false if something went wrong.
