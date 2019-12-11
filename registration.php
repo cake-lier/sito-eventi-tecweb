@@ -1,17 +1,6 @@
 <?php
 require_once "bootstrap.php";
 
-function encodeImg(string $name, string $tmp) {
-    $imgFileType = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-    $extensions = array("jpg", "jpeg", "png");
-    if (in_array($imgFileType, $extensions)) {
-        $imgBase64 = base64_encode(file_get_contents($tmp));
-        $img = "data:image/".$imgFileType.";base64,".$imgBase64;
-        return $img;
-    }
-    return "0";
-}
-
 $location = "login_page.php";
 if (isset($_POST["email"])
     && (file_exists($_FILES["profile_photo"]["tmp_name"]) || is_uploaded_file($_FILES["profile_photo"]["tmp_name"]))
@@ -48,7 +37,6 @@ if (isset($_POST["email"])
             } else if ($_POST["registration_type"] === "promoter"
                         && isset($_POST["organization_name"])
                         && isset($_POST["vat_id"])) {
-                $imgData = addslashes(file_get_contents($_FILES["profile_photo"]["name"]));
                 $name = $_POST["organization_name"];
                 $vat = $_POST["vat_id"];
                 try {

@@ -10,6 +10,7 @@
 </nav>
 <section>
     <?php
+        require_once "utils/functions.php";
         try {
             $notifications = $dbh->getNotificationsManager()->getLoggedUserNotifications();
             if (count($notifications) > 0) {
@@ -19,7 +20,7 @@
                     } else {
                         $html = "<section id=\"not_".$not["notificationId"]."\">";
                     }
-                    $html = $html."<p>".$not["datetime"]."</p><p>".$not["message"]."</p></section>";
+                    $html = $html."<p>".convertDateTimeToLocale($not["dateTime"])."</p><p>".$not["message"]."</p></section>";
                     echo $html;
                 }
             } else {

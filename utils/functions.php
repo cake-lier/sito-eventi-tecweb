@@ -20,4 +20,15 @@ function convertDateToLocale(string $date) {
     $formatter->setPattern("d MMMM yyyy");
     return $formatter->format($dateObj);
 }
+
+function encodeImg(string $name, string $tmp) {
+    $imgFileType = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+    $extensions = array("jpg", "jpeg", "png");
+    if (in_array($imgFileType, $extensions)) {
+        $imgBase64 = base64_encode(file_get_contents($tmp));
+        $img = "data:image/".$imgFileType.";base64,".$imgBase64;
+        return $img;
+    }
+    return "0";
+}
 ?>

@@ -1,3 +1,31 @@
+function organizeUserNotifications(data) {
+    const mainSection = $("main > section");
+    if (data.length > 0) {
+        for (let index in data) {
+            const notification = data[index];
+            const notSection = $("<section>", {id: notification.notificationId});
+            if (notification.visualized === true) {
+                notSection.addClass("visualized");
+            }
+            const dateTime = new Date(notification.dateTime);
+            const dateString = dateTime.toLocaleDateString("it-IT", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            }) + " ore " + dateTime.toLocaleTimeString("it-IT", {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+            const date = $("<p>", {text: dateString});
+            const message = $("<p>", {text: notification.message});
+            notSection.append(date, message);
+            mainSection.append(notSection);
+        }
+    } else {
+        mainSection.append($("<p>", {text: "Non ci sono notifiche!"}));
+    }
+}
+
 function organizeUserData(data) {
     if (Object.keys(data).length > 0) {
         // this part is common to every type of user
@@ -22,7 +50,7 @@ function organizeUserData(data) {
             const usernameLine = $("<p>", {class: "username", text: data.username});
             photo.after(usernameLine);
             // name
-            const nameHeader = $("<strong>", {text: "Nome:"});
+            const nameHeader = $("<strong>", {text: "Nome: "});
             const nameLine = $("<p>", {text: data.name});
             nameLine.prepend(nameHeader);
             generalCustomerSection.append(nameLine);
@@ -73,13 +101,13 @@ function organizeUserData(data) {
             }
         } else if ("organizationName" in data) {
             // it's a promoter
-            // it's a customer
+            console.log("promoter");
             const generalPromoterSectionHeader = $("<h2>", {text: "Dati organizzazione"});
             const generalPromoterSection = $("<section>");
             generalPromoterSection.append(generalPromoterSectionHeader);
             mainSection.append(generalPromoterSection);
             // organization name
-            const organizationNameHeader = $("<strong>", {text: "Nome organizzazione:"});
+            const organizationNameHeader = $("<strong>", {text: "Nome organizzazione: "});
             const organizationNameLine = $("<p>", {text: data.organizationName});
             organizationNameLine.prepend(organizationNameHeader);
             generalPromoterSection.append(organizationNameLine);
@@ -123,7 +151,99 @@ function setChangePasswordForm() {
     })
 }
 
+function setChangeDataForm(data) {
+    if (Object.keys(data).length > 0) {
+        // this part is common to every type of user
+        const form = $("<form>");
+        $("main > section").append(form);
+        const generalSection = $("<section>");
+        form.append(generalSection);
+        const photo = $("<img>", {src: data.profilePhoto});
+        generalSection.append(photo);
+        const photoLabel = $("<label>", {for: "profile_photo", text: "Nuova foto profilo: "});
+        const photoChooser = $("<input>", {type: "file", name: "profile_photo", id: "profile_photo"});
+        generalSection.append(photoLabel, photoChooser);
+        if ("username" in data) {
+            // it's a customer
+            const generalCustomerSection = $("<section>");
+            const generalCustomerSectionHeader = $("<h2>", {text: "Dati personali"});
+            generalCustomerSection.append(generalCustomerSectionHeader);
+            form.append(generalCustomerSection);
+            // username
+            const usernameLabel = $("<label>", {for: "username", text: "Username: "});
+            const usernameField = $("<input>", {id: "username", name: "username", value: data.username});
+            generalCustomerSection.append(usernameLabel, usernameField);
+            // name
+            const nameLabel = $("<label>", {for: "name", text: "Nome: "});
+            const nameField = $("<input>", {id: "name", name: "name", value: data.name});
+            generalCustomerSection.append(nameLabel, nameField);
+            // surname
+            const surnameLabel = $("<label>", {for: "surname", text: "Cognome: "});
+            const surnameField = $("<input>", {id: "surname", surname: "surname", value: data.surname});
+            generalCustomerSection.append(surnameLabel, surnameField);
+            // birthDate
+            const birthDateLabel = $("<label>", {for: "birthdate", text: "Data di nascita: "});
+            const date = new Date(data.birthDate);
+            const dateString = date.toLocaleDateString("it-IT", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            });
+            const birthDateField = $("<input>", {id: "birthdate", value: data.birthDate, type: "date"}); // TODO:
+            generalCustomerSection.append(birthDateLabel, birthDateField);
+            // birthplace
+            const birthplaceLabel = $("<label>", {for: "birthplace", text: "Luogo di nascita: "});
+            const birthplaceField = $("<input>", {id: "birthplace", name: "birthplace", value: data.birthplace});
+            generalCustomerSection.append(birthplaceLabel, birthplaceField);
+            // contacts
+            const contactsSection = $("<section>");
+            const contactsSectionHeader = $("<h2>", {text: "Contatti"});
+            contactsSection.append(contactsSectionHeader);
+            form.append(contactsSection);
+            // billing address
+            const billingAddressLabel = $("<label>", {for: "billing_add", text: "Indirizzo di fatturazione: "});
+            const billingAddressField = $("<input>", {id: "billing_add", name: "billingAddress", value: data.billingAddress});
+            contactsSection.append(billingAddressLabel, billingAddressField);
+            // current address
+            const currentAddressLabel = $("<label>", {for: "current_add", text: "Indirizzo corrente: "});
+            const currentAddressField = $("<input>", {id: "current_add", name: "currentAddress", value: data.currentAddress !== null ? data.currentAddress : ""});
+            contactsSection.append(currentAddressLabel, currentAddressField);
+            // telephone
+            const telephoneLabel = $("<label>", {for: "telephone", text: "Indirizzo corrente: "});
+            const telephoneField = $("<input>", {id: "telephone", name: "telephone", value: data.telephone !== null ? data.telephone : ""});
+            contactsSection.append(telephoneLabel, telephoneField);
+        } else if ("organizationName" in data) {
+            // it's a customer
+            const generalPromoterSectionHeader = $("<h2>", {text: "Dati organizzazione"});
+            const generalPromoterSection = $("<section>");
+            generalPromoterSection.append(generalPromoterSectionHeader);
+            form.append(generalPromoterSection);
+            // website
+            const websiteLabel = $("<label>", {for: "website", text: "Sito internet: "});
+            const websiteField = $("<input>", {id: "website", type: "text", name: "website", value: data.website !== null ? data.website : ""});
+            generalPromoterSection.append(websiteLabel, websiteField);
+        }
+        const submit = $("<input>", {type: "submit", value: "Modifica dati"});
+        form.append(submit);
+        form.submit(e => {
+            e.preventDefault();
+            $.post("change_user_data.php", form.serialize(), data => {
+                console.log(data.resultMessage);    
+                $("form > p").remove();
+                form.prepend($("<p>", {text: data.resultMessage}));
+            });
+        });
+    }
+}
+
 $(() => {
+    $("#notifications_button").click(e => {
+        $(".selected").removeClass("selected");
+        $("#notifications_button").addClass("selected");
+        $("main > section").html("");
+        $.get("get_user_notifications.php", organizeUserNotifications);
+    });
+
     $("#user_area_button").click(e => {
         $(".selected").removeClass("selected");
         $("#user_area_button").addClass("selected");
@@ -136,5 +256,12 @@ $(() => {
         $("#change_password_button").addClass("selected");
         $("main > section").html("");
         setChangePasswordForm();
+    });
+
+    $("#change_data_button").click(e => {
+        $(".selected").removeClass("selected");
+        $("#change_data_button").addClass("selected");
+        $("main > section").html("");
+        $.get("get_user_data.php", setChangeDataForm);
     });
 });
