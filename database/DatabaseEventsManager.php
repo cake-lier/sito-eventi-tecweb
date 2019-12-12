@@ -6,9 +6,9 @@ require_once("./database/DatabaseServiceManager.php");
 require_once("./database/DatabaseNotificationsManager.php");
 
 class DatabaseEventsManager extends DatabaseServiceManager {
-    private const QUERY_ERROR = "An error occured while executing the query";
-    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
-    private const DATE_ERROR = "The date should be a future date from now";
+    private const QUERY_ERROR = "An error occured while executing the query\n";
+    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so\n";
+    private const DATE_ERROR = "The date should be a future date from now\n";
     
     private $notificationsManager;
     /*
@@ -61,7 +61,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
      * Returns info about the event with the given $eventId. Throws an exception if something went wrong.
      */
     public function getEventInfo(int $eventId) {
-        $query = "SELECT e.name AS name, e.place AS place, e.dateTime AS dateTime, e.description AS description,
+        $query = "SELECT e.id AS id, e.name AS name, e.place AS place, e.dateTime AS dateTime, e.description AS description,
                          e.site AS site, p.organizationName AS organizationName, e.promoterEmail AS promoterEmail,
                          CAST(SUM(s.seats) AS INT) AS totalSeats
                   FROM events e, promoters p, seatCategories s

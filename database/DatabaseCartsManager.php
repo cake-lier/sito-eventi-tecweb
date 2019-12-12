@@ -9,8 +9,8 @@ require_once("./database/DatabaseServiceManager.php");
  * to a specific seat category or decrement them.
  */
 class DatabaseCartsManager extends DatabaseServiceManager { 
-    private const QUERY_ERROR = "An error occured while executing the query";
-    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
+    private const QUERY_ERROR = "An error occured while executing the query\n";
+    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so\n";
     /*
      *  Default constructor.
      */
@@ -18,14 +18,30 @@ class DatabaseCartsManager extends DatabaseServiceManager {
         parent::__construct($db);
     }
     /*
-     * Insert a ticket into the logged user's cart, if such user is a customer. If the amount of tickets requested is
-     * not available, returns false. If problems arise, throws an exception.
+     * Get informations about all the tickets that the logged customer has put into the cart.
      */
-    public function putTicketsIntoCart(int $eventId, int $seatCategory, int $amount) {
+    public function getLoggedUserTickets() {
         $email = $this->getLoggedUserEmail();
         if ($email === false || !$this->isCustomer($email)) {
             throw new \Exception(self::PRIVILEGE_ERROR);
         }
+        $query = "SELECT s.id AS seatId, s.eventId AS eventId, e.name AS eventName, e.place AS eventPlace, e.dateTime AS dateTime,
+                         s.name as category, c.amount AS amount, s.price AS price
+                  FROM events e, seatCategories s, carts c
+                  WHERE c.seatId = s.id AND c.eventId = s.eventId AND s.eventId = e.id AND c.customerEmail = ?";
+        $stmt = $this->prepareBindExecute($query, "s", $email);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $stmt->close();
+        return $result;
+    }
+    /*
+     * Insert a ticket into the logged user's cart, if such user is a customer. If the amount of tickets requested is
+     * not available, returns false. If problems arise, throws an exception.
+     */
+    public function putTicketsIntoCart(int $eventId, int $seatCategory, int $amount) {
         $freeSeats = $this->getFreeSeatTickets($eventId, $seatCategory);
         if ($freeSeats === false) {
             throw new \Exception(self::QUERY_ERROR);
@@ -33,15 +49,13 @@ class DatabaseCartsManager extends DatabaseServiceManager {
         if ($freeSeats < $amount) {
             return false;
         }
-        $query = "INSERT INTO carts(eventId, seatId, amount, customerEmail)
-                  VALUES ?, ?, ?, ?";
-        $stmt = $this->prepareBindExecute($query, "iiis", $eventId, $seatCategory, $amount, $email);
-        if ($stmt === false) {
-            throw new \Exception(self::QUERY_ERROR);
-        }
-        $rows = $stmt->affected_rows;
-        $stmt->close();
-        if ($rows !== 1) {
+        if (count(array_filter($this->getLoggedUserTickets(), function($e) use ($seatCategory, $eventId) {
+                        return $e["seatId"] === $seatCategory && $e["eventId"] === $eventId;
+                  })) > 0) {
+            if (!$this->changeTicketsIntoCart($eventId, $seatCategory, $amount)) {
+                throw new \Exception(self::QUERY_ERROR);
+            }
+        } else if(!$this->addTicketsIntoCart($eventId, $seatCategory, $amount)) {
             throw new \Exception(self::QUERY_ERROR);
         }
         return true;
@@ -144,10 +158,10 @@ class DatabaseCartsManager extends DatabaseServiceManager {
      * false.
      */
     private function getFreeSeatTickets(int $eventId, int $seatCategory) {
-        $query = "SELECT s.seats - SUM(p.amount) - SUM(c.amount) as freeSeats
-                  FROM seatCategories s, purchases p, carts c
-                  WHERE s.id = ? AND s.eventId = ? AND s.id = p.seatId AND s.eventId = p.eventId AND s.id = c.seatId
-                        AND s.eventId = c.eventId
+        $query = "SELECT s.seats - SUM(IFNULL(p.amount, 0)) - SUM(IFNULL(c.amount, 0)) as freeSeats
+                  FROM (seatCategories s LEFT OUTER JOIN purchases p ON s.id = p.seatId AND s.eventId = p.eventId)
+                  LEFT OUTER JOIN carts c ON s.id = c.seatId AND s.eventId = c.eventId
+                  WHERE s.id = ? AND s.eventId = ?
                   GROUP BY s.id, s.eventId, s.seats";
         $stmt = $this->prepareBindExecute($query, "ii", $seatCategory, $eventId);
         if ($stmt === false) {
@@ -163,6 +177,24 @@ class DatabaseCartsManager extends DatabaseServiceManager {
         return $freeSeats;
     }
     /*
+     * Add to the cart of the logged user $amount tickets with the specified $eventId and $seatCategory.
+     */
+    private function addTicketsIntoCart(int $eventId, int $seatCategory, int $amount) {
+        $email = $this->getLoggedUserEmail();
+        if ($email === false || !$this->isCustomer($email)) {
+            return false;
+        }
+        $query = "INSERT INTO carts(eventId, seatId, amount, customerEmail)
+                  VALUES (?, ?, ?, ?)";
+        $stmt = $this->prepareBindExecute($query, "iiis", $eventId, $seatCategory, $amount, $email);
+        if ($stmt === false) {
+            return false;
+        }
+        $rows = $stmt->affected_rows;
+        $stmt->close();
+        return $rows === 1;
+    }
+    /*
      * Changes the amount of tickets of $changeAmount into the logged user's cart with a specific seat category, if
      * such user is a customer. If problems arise, throws an exception.
      */
@@ -171,7 +203,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
         if ($email === false) {
             return false;
         }
-        $query = "UPDATE seatCategories
+        $query = "UPDATE carts
                   SET amount = amount + ?
                   WHERE customerEmail = ? AND seatId = ? AND eventId = ?";
         $stmt = $this->prepareBindExecute($query, "isii", $changeAmount, $email, $seatCategory, $eventId);
@@ -180,8 +212,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
-        return $rows !== 1;
+        return $rows === 1;
     }
 }
-
 ?>

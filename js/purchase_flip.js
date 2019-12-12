@@ -63,6 +63,7 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
                               data => {
                                   if (data["result"] === true) {
                                       alert("Operazione effettuata con successo");
+                                      addTicketSpinner.attr("max", parseInt(addTicketSpinner.attr("max")) - ticketsAmount);
                                   } else {
                                       alert("C'è stato un errore nell'eseguire l'operazione. Si prega di riprovare");
                                   }
