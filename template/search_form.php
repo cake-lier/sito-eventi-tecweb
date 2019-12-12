@@ -15,7 +15,7 @@
         <label for="data">Data:</label>
         <input type="date" id="data" name="date" />
         <label for="posti">Posti liberi:</label>
-        <input type="checkbox" name="posti" value="free" checked />
+        <input type="checkbox" id="posti" name="posti" value="free" checked />
     </form>
 </section>
 <section>

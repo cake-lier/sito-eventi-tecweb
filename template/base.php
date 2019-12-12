@@ -22,9 +22,11 @@
         <nav>
             <?php if (isset($_SESSION["email"])) {
                     $link_text = "./user_area.php";
+                    $link_alt = "Area personale";
                     $imgTag = "<img class=\"icon\" src=\"".getProfileImage($dbh, $_SESSION["email"])."\" alt=\"Area personale\"/>";
             } else {
                     $link_text = "./login_page.php";
+                    $link_alt = "Login";
                     $imgTag = "<img class=\"icon\" src=\"".IMG_DIR."/login.png\" alt=\"Login\"/>";
             }?>
             <ul>
