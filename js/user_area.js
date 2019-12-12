@@ -236,6 +236,59 @@ function setChangeDataForm(data) {
     }
 }
 
+function organizeUserEvents(data) {
+    const mainSection = $("main > section");
+    if (Object.keys(data).length > 0) {
+        for (let index in data) {
+            const event = data[index];
+            const eventSection = $("<section>");
+            mainSection.append(eventSection);
+            const eventHeader = $("<header>");
+            eventSection.append(eventHeader);
+            const eventName = $("<h1>");
+            const eventLink = $("<a>", {href: "event.php?id=" + event.id, text: event.name});
+            eventName.append(eventLink);
+            const date = event.dateTime;
+            const dateTimeString = date.toLocaleDateString("it-IT", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            }) + " ore " + date.toLocaleTimeString("it-IT", {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+            const eventPlaceTime = $("<p>", {text: event.place + ", " + dateTimeString});
+            const eventOrganizer = $("<p>", {text: "Organizzato da " + event.organizationName});
+            eventHeader.append(eventName, eventPlaceTime, eventOrganizer);
+            // const eventSeats = $("<p>", {text: "Posti ancora disponibili: " + event.freeSeats + " su " + event.totalSeats});
+            // TODO: add bought tickets
+        }
+    } else {
+        mainSection.append($("<p>", {text: "Non hai acquistato biglietti per nessun evento!"}));
+    }
+}
+
+function showDeleteAccountForm() {
+    const mainSection = $("main > section");
+    const form = $("<form>");
+    mainSection.append(form);
+    const question = $("<p>", {text: "Sei sicuro di voler cancellare il tuo account? Questa azione non é reversibile!"});
+    const passwordLabel = $("<label>", {text: "Password attuale: ", for: "password"});
+    const passwordField = $("<input>", {type: "password", name: "password", id: "password"});
+    passwordField.prop("required", true);
+    const buttonYes = $("<button>", {text: "Elimina"});
+    form.submit(e => {
+        e.preventDefault();
+        $.post("delete_account.php", form.serialize(), d => {
+            console.log(d);
+            if (d.new_location !== "") {
+                window.location.href = d.new_location;
+            }
+        });
+    });
+    form.append(question, passwordLabel, passwordField, buttonYes);
+}
+
 $(() => {
     $("#notifications_button").click(e => {
         $(".selected").removeClass("selected");
@@ -263,5 +316,19 @@ $(() => {
         $("#change_data_button").addClass("selected");
         $("main > section").html("");
         $.get("get_user_data.php", setChangeDataForm);
+    });
+
+    $("#events_button").click(e => {
+        $(".selected").removeClass("selected");
+        $("#events_button").addClass("selected");
+        $("main > section").html("");
+        $.get("get_user_events.php", organizeUserEvents);
+    });
+
+    $("#delete_account_button").click(e => {
+        $(".selected").removeClass("selected");
+        $("#delete_account_button").addClass("selected");
+        $("main > section").html("");
+        showDeleteAccountForm();
     });
 });

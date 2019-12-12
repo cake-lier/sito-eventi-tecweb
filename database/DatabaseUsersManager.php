@@ -244,7 +244,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         try {
             if ($this->checkLogin($email, $password)) {
                 $query = "DELETE FROM users
-                          WHERE email = ?";
+                          WHERE email = ?"; // TODO: set up on delete cascade in the db
                 $stmt = $this->prepareBindExecute($query, "s", $email);
                 if ($stmt === false) {
                     throw new \Exception(self::QUERY_ERROR);
