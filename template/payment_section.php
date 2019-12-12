@@ -18,7 +18,7 @@
             <li><img src="img/postepay_logo.png" alt="postepay" /></li>
         </ul>
     </section>
-    <button id="payButton">Acquista</button>  
+    <button type="button" id="payButton">Acquista</button>  
 </section>
 <footer>
     <p>Completando l'acquisto accetti i nostri <a href="info.php?type=termini">Termini di Servizio</a> e affermi di aver <!--

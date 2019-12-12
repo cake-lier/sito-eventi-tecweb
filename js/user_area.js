@@ -276,7 +276,7 @@ function showDeleteAccountForm() {
     const passwordLabel = $("<label>", {text: "Password attuale: ", for: "password"});
     const passwordField = $("<input>", {type: "password", name: "password", id: "password"});
     passwordField.prop("required", true);
-    const buttonYes = $("<button>", {text: "Elimina"});
+    const buttonYes = $("<button>", {text: "Elimina", type: "button"});
     form.submit(e => {
         e.preventDefault();
         $.post("delete_account.php", form.serialize(), d => {

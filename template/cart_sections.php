@@ -17,12 +17,12 @@
             <section>
                 <section>
                     <p><?php echo $ticket["category"]; ?></p>
-                    <button>-</button>
+                    <button type="button">-</button>
                     <p><?php echo $ticket["amount"] . " bigliett" . ($ticket["amount"] > 1 ? "i" : "o"); ?></p>
-                    <button>+</button>
+                    <button type="button">+</button>
                     <p><?php echo $ticket["price"] . "€/cad." ?></p>
                 </section>
-                <button id="removeButton">Rimuovi</button>
+                <button type="button" id="removeButton_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">Rimuovi</button>
             </section>
         </section>
     <?php

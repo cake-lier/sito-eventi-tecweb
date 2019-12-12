@@ -17,5 +17,5 @@
     <p><?php echo $templateParams["event"]["description"]; ?></p>
 </section>
 <footer>
-    <button id="purchaseButton"><img src="<?php echo IMG_DIR ?>cart.png" alt="Vai all'acquisto"/></button>
+    <button type="button" id="purchaseButton"><img src="<?php echo IMG_DIR ?>cart.png" alt="Vai all'acquisto"/></button>
 </footer>
