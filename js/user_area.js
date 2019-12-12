@@ -236,38 +236,6 @@ function setChangeDataForm(data) {
     }
 }
 
-function organizeUserEvents(data) {
-    const mainSection = $("main > section");
-    if (Object.keys(data).length > 0) {
-        for (let index in data) {
-            const event = data[index];
-            const eventSection = $("<section>");
-            mainSection.append(eventSection);
-            const eventHeader = $("<header>");
-            eventSection.append(eventHeader);
-            const eventName = $("<h1>");
-            const eventLink = $("<a>", {href: "event.php?id=" + event.id, text: event.name});
-            eventName.append(eventLink);
-            const date = event.dateTime;
-            const dateTimeString = date.toLocaleDateString("it-IT", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-            }) + " ore " + date.toLocaleTimeString("it-IT", {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
-            const eventPlaceTime = $("<p>", {text: event.place + ", " + dateTimeString});
-            const eventOrganizer = $("<p>", {text: "Organizzato da " + event.organizationName});
-            eventHeader.append(eventName, eventPlaceTime, eventOrganizer);
-            // const eventSeats = $("<p>", {text: "Posti ancora disponibili: " + event.freeSeats + " su " + event.totalSeats});
-            // TODO: add bought tickets
-        }
-    } else {
-        mainSection.append($("<p>", {text: "Non hai acquistato biglietti per nessun evento!"}));
-    }
-}
-
 function showDeleteAccountForm() {
     const mainSection = $("main > section");
     const form = $("<form>");
@@ -319,10 +287,7 @@ $(() => {
     });
 
     $("#events_button").click(e => {
-        $(".selected").removeClass("selected");
-        $("#events_button").addClass("selected");
-        $("main > section").html("");
-        $.get("get_user_events.php", organizeUserEvents);
+        window.location.href = "my_events.php";
     });
 
     $("#delete_account_button").click(e => {

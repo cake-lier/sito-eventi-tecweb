@@ -39,10 +39,10 @@
                 <?php if (isset($_SESSION["email"])) {
                         if (!$dbh->getUsersManager()->isAdmin($_SESSION["email"])) {
                             $_GET["user_info"] = "user_events";
-                            echo '<li><a href="./user_area.php"><img class="icon" src="'.IMG_DIR.'calendar.png" alt="i miei eventi"/><p class="menu_links">I miei eventi</p></a></li>';
+                            echo '<li><a href="./my_events.php"><img class="icon" src="'.IMG_DIR.'calendar.png" alt="i miei eventi"/><p class="menu_links">I miei eventi</p></a></li>';
                         }
                         if ($dbh->getUsersManager()->isPromoter($_SESSION["email"])) {
-                            echo '<li><a href="./create_event.php"><img class="icon" src="'.IMG_DIR.'new.png" alt="crea evento"/><p class="menu_links">Crea evento</p></a></li>';
+                            echo '<li><a href="./create_event_page.php"><img class="icon" src="'.IMG_DIR.'new.png" alt="crea evento"/><p class="menu_links">Crea evento</p></a></li>';
                         }
                         echo '<li><a href="./logout.php"><img class="icon" src="'.IMG_DIR.'logout.png" alt="logout"/><p class="menu_links">Logout</p></a></li>';
                 }?>

@@ -280,6 +280,22 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         return parent::isAdmin($email);
     }
     /*
+     * Returns a list of the names of the promoters' organizations.
+     */
+    public function getPromoters() {
+        $query = "SELECT u.email, organizationName, profilePhoto
+                  FROM promoters p, users u
+                  WHERE u.email = p.email";
+        // No risk of SQL injection
+        $result = $this->query($query);
+        if ($result === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $data = $result->fetch_all(MYSQLI_ASSOC);
+        $result->close();
+        return $data;
+    }
+    /*
      * Inserts a new user into the database. Returns false if something went wrong.
      */
     private function insertUser(string $email, string $password, $profilePhoto, string $type) {

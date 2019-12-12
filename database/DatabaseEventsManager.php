@@ -179,13 +179,14 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     }
     /*
      * Returns all the ids of the events in the given $place, or on the given $date, or with free or not seats, or with a title
-     * containing a specific keyword. If the specified keyword is an empty string, this method will ignore the keyword constraint.
+     * containing a specific keyword, or organized by a specific promoter. If the specified keyword is an empty string, this 
+     * method will ignore the keyword constraint.
      * Every argument is optional: if not passed, the specific constraint won't be used for the search into the database, except
      * for the "$free" parameter which, if not specified, will make the method to return only events with still free seats.
      * It can be specified the range of results needed. Throws an exception if something went wrong.
      */
     public function getEventIdsFiltered(int $min = -1, int $max = -1, string $keyword = "", bool $free = true,
-                                        string $place = null, string $date = null) {
+                                        string $place = null, string $date = null, string $promoterEmail = null) {
         $condition = "";
         $bindings = "";
         $parameters = array();
@@ -203,6 +204,11 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             $condition .= " AND INSTR(e.name, ?) > 0";
             $bindings = $bindings . "s";
             $parameters[] = $keyword;
+        }
+        if ($promoterEmail !== null) {
+            $condition .= " AND promoterEmail = ?";
+            $bindings = $bindings . "s";
+            $parameters[] = $promoterEmail;
         }
         if ($free) {
             $condition .= " AND e.id = s.eventId
