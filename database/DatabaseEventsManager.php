@@ -344,7 +344,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         if ($email === false) {
             throw new \Exception(self::PRIVILEGE_ERROR);
         }
-        $query = "SELECT DISTINCT e.name AS name, e.place AS place, e.dateTime AS dateTime,
+        $query = "SELECT DISTINCT e.id AS id, e.name AS name, e.place AS place, e.dateTime AS dateTime,
                                   e.description AS description, e.site AS site, p.organizationName AS organizationName
                   FROM events e, purchases p
                   WHERE p.customerEmail = ? AND e.id = p.eventId";
