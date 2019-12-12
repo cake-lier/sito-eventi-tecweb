@@ -6,10 +6,8 @@
         <input type="text" name="keyword" id="ricerca" />
     </form>
 </section>
-<section>
 <?php
-    // TODO: get most popular event
-    echo '<a href=\'./search.php?keyword=""\'>Scopri di più</a>';
-    // TODO: get most recent event
+
+require "template/top_events.php";
+
 ?>
-</section>

@@ -19,31 +19,43 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         $this->notificationsManager = $notificationsManager;
     }
     /*
-     * Returns all the ids of the events with a date in the future. Throws an exception if something went wrong.
+     * Returns the id of the most popular event, intended as the one which sold more tickets but is still not sold out, with a
+     * date in the future. Throws an exception if something went wrong.
      */
-    //TODO: Are we sure this will be needed?
-    public function getEventIds() {
-        $query = "SELECT id
-                  FROM events
-                  WHERE dateTime >= CURRENT_TIMESTAMP";
+    public function getMostPopularEvent() {
+        try {
+            $eventIds = $this->getEventIdsFiltered();
+            $freeSeats = $this->getEventsFreeSeats($eventIds);
+            $events = array();
+            array_walk($eventIds, function($e, $i) use (&$freeSeats, &$events) {
+                $events[] = ["id" => $e, "freeSeats" => $freeSeats[$i]];
+            });
+            usort($events, function($fst, $snd) {
+                return $snd["freeSeats"] - $fst["freeSeats"];
+            });
+            return $events[0]["id"];
+        } catch (\Exception $e) {
+            throw $e;
+        }
+    }
+    /*
+     * Returns the id of the most recent event, intended as the one which was added to the database last, with a date in the
+     * future. Throws an exception if something went wrong.
+     */
+    public function getMostRecentEvent() {
+        $query = "SELECT e.id AS id
+                  FROM events e
+                  WHERE e.dateTime >= CURRENT_TIMESTAMP
+                  ORDER BY e.id DESC
+                  LIMIT 1";
         // No risk of SQL injection 
         $result = $this->query($query);
         if ($result === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        $data = $result->fetch_all(MYSQLI_ASSOC);
+        $id = $result->fetch_assoc()["id"];
         $result->close();
-        $freeSeats = $this->getEventsFreeSeats(...array_column($data, "id"));
-        if ($freeSeats === false) {
-            throw new \Exception(self::QUERY_ERROR);
-        }
-        array_walk($data, function($e, $i) use (&$freeSeats) {
-            $e["freeSeats"] = $freeSeats[$i];
-        });
-        usort($data, function($fst, $snd) {
-            return $snd["freeSeats"] - $fst["freeSeats"];
-        });
-        return array_column($data, "id");
+        return $id;
     }
     /*
      * Returns info about the event with the given $eventId. Throws an exception if something went wrong.
@@ -96,6 +108,21 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         return $result;
     }
     /*
+     * Returns informations about a specific seat category with this $seatId for the event with given $eventId.
+     */
+    public function getSeatInfo(int $eventId, int $seatId) {
+        $query = "SELECT name, CAST(price AS FLOAT)
+                  FROM seatCategories
+                  WHERE eventId = ? AND seatId = ?";
+        $stmt = $this->prepareBindExecute($query, "ii", $eventId, $seatId);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $result;
+    }
+    /*
      * Returns all the possible places for the events. Throws an exception if something went wrong.
      */
     public function getEventsPlaces() {
@@ -143,52 +170,53 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         return $data["num"];
     }
     /*
-     * Returns all the ids of the events in the given $place, on the given $date, of the given $typeId and with $free or
-     * not seats. Throws an exception if something went wrong.
+     * Returns all the ids of the events in the given $place, or on the given $date, or with free or not seats, or with a title
+     * containing a specific keyword. If the specified keyword is an empty string, this method will ignore the keyword constraint.
+     * Every argument is optional: if not passed, the specific constraint won't be used for the search into the database, except
+     * for the "$free" parameter which, if not specified, will make the method to return only events with still free seats.
+     * It can be specified the range of results needed. Throws an exception if something went wrong.
      */
-    public function getEventIdsFiltered(int $min, int $max, string $keyword = "", bool $free = true, string $place = null,
-                                        string $date = null) {
+    public function getEventIdsFiltered(int $min = -1, int $max = -1, string $keyword = "", bool $free = true,
+                                        string $place = null, string $date = null) {
         $condition = "";
         $bindings = "";
         $parameters = array();
         if ($place !== null) {
-            $condition = "place = ?";
+            $condition .= " AND place = ?";
             $bindings = "s";
             $parameters[] = $place;
         }
         if ($date !== null) {
-            $condition = $condition === "" ? "" : $condition . " AND ";
-            $condition .= "date = ?";
+            $condition .= " AND date = ?";
             $bindings = $bindings . "s";
             $parameters[] = $date;
         }
         if ($keyword !== "") {
-            $condition = $condition === "" ? "" : $condition . " AND ";
-            $condition .= "INSTR(e.name, ?) > 0";
+            $condition .= " AND INSTR(e.name, ?) > 0";
             $bindings = $bindings . "s";
             $parameters[] = $keyword;
         }
         if ($free) {
-            $condition = $condition == "" ? "" : $condition . " AND ";
-            $condition .= "e.id = s.eventId
-                           GROUP BY e.id, e.name
-                           HAVING SUM(s.seats) > (SELECT SUM(IFNULL(p.amount, 0)) + SUM(IFNULL(c.amount, 0))
-                                                  FROM events e1, seatCategories s1, purchases p, carts c
-                                                  WHERE e1.id = e.id AND p.seatId = s1.id AND p.eventId = s1.eventId 
-                                                        AND c.seatId = s1.id AND c.eventId = s1.eventId
-                                                        AND s1.eventId = e1.id)";
+            $condition .= " AND e.id = s.eventId
+                            GROUP BY e.id, e.name
+                            HAVING SUM(s.seats) > (SELECT IFNULL(SUM(IFNULL(p.amount, 0)) + SUM(IFNULL(c.amount, 0)), 0)
+                                                   FROM events e1, seatCategories s1, purchases p, carts c
+                                                   WHERE e1.id = e.id AND p.seatId = s1.id AND p.eventId = s1.eventId 
+                                                         AND c.seatId = s1.id AND c.eventId = s1.eventId
+                                                         AND s1.eventId = e1.id)";
         }
         $query = "SELECT e.id AS id, e.name AS name
-                  FROM events e, seatCategories s";
-        if ($condition !== "") {
-            $query .= " WHERE " . $condition;
-        }
+                  FROM events e, seatCategories s
+                  WHERE e.dateTime >= CURRENT_TIMESTAMP";
         if (!$free) {
-            $query .= " GROUP BY e.id, e.name";
+            $condition .= " GROUP BY e.id, e.name";
         }
-        $query .= " LIMIT ?, ?";
-        $bindings .= "ii";
-        array_push($parameters, $min, $max);
+        if ($min !== -1 && $max !== -1) {
+            $condition .= " LIMIT ?, ?";
+            $bindings .= "ii";
+            array_push($parameters, $min, $max);
+        }
+        $query .= $condition;
         $stmt = $this->prepareBindExecute($query, $bindings, ...$parameters);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);

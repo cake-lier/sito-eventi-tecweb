@@ -10,7 +10,7 @@ array_walk($eventIds, function($id) use (&$templateParams, $dbh) {
 });
 $templateParams["name"] = "search_form.php";
 $templateParams["searchSecondSection"] = "events_list_display.php";
-$templateParams["title"] = "SeatHeat - Search";
+$templateParams["title"] = "SeatHeat - Cerca";
 $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "change_events_page.js"];
 
 require "template/base.php";
