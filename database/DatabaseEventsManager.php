@@ -20,20 +20,24 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     }
     /*
      * Returns the id of the most popular event, intended as the one which sold more tickets but is still not sold out, with a
-     * date in the future. Throws an exception if something went wrong.
+     * date in the future. If no event is present, returns false. Throws an exception if something went wrong.
      */
     public function getMostPopularEvent() {
         try {
             $eventIds = $this->getEventIdsFiltered();
             $freeSeats = $this->getEventsFreeSeats($eventIds);
-            $events = array();
-            array_walk($eventIds, function($e, $i) use (&$freeSeats, &$events) {
-                $events[] = ["id" => $e, "freeSeats" => $freeSeats[$i]];
-            });
-            usort($events, function($fst, $snd) {
-                return $snd["freeSeats"] - $fst["freeSeats"];
-            });
-            return $events[0]["id"];
+            if (count($eventIds) > 0) {
+                $events = array();
+                array_walk($eventIds, function($e, $i) use (&$freeSeats, &$events) {
+                    $events[] = ["id" => $e, "freeSeats" => $freeSeats[$i]];
+                });
+                usort($events, function($fst, $snd) {
+                    return $snd["freeSeats"] - $fst["freeSeats"];
+                });
+                return $events[0]["id"];
+            } else {
+                return false;
+            }
         } catch (\Exception $e) {
             throw $e;
         }
@@ -53,9 +57,13 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         if ($result === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        $id = $result->fetch_assoc()["id"];
-        $result->close();
-        return $id;
+        $events = $result->fetch_assoc();
+        if ($events !== null) {
+            $id = $events["id"];
+            $result->close();
+            return $id;
+        }
+        return false;
     }
     /*
      * Returns info about the event with the given $eventId. Throws an exception if something went wrong.
