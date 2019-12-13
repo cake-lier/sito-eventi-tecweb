@@ -7,7 +7,7 @@
         $templateParams["name"] = "events_list_display.php";
         $templateParams["events"] = array();
         if ($dbh->getUsersManager()->isCustomer($_SESSION["email"])) {
-            $eventIds = $dbh->getEventsManager()->getPurchasedEvents();
+            $eventIds = array_column($dbh->getEventsManager()->getPurchasedEvents(), "id");
         } else {
             // it's necessarily a promoter
             $eventIds = $dbh->getEventsManager()->getEventIdsFiltered(0, 4, "", false, null, null, $_SESSION["email"]);
