@@ -106,6 +106,34 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
         }
     }
     /* 
+     * Send a notification with the given $message to the admins 
+     */
+    public function sendNotificationToAdmin(string $message) {
+        $email = $this->getLoggedUserEmail();
+        if ($email === false) {
+            throw new \Exception(self::PRIVILEGE_ERROR);
+        }
+        $message = "Inviato da ".$email.":\n".$message;
+        $notificationId = $this->insertNewNotification($message);
+        if ($notificationId === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+
+        $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
+                  SELECT email, ?, ?, false
+                  FROM users
+                  WHERE type = 'a'";
+        $stmt = $this->prepareBindExecute($query, "ss", date("Y-m-d H:i:s"), $notificationId);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $rows = $stmt->affected_rows;
+        $stmt->close();
+        if ($rows === -1) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+    }
+    /* 
      * Insert a new type of notification into the database. If problems arise, returns false.
      */
     private function insertNewNotification(string $message) {

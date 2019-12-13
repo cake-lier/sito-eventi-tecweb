@@ -67,7 +67,7 @@
             <a href="index.php">SeatHeat s.r.l.s</a>
         </div>
         <div class="info_links">
-            <a href="message_admin.php">Contatta gli amministratori</a>
+            <a href="message_admin.php">Contatta gli admin</a>
         </div>
     </footer>
 </body>

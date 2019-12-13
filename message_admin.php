@@ -3,7 +3,7 @@ require_once "bootstrap.php";
 
 if (isset($_SESSION["email"])) {
     //Base Template
-    $templateParams["title"] = "SeatHeat - Contatta gli amministratori";
+    $templateParams["title"] = "SeatHeat - Contatta gli admin";
     $templateParams["name"] = "admin_message_form.php";
     require 'template/base.php';
 } else {

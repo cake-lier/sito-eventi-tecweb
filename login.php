@@ -12,7 +12,7 @@ if (isset($_POST["email"]) && isset($_POST["password"])) {
             $_SESSION["loginError"] = "Username o password errata";
         }
     } catch (\Exception $e) {
-        $_SESSION["loginError"] = "Problema nell'accesso al database";
+        $_SESSION["loginError"] = "Sei sicuro di essere registrato?";
     }
 }
 
