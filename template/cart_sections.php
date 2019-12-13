@@ -1,3 +1,10 @@
+<?php
+    if (isset($_GET["error"])):
+?>
+    <p>Si è verificato un errore durante il pagamento. Si prega di riprovare.</p>
+<?php
+    endif;
+?>
 <section>
     <?php
         if (isset($templateParams["cartPaymentSection"])) {
@@ -17,9 +24,9 @@
             <section>
                 <section>
                     <p><?php echo $ticket["category"]; ?></p>
-                    <button type="button">-</button>
+                    <button type="button" id="decButton_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">-</button>
                     <p><?php echo $ticket["amount"] . " bigliett" . ($ticket["amount"] > 1 ? "i" : "o"); ?></p>
-                    <button type="button">+</button>
+                    <button type="button" id="incButton_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">+</button>
                     <p><?php echo $ticket["price"] . "€/cad." ?></p>
                 </section>
                 <button type="button" id="removeButton_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">Rimuovi</button>

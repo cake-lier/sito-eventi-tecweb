@@ -31,5 +31,6 @@ if (!isset($_SESSION["email"])) {
     }
 }
 $templateParams["title"] = "SeatHeat - Carrello";
+$templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "cart.js"];
 require "template/base.php";
 ?>

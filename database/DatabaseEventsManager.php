@@ -2,8 +2,8 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
-require_once("./database/DatabaseServiceManager.php");
-require_once("./database/DatabaseNotificationsManager.php");
+require_once "database/DatabaseServiceManager.php");
+require_once "database/DatabaseNotificationsManager.php");
 
 class DatabaseEventsManager extends DatabaseServiceManager {
     private const QUERY_ERROR = "An error occured while executing the query\n";

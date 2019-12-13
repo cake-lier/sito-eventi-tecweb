@@ -2,7 +2,7 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
-require_once("./database/DatabaseServiceManager.php");
+require_once "database/DatabaseServiceManager.php" ;
 
 /*
  * The class offering services regarding carts. It can put tickets into it, remove them, increment the ones associated
@@ -98,7 +98,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
      * Decrements the number of tickets into the cart of the logged user. If it can't be made, it will return false,
      * otherwise true. If problems arise, throws an exception.
      */
-    public function decrementSeatTickets(int $seatId, int $eventId, int $seatCategory) {
+    public function decrementSeatTickets(int $eventId, int $seatCategory) {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
             throw new \Exception(self::QUERY_ERROR);
@@ -106,7 +106,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
         $query = "SELECT amount
                   FROM carts
                   WHERE seatId = ? AND eventId = ? AND customerEmail = ?";
-        $stmt = $this->prepareBindExecute($query, "iis", $seatId, $eventId, $email);
+        $stmt = $this->prepareBindExecute($query, "iis", $seatCategory, $eventId, $email);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
@@ -123,13 +123,15 @@ class DatabaseCartsManager extends DatabaseServiceManager {
                 throw $e;
             }
         } else {
-            $this->changeTicketsIntoCart($eventId, $seatCategory, -1);
+            if(!$this->changeTicketsIntoCart($eventId, $seatCategory, -1)) {
+                throw new \Exception(self::QUERY_ERROR);
+            }
         }
     }
     /*
-     * Buys a ticket, and eventually removes it from the logged user's cart. If problems arise, throws an exception.
+     * Buys the logged user tickets, and removes them from the cart. If problems arise, throws an exception.
      */
-    public function buyTickets(int $eventId, int $seatCategory) {
+    public function buyLoggedUserTickets() {
         $email = $this->getLoggedUserEmail();
         if ($email === false) {
             throw new \Exception(self::QUERY_ERROR);
@@ -137,19 +139,25 @@ class DatabaseCartsManager extends DatabaseServiceManager {
         $query = "INSERT INTO purchases(seatId, eventId, customerEmail, amount)
                   SELECT seatId, eventId, customerEmail, amount
                   FROM carts
-                  WHERE seatId = ? AND eventId = ? AND customerEmail = ?";
-        $stmt = $this->prepareBindExecute($query, "iis", $eventId, $seatCategory, $email);
+                  WHERE customerEmail = ?";
+        $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
-        if ($rows !== 1) {
+        if ($rows === -1) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        try {
-            $this->removeSeatCategoryFromCart($eventId, $seatCategory);
-        } catch (\Exception $e) {
+        $removeQuery = "DELETE FROM carts
+                        WHERE customerEmail = ?";
+        $removeStmt = $this->prepareBindExecute($removeQuery, "s", $email);
+        if ($removeStmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $removeRows = $removeStmt->affected_rows;
+        $removeStmt->close();
+        if ($removeRows === -1) {
             throw new \Exception(self::QUERY_ERROR);
         }
     }

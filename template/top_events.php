@@ -8,7 +8,7 @@
         }
     }
 ?>
-<a href='./search.php?keyword=""'>Scopri di più</a>
+<a href="search.php?keyword=">Scopri di più</a>
 <?php
     $eventId = $dbh->getEventsManager()->getMostRecentEvent();
     if ($eventId !== false) {
