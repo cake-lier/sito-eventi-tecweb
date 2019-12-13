@@ -137,13 +137,14 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $query = "UPDATE users
                   SET profilePhoto = ?
                   WHERE email = ?";
-        $stmt = $this->prepareBindExecute($query, "bs", $photo, $email);
+        $stmt = $this->prepareBindExecute($query, "ss", $photo, $email);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         } else if ($stmt->affected_rows !== 1) {
             $stmt->close();
             throw new \Exception(self::QUERY_ERROR);
         }
+        return;
     }
     /*
      * Changes the data of the customer logged in. Throws an exception if something went wrong.

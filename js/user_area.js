@@ -32,7 +32,7 @@ function organizeUserData(data) {
         const mainSection = $("main > section");
         const generalSection = $("<section>");
         mainSection.append(generalSection);
-        const photo = $("<img>", {src: data.profilePhoto});
+        const photo = $("<img>", {src: data.profilePhoto, id: "profile_photo_img"});
         generalSection.append(photo);
         const emailHeader = $("<strong>");
         emailHeader.text("Email: ");
@@ -154,11 +154,11 @@ function setChangePasswordForm() {
 function setChangeDataForm(data) {
     if (Object.keys(data).length > 0) {
         // this part is common to every type of user
-        const form = $("<form>");
+        const form = $("<form>", {enctype: "multipart/form-data"});
         $("main > section").append(form);
         const generalSection = $("<section>");
         form.append(generalSection);
-        const photo = $("<img>", {src: data.profilePhoto});
+        const photo = $("<img>", {src: data.profilePhoto, id: "profile_photo_img"});
         generalSection.append(photo);
         const photoLabel = $("<label>", {for: "profile_photo", text: "Nuova foto profilo: "});
         const photoChooser = $("<input>", {type: "file", name: "profile_photo", id: "profile_photo"});
@@ -227,10 +227,19 @@ function setChangeDataForm(data) {
         form.append(submit);
         form.submit(e => {
             e.preventDefault();
-            $.post("change_user_data.php", form.serialize(), data => {
-                console.log(data.resultMessage);    
+            $.ajax({
+                url: "change_user_data.php",
+                type: "POST",
+                data: new FormData($("form")[0]), 
+                processData: false,
+                contentType: false,
+            }).done(data => {
                 $("form > p").remove();
                 form.prepend($("<p>", {text: data.resultMessage}));
+                $.get("get_user_data.php", data => {
+                    $("#profile_photo_img").attr("src", data.profilePhoto);
+                    $(".profile_icon").attr("src", data.profilePhoto);
+                });
             });
         });
     }

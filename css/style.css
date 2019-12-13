@@ -30,7 +30,7 @@ body > header {
     font-size: larger;
 }
 
-img.icon, #menu_icon {
+img.icon, #menu_icon, img.profile_icon {
     max-height: 50px;
 }
 
