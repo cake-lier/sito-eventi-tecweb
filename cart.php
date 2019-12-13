@@ -2,14 +2,26 @@
 require_once "bootstrap.php";
 
 if (!isset($_SESSION["email"])) {
-    if (count($_SESSION["cart"]) === 0) {
+    if (!isset($_SESSION["cart"]) || empty($_SESSION["cart"])) {
         $templateParams["name"] = "empty_cart.php";
-    } else {
+    } else if (!empty($_SESSION["cart"])) {
         $templateParams["name"] = "cart_sections.php";
         $templateParams["cartPaymentSection"] = "login_form.php";
-        array_walk($_SESSION["cart"], function($e) use (&$templateParams) {
-            $templateParams["tickets"][] = array_merge($dbh->getEventsManager()->getSeatInfo($e["eventId"], $e["seatId"]),
-                                                       $e["amount"]);
+        $templateParams["location"] = "cart.php";
+        array_walk($_SESSION["cart"], function($seatCategories, $eventId) use (&$templateParams, $dbh) {
+            $event = $dbh->getEventsManager()->getEventInfo($eventId);
+            array_walk($seatCategories, function($amount, $seatId) use ($event, $eventId, &$templateParams, $dbh) {
+                $seat = $dbh->getEventsManager()->getSeatInfo($eventId, $seatId);
+                $templateParams["tickets"][] = ["eventId" => $eventId,
+                                                "seatId" => $seatId,
+                                                "eventName" => $event["name"],
+                                                "eventPlace" => $event["place"],
+                                                "dateTime" => $event["dateTime"],
+                                                "amount" => $amount,
+                                                "category" => $seat["name"],
+                                                "price" => $seat["price"]
+                                               ]; 
+            });
         });
     }
 } else {

@@ -8,8 +8,19 @@ if (isset($_GET["seatId"]) && isset($_GET["eventId"]) && isset($_GET["amount"]))
     $amount = intval($_GET["amount"]);
     try {
         if (!isset($_SESSION["email"])) {
-            $_SESSION["cart"][] = [$seatId, $eventId, $amount];
-            $data["result"] = true;
+            if (!isset($_SESSION["cart"][$eventId])) {
+                $_SESSION["cart"][$eventId] = array();
+            }
+            $seat = $dbh->getEventsManager()->getSeatInfo($eventId, $seatId);
+            if (!isset($_SESSION["cart"][$eventId][$seatId])) {
+                if ($amount + $seat["occupiedSeats"] <= $seat["seats"]) {
+                    $_SESSION["cart"][$eventId][$seatId] = $amount;
+                    $data["result"] = true;
+                }
+            } else if ($amount + $seat["occupiedSeats"] + $_SESSION["cart"][$eventId][$seatId] <= $seat["seats"]) {
+                $_SESSION["cart"][$eventId][$seatId] += $amount;
+                $data["result"] = true;
+            }
         } else if ($dbh->getCartsManager()->putTicketsIntoCart($eventId, $seatId, $amount)) {
             $data["result"] = true;
         }

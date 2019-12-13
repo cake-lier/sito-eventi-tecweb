@@ -1,6 +1,16 @@
 <?php
 require_once "bootstrap.php";
 
+function unsetMatrixIfEmpty(&$matrix, $firstIndex, $secondIndex) {
+    unset($matrix[$firstIndex][$secondIndex]);
+    if (empty($matrix[$firstIndex])) {
+        unset($matrix[$firstIndex]);
+        if (empty($matrix)) {
+            unset($matrix);
+        }
+    }
+}
+
 $data["result"] = false;
 if (isset($_GET["seatId"]) && isset($_GET["eventId"]) && isset($_GET["actionType"])) {
     $eventId = intval($_GET["eventId"]);
@@ -9,16 +19,35 @@ if (isset($_GET["seatId"]) && isset($_GET["eventId"]) && isset($_GET["actionType
     try {
         switch ($actionType) {
             case 0:
-                $dbh->getCartsManager()->removeSeatCategoryFromCart($eventId, $seatId);
+                if (isset($_SESSION["email"])) {
+                    $dbh->getCartsManager()->removeSeatCategoryFromCart($eventId, $seatId);
+                } else {
+                    unsetMatrixIfEmpty($_SESSION["cart"], $eventId, $seatId);
+                }
                 $data["result"] = true;
                 break;
             case 1:
-                $dbh->getCartsManager()->decrementSeatTickets($eventId, $seatId);
+                if (isset($_SESSION["email"])) {
+                    $dbh->getCartsManager()->decrementSeatTickets($eventId, $seatId);
+                } else {
+                    $_SESSION["cart"][$eventId][$seatId]--;
+                    if ($_SESSION["cart"][$eventId][$seatId] === 0) {
+                        unsetMatrixIfEmpty($_SESSION["cart"], $eventId, $seatId);
+                    }
+                }
                 $data["result"] = true;
                 break;
             case 2:
-                if ($dbh->getCartsManager()->incrementSeatTickets($eventId, $seatId)) {
-                    $data["result"] = true;
+                if (isset($_SESSION["email"])) {
+                    if ($dbh->getCartsManager()->incrementSeatTickets($eventId, $seatId)) {
+                        $data["result"] = true;
+                    }
+                } else {
+                    $seat = $dbh->getEventsManager()->getSeatInfo($eventId, $seatId);
+                    if ($seat["occupiedSeats"] + $_SESSION["cart"][$eventId][$seatId] + 1 <= $seat["seats"]) {
+                        $_SESSION["cart"][$eventId][$seatId]++;
+                        $data["result"] = true;
+                    }
                 }
                 break;
         }

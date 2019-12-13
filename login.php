@@ -1,8 +1,9 @@
 <?php
 require_once "bootstrap.php";
 
-$location = "login_page.php";
-if (isset($_POST["email"]) && isset($_POST["password"])) {
+$location = "index.php";
+if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["landing_page"])) {
+    $location = $_POST["landing_page"];
     try {
         $loginResult = $dbh->getUsersManager()->checkLogin($_POST["email"], $_POST["password"]);
         if ($loginResult) {
@@ -16,5 +17,5 @@ if (isset($_POST["email"]) && isset($_POST["password"])) {
     }
 }
 
-header("location: ".$location);
+header("location: " . $location);
 ?>

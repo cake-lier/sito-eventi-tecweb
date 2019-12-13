@@ -119,9 +119,12 @@ class DatabaseEventsManager extends DatabaseServiceManager {
      * Returns informations about a specific seat category with this $seatId for the event with given $eventId.
      */
     public function getSeatInfo(int $eventId, int $seatId) {
-        $query = "SELECT name, CAST(price AS FLOAT)
-                  FROM seatCategories
-                  WHERE eventId = ? AND seatId = ?";
+        $query = "SELECT s.name AS name, CAST(s.price AS FLOAT) AS price, s.seats AS seats,
+                         CAST(SUM(IFNULL(p.amount, 0)) + SUM(IFNULL(c.amount, 0)) AS INT) AS occupiedSeats
+                  FROM (seatCategories s LEFT OUTER JOIN purchases p ON s.id = p.seatId AND s.eventId = p.eventId)
+                       LEFT OUTER JOIN carts c ON c.seatId = s.id AND c.eventId = s.eventId
+                  WHERE s.eventId = ? AND s.id = ?
+                  GROUP BY s.id, s.eventId, s.name, s.price, s.seats";
         $stmt = $this->prepareBindExecute($query, "ii", $eventId, $seatId);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
