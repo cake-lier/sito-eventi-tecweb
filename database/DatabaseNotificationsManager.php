@@ -101,7 +101,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
         }
         $rows = $stmt->affected_rows;
         $stmt->close();
-        if ($rows !== 1) {
+        if ($rows === -1) {
             throw new \Exception(self::QUERY_ERROR);
         }
     }

@@ -26,7 +26,7 @@
     <?php if (isset($_SESSION["email"])
                 && $dbh->getUsersManager()->isPromoter($_SESSION["email"]) 
                 && $event["promoterEmail"] === $_SESSION["email"]): ?>
-        <a href="modify_event.php?id=<?php echo $event["id"]; ?>"><img src="<?php echo IMG_DIR; ?>new.png" alt="modifica" /></a>
+        <a href="modify_event_page.php?id=<?php echo $event["id"]; ?>"><img src="<?php echo IMG_DIR; ?>new.png" alt="modifica" /></a>
     <?php else: ?>
         <a href="event.php?id=<?php echo $event["id"]; ?>"><img src="<?php echo IMG_DIR; ?>more.png" alt="modifica" /></a>
     <?php endif ?>

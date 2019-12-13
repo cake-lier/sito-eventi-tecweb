@@ -358,9 +358,9 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             throw new \Exception(self::PRIVILEGE_ERROR);
         }
         $query = "SELECT DISTINCT e.id AS id, e.name AS name, e.place AS place, e.dateTime AS dateTime,
-                                  e.description AS description, e.site AS site, p.organizationName AS organizationName
-                  FROM events e, purchases p
-                  WHERE p.customerEmail = ? AND e.id = p.eventId";
+                                  e.description AS description, e.site AS site, pr.organizationName AS organizationName
+                  FROM events e, purchases p, promoters pr
+                  WHERE p.customerEmail = ? AND e.id = p.eventId AND e.promoterEmail = pr.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
@@ -437,7 +437,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     /*
      * Checks if the event with the given $eventId was created by the user which is currenly logged in.
      */
-    private function isLoggedUserEventOwner($eventId) {
+    public function isLoggedUserEventOwner($eventId) {
         try {
             $eventInfo = $this->getEventInfo($eventId);
         } catch (\Exception $e) {
