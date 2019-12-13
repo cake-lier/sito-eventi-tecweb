@@ -302,7 +302,6 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             if ($categoriesStmt === false) {
                 throw new \Exception(self::QUERY_ERROR);
             } 
-            $categoriesStmt->close();
             $categoryId = -1;
             switch ($categoriesStmt->affected_rows) {
                 case 1:
@@ -322,6 +321,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
                     throw new \Exception(self::QUERY_ERROR);
                     break;
             }
+            $categoriesStmt->close();
             $categoriesEventsStmt = $this->prepareBindExecute($categoriesEventsQuery, "ii", $eventId, $categoryId);
             if ($categoriesEventsStmt === false) {
                 throw new \Exception(self::QUERY_ERROR);
