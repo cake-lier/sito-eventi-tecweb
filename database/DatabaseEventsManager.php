@@ -2,8 +2,8 @@
 
 declare(strict_types = 1);
 namespace it\unibo\tecweb\seatheat;
-require_once "database/DatabaseServiceManager.php");
-require_once "database/DatabaseNotificationsManager.php");
+require_once "database/DatabaseServiceManager.php";
+require_once "database/DatabaseNotificationsManager.php";
 
 class DatabaseEventsManager extends DatabaseServiceManager {
     private const QUERY_ERROR = "An error occured while executing the query\n";
@@ -267,7 +267,6 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             throw new \Exception(self::QUERY_ERROR);
         }
         $rows = $stmt->affected_rows;
-        $stmt->close();
         if ($rows !== 1) {
             throw new \Exception(self::QUERY_ERROR);
         }
@@ -303,7 +302,6 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             if ($categoriesStmt === false) {
                 throw new \Exception(self::QUERY_ERROR);
             } 
-            $categoriesStmt->close();
             $categoryId = -1;
             switch ($categoriesStmt->affected_rows) {
                 case 1:
@@ -323,6 +321,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
                     throw new \Exception(self::QUERY_ERROR);
                     break;
             }
+            $categoriesStmt->close();
             $categoriesEventsStmt = $this->prepareBindExecute($categoriesEventsQuery, "ii", $eventId, $categoryId);
             if ($categoriesEventsStmt === false) {
                 throw new \Exception(self::QUERY_ERROR);

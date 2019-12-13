@@ -13,7 +13,8 @@
             $eventIds = $dbh->getEventsManager()->getEventIdsFiltered(0, 4, "", false, null, null, $_SESSION["email"]);
         }
         array_walk($eventIds, function($id) use (&$templateParams, $dbh) {
-            $templateParams["events"][] = array_merge(["id" => $id], $dbh->getEventsManager()->getEventInfo($id));
+            $info = $dbh->getEventsManager()->getEventInfo($id);
+            $templateParams["events"][] = array_merge(["id" => $id], $info);
         });
         $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "change_events_page.js"];
     } else {

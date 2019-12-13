@@ -12,8 +12,7 @@
     </header>
     <section>
         <p>Posti ancora disponibili: <?php echo $event["freeSeats"]; ?> su <?php echo $event["totalSeats"]; ?></p>
-    </section>
-    <footer>
+        <p>
         <?php
             foreach ($event["categories"] as $category):
         ?>
@@ -21,5 +20,15 @@
         <?php
             endforeach;
         ?>
+        </p>
+    </section>
+    <footer>
+    <?php if (isset($_SESSION["email"])
+                && $dbh->getUsersManager()->isPromoter($_SESSION["email"]) 
+                && $event["promoterEmail"] === $_SESSION["email"]): ?>
+        <a href="modify_event.php?id=<?php echo $event["id"]; ?>"><img src="<?php echo IMG_DIR; ?>new.png" alt="modifica" /></a>
+    <?php else: ?>
+        <a href="event.php?id=<?php echo $event["id"]; ?>"><img src="<?php echo IMG_DIR; ?>more.png" alt="modifica" /></a>
+    <?php endif ?>
     </footer>
 </section>
