@@ -39,8 +39,8 @@
             <input type="password" id="password_register" name="password" required/>
             <label for="password_register_repeat">Conferma password:</label>
             <input type="password" id="password_register_repeat" name="password_repeat" required/>
-            <input type="submit" value="Registrati">
         </fieldset>
+        <input type="submit" value="Registrati">
     </form>
     <p>Registrandoti accetti i nostri <a href="./info.php?type=termini">Termini di servizio</a> e 
     affermi di aver preso visione dell'<a href="./info.php?type=privacy">Informativa privacy</a>

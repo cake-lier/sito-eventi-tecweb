@@ -3,7 +3,7 @@
 ?>
 <section>
     <header>
-        <p>Login</p><p>Registrazione</p>
+        <button type="button" id="login_button">Login</button><button type="button" id="registration_button">Registrazione</button>
     </header>
     <?php
         require "template/login_form.php";

@@ -5,8 +5,8 @@
             unset($_SESSION["loginError"]);
         } ?>
         <label for="email_login">Email:</label>
-        <input type="text" id="email_login" name="email" />
+        <input class="login" type="text" id="email_login" name="email" required/>
         <label for="password_login">Password:</label>
-        <input type="password" id="password_login" name="password" />
+        <input class="login" type="password" id="password_login" name="password" required/>
         <input type="submit" value="Login">
     </form>
