@@ -4,7 +4,8 @@ function organizeUserNotifications(data) {
         for (let index in data) {
             const notification = data[index];
             const notSection = $("<section>", {id: notification.notificationId});
-            if (notification.visualized === true) {
+            notSection.addClass("notification");
+            if (notification.visualized === 1) {
                 notSection.addClass("visualized");
             }
             const dateTime = new Date(notification.dateTime);
@@ -19,10 +20,42 @@ function organizeUserNotifications(data) {
             const date = $("<p>", {text: dateString});
             const message = $("<p>", {text: notification.message});
             notSection.append(date, message);
+            const visualizedLabel = $("<label>", {for: "check_" + notification.notificationId, text: "Visualizzata"});
+            const visualizedCheck = $("<input>", {id: "check_" + notification.notificationId, type: "checkbox"});
+            visualizedCheck.prop("checked", notification.visualized === 1 ? true : 0);
+            const deleteButton = $("<button>", {text: "Elimina"});
+            notSection.append(visualizedCheck, visualizedLabel, deleteButton);
+            visualizedCheck.change(e => toggleNotificationView(notification.notificationId, notification.dateTime));
+            deleteButton.click(e => deleteNotification(notification.notificationId, notification.dateTime));
             mainSection.append(notSection);
         }
     } else {
         mainSection.append($("<p>", {text: "Non ci sono notifiche!"}));
+    }
+}
+
+function toggleNotificationView(notificationId, notificationDateTime) {
+    $.get("toggle_view_notification.php?id=" + notificationId + "&dateTime=" + notificationDateTime, data => {
+        if (data.result !== true) {
+            e.preventDefault();
+        } else {
+            const notSection = $("#" + notificationId);
+            if (notSection.hasClass("visualized")) {
+                notSection.removeClass("visualized");
+            } else {
+                notSection.addClass("visualized");
+            }
+        }
+    });
+}
+
+function deleteNotification(notificationId, notificationDateTime) {
+    if (confirm("Sicuro di voler cancellare questa notifica?")) {
+        $.get("delete_notification.php?id=" + notificationId + "&dateTime=" + notificationDateTime, data => {
+            if (data.result === true) {
+                $("#" + notificationId).remove();
+            }
+        });
     }
 }
 
@@ -267,6 +300,8 @@ function showDeleteAccountForm() {
 }
 
 $(() => {
+    $.get("get_user_notifications.php", organizeUserNotifications);
+
     $("#notifications_button").click(e => {
         $(".selected").removeClass("selected");
         $("#notifications_button").addClass("selected");
