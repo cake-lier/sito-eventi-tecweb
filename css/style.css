@@ -69,6 +69,14 @@ main > nav > ul > li {
     cursor: pointer;
 }
 
+#profile_photo_img {
+    max-height: 100px;
+}
+
+a.button > img, button > img {
+    background: #DC2002;
+}
+
 @media screen and (min-width:768px) {
     #home {
         max-height: 50px;
