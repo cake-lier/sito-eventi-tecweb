@@ -46,7 +46,7 @@ class DatabaseCartsManager extends DatabaseServiceManager {
         if ($freeSeats === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        if ($freeSeats < $amount) {
+        if ($freeSeats < $amount || $amount <= 0) {
             return false;
         }
         if (count(array_filter($this->getLoggedUserTickets(), function($e) use ($seatCategory, $eventId) {

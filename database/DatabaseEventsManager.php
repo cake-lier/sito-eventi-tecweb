@@ -398,15 +398,15 @@ class DatabaseEventsManager extends DatabaseServiceManager {
      * Gets the remaining free seats for every event which event id was passed as a parameter.
      */
     private function getEventsFreeSeats(...$eventIds) {
-        $queryTotalSeats = "SELECT SUM(s.seats) as totalSeats
-                            FROM events e, seatCategories s
-                            WHERE e.id = s.eventId AND e.id = ?
-                            GROUP BY e.id";
-        $queryReservedSeats = "SELECT SUM(p.amount) + SUM(c.amount) as reservedSeats
-                               FROM seatCategories s, purchases p, carts c
-                               WHERE s.eventId = ? AND p.seatId = s.id AND p.eventId = s.eventId AND c.seatId = s.id
-                                     AND c.eventId = s.eventId
-                               GROUP BY s.id, s.eventId";
+        $queryTotalSeats = "SELECT SUM(seats) as totalSeats
+                            FROM seatCategories
+                            WHERE eventId = ?
+                            GROUP BY eventId";
+        $queryReservedSeats = "SELECT IFNULL(SUM(IFNULL(p.amount, 0)) + SUM(IFNULL(c.amount, 0)), 0) as reservedSeats
+                               FROM (seatCategories s LEFT OUTER JOIN purchases p ON s.id = p.seatId AND s.eventId = p.eventId)
+                                    LEFT OUTER JOIN carts c ON c.seatId = s.id AND c.eventId = s.eventId
+                               WHERE s.eventId = ?
+                               GROUP BY s.eventId";
         $freeSeats = array();
         foreach ($eventIds as $eventId) {
             $stmtTotalSeats = $this->prepareBindExecute($queryTotalSeats, "i", $eventId);

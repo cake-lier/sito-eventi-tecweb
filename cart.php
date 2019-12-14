@@ -3,9 +3,9 @@ require_once "bootstrap.php";
 
 if (!isset($_SESSION["email"])) {
     if (!isset($_SESSION["cart"]) || empty($_SESSION["cart"])) {
-        $templateParams["name"] = "empty_cart.php";
+        $templateParams["cartBody"] = "empty_cart.php";
     } else if (!empty($_SESSION["cart"])) {
-        $templateParams["name"] = "cart_sections.php";
+        $templateParams["cartBody"] = "cart_with_tickets.php";
         $templateParams["cartPaymentSection"] = "login_form.php";
         $templateParams["location"] = "cart.php";
         array_walk($_SESSION["cart"], function($seatCategories, $eventId) use (&$templateParams, $dbh) {
@@ -30,9 +30,9 @@ if (!isset($_SESSION["email"])) {
     }
     $templateParams["tickets"] = $dbh->getCartsManager()->getLoggedUserTickets();
     if (count($templateParams["tickets"]) === 0) {
-        $templateParams["name"] = "empty_cart.php";
+        $templateParams["cartBody"] = "empty_cart.php";
     } else {
-        $templateParams["name"] = "cart_sections.php";
+        $templateParams["cartBody"] = "cart_with_tickets.php";
         $templateParams["cartPaymentSection"] = "payment_section.php";
         $partialCosts = array();
         array_walk($templateParams["tickets"], function($e) use (&$templateParams, &$partialCosts) {
@@ -43,6 +43,7 @@ if (!isset($_SESSION["email"])) {
     }
 }
 $templateParams["title"] = "SeatHeat - Carrello";
+$templateParams["name"] = "cart_base.php";
 $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "cart.js"];
 require "template/base.php";
 ?>

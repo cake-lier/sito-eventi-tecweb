@@ -1,10 +1,3 @@
-<?php
-    if (isset($_GET["error"])):
-?>
-    <p>Si è verificato un errore durante il pagamento. Si prega di riprovare.</p>
-<?php
-    endif;
-?>
 <section>
     <?php
         if (isset($templateParams["cartPaymentSection"])) {
