@@ -212,17 +212,11 @@ function setChangeDataForm(data) {
             generalCustomerSection.append(nameLabel, nameField);
             // surname
             const surnameLabel = $("<label>", {for: "surname", text: "Cognome: "});
-            const surnameField = $("<input>", {id: "surname", surname: "surname", value: data.surname});
+            const surnameField = $("<input>", {id: "surname", name: "surname", value: data.surname});
             generalCustomerSection.append(surnameLabel, surnameField);
             // birthDate
             const birthDateLabel = $("<label>", {for: "birthdate", text: "Data di nascita: "});
-            const date = new Date(data.birthDate);
-            const dateString = date.toLocaleDateString("it-IT", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-            });
-            const birthDateField = $("<input>", {id: "birthdate", value: data.birthDate, type: "date"}); // TODO:
+            const birthDateField = $("<input>", {id: "birthdate", name: "birthDate", value: data.birthDate, type: "date"});
             generalCustomerSection.append(birthDateLabel, birthDateField);
             // birthplace
             const birthplaceLabel = $("<label>", {for: "birthplace", text: "Luogo di nascita: "});
@@ -242,11 +236,11 @@ function setChangeDataForm(data) {
             const currentAddressField = $("<input>", {id: "current_add", name: "currentAddress", value: data.currentAddress !== null ? data.currentAddress : ""});
             contactsSection.append(currentAddressLabel, currentAddressField);
             // telephone
-            const telephoneLabel = $("<label>", {for: "telephone", text: "Indirizzo corrente: "});
+            const telephoneLabel = $("<label>", {for: "telephone", text: "Telefono: "});
             const telephoneField = $("<input>", {id: "telephone", name: "telephone", value: data.telephone !== null ? data.telephone : ""});
             contactsSection.append(telephoneLabel, telephoneField);
         } else if ("organizationName" in data) {
-            // it's a customer
+            // it's a promoter
             const generalPromoterSectionHeader = $("<h2>", {text: "Dati organizzazione"});
             const generalPromoterSection = $("<section>");
             generalPromoterSection.append(generalPromoterSectionHeader);
@@ -268,13 +262,39 @@ function setChangeDataForm(data) {
                 contentType: false,
             }).done(data => {
                 $("form > p").remove();
-                form.prepend($("<p>", {text: data.resultMessage}));
+                form.append($("<p>", {text: data.resultMessage}));
                 $.get("get_user_data.php", data => {
-                    $("#profile_photo_img").attr("src", data.profilePhoto);
-                    $(".profile_icon").attr("src", data.profilePhoto);
+                    $.get("get_user_data.php", updateChangeDataForm);
                 });
             });
         });
+    }
+}
+
+function updateChangeDataForm(data) {
+    $("#profile_photo_img").attr("src", data.profilePhoto);
+    $(".profile_icon").attr("src", data.profilePhoto);
+    if ("username" in data) {
+        // username
+        $("#username").val(data.username);
+        // name
+        $("#name").val(data.name);
+        // surname
+        $("#surname").val(data.surname);
+        // birthDate
+        $("#birthdate").val(data.birthDate);
+        // birthplace
+        $("#birthplace").val(data.birthplace);
+        // billing address
+        $("#billing_add").val(data.billingAddress);
+        // current address
+        $("#current_add").val(data.currentAddress !== null ? data.currentAddress : "");
+        // telephone
+        $("#telephone").val(data.telephone !== null ? data.telephone : "");
+    } else if ("organizationName" in data) {
+        // it's a promoter
+        // website
+        $("#website").val(data.website !== null ? data.website : "");
     }
 }
 
