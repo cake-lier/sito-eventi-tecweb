@@ -13,10 +13,12 @@ $(() => {
         if ($("input[name=registration_type]").val() === "customer") {
             $(".customer").prop("required", true);
             $(".customer").show();
+            $(".customer_non_req").show();
             $(".promoter").hide();
         } else if ($("input[name=registration_type]").val() === "promoter") {
             $(".promoter").prop("required", true);
             $(".promoter").show();
+            $(".promoter_non_req").show();
             $(".customer").hide();
         }
     });

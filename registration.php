@@ -6,7 +6,7 @@ if (isset($_POST["email"])
     && (file_exists($_FILES["profile_photo"]["tmp_name"]) || is_uploaded_file($_FILES["profile_photo"]["tmp_name"]))
     && isset($_POST["password"])
     && isset($_POST["password_repeat"])
-    && $_POST["password"] === $_POST["password_repeat"]) { // TODO: must check password_repeat too? Or js will do it?
+    && $_POST["password"] === $_POST["password_repeat"]) {
         $email = $_POST["email"];
         if (filter_var($email, FILTER_VALIDATE_EMAIL) !== false) {
             $profile_photo = $_FILES["profile_photo"];
@@ -25,10 +25,13 @@ if (isset($_POST["email"])
                 $birthdate = $_POST["birthdate"];
                 $birthplace = $_POST["birthplace"];
                 $billing = $_POST["billing"];
+                $current = isset($_POST["current"]) ? $_POST["current"] : null;
+                $telephone = isset($_POST["telephone"]) ? $_POST["telephone"] : null;
                 try {
                     $dbh->getUsersManager()->insertCustomer($email, $password, $imgData, 
                                                             $billing, $birthdate,$birthplace, 
-                                                            $name, $surname, $username);
+                                                            $name, $surname, $username, 
+                                                            $current, $telephone);
                     $_SESSION["email"] = $email;
                     $location = "index.php";
                 } catch (\Exception $e) {
@@ -39,9 +42,10 @@ if (isset($_POST["email"])
                         && isset($_POST["vat_id"])) {
                 $name = $_POST["organization_name"];
                 $vat = $_POST["vat_id"];
+                $website = isset($_POST["website"]) ? $_POST["website"] : null;
                 try {
                     $dbh->getUsersManager()->insertPromoter($email, $password, $imgData, 
-                                                            $name, $vat, null);
+                                                            $name, $vat, $website);
                     $_SESSION["email"] = $email;
                     $location = "index.php";
                 } catch (\Exception $e) {

@@ -7,8 +7,6 @@
             <input type="radio" id="check_promoter" name="registration_type" value="promoter" />
         </fieldset>
         <fieldset>
-            <!-- TODO: maybe add non strictly necessary fields? Like website for promoters, ... -->
-            <!-- TODO: add also in registration.php! -->
             <!-- TODO: check for email existence in db with ajax -->
             <?php
             if (isset($_SESSION["registrationError"])) {
@@ -29,10 +27,16 @@
             <input class="customer" type="text" id="birthplace" name="birthplace"/>
             <label class="customer" for="billing">Indirizzo di fatturazione</label>
             <input class="customer" type="text" id="billing" name="billing"/>
+            <label class="customer" for="billing">Indirizzo corrente: </label>
+            <input class="customer_non_req" type="text" id="current" name="current"/>
+            <label class="customer_non_req" for="billing">Telefono: </label>
+            <input class="customer_non_req" type="text" id="telephone" name="telephone"/>
             <label class="promoter" for="organization_name">Nome organizzazione:</label>
             <input class="promoter" type="text" id="organization_name" name="organization_name"/>
             <label class="promoter" for="vat_id">VATid:</label>
             <input class="promoter" type="text" id="vat_id" name="vat_id"/>
+            <label class="promoter_non_req" for="website">Sito internet:</label>
+            <input class="promoter_non_req" type="text" id="website" name="website"/>
             <label for="profile_photo">Foto profilo:</label><!-- TODO: add requirements for profile photo -->
             <input type="file" id="profile_photo" name="profile_photo" required/>
             <label for="password_register">Password:</label>
