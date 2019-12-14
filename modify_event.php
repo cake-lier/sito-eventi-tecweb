@@ -10,7 +10,7 @@
             $qResult = $dbh->getEventsManager()->changeEventDate(intval($_POST["id"]), $_POST["dateTime"], $_POST["message"]);
             $result = "Evento modificato!";
         } catch (\Exception $e) {
-            $result = "Problema nel modificare l'evento!".$e->getMessage(); // TODO: better error message
+            $result = "Problema nel modificare l'evento!"; // TODO: better error message
         }
     }
     echo json_encode(array("result" => $result));

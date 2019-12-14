@@ -4,7 +4,7 @@ use it\unibo\tecweb\seatheat\DatabaseHelper;
 
 function getProfileImage(DatabaseHelper $dbh, string $userEmail) {
     $userShortData = $dbh->getUsersManager()->getUserShortProfile($userEmail);
-    return $userShortData["profilePhoto"]; // TODO: will need to change
+    return $userShortData["profilePhoto"];
 }
 
 function convertDateTimeToLocale(string $dateTime) {
@@ -24,7 +24,7 @@ function convertDateToLocale(string $date) {
 function encodeImg(string $name, string $tmp) {
     $imgFileType = strtolower(pathinfo($name, PATHINFO_EXTENSION));
     $extensions = array("jpg", "jpeg", "png");
-    if (in_array($imgFileType, $extensions)) { // TODO: check image size
+    if (in_array($imgFileType, $extensions)) {
         $imgBase64 = base64_encode(file_get_contents($tmp));
         $img = "data:image/".$imgFileType.";base64,".$imgBase64;
         return $img;

@@ -151,7 +151,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     /*
      * Returns all the possible types of the events. Throws an exception if something went wrong.
      */
-    //TODO: Are we sure this will be needed?
+    // TODO: Are we sure this will be needed?
     public function getEventsTypes() {
         $query = "SELECT DISTINCT name
                   FROM eventCategories";
