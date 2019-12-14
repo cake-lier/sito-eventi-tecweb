@@ -24,11 +24,11 @@ function convertDateToLocale(string $date) {
 function encodeImg(string $name, string $tmp) {
     $imgFileType = strtolower(pathinfo($name, PATHINFO_EXTENSION));
     $extensions = array("jpg", "jpeg", "png");
-    if (in_array($imgFileType, $extensions)) {
+    if (in_array($imgFileType, $extensions)) { // TODO: check image size
         $imgBase64 = base64_encode(file_get_contents($tmp));
         $img = "data:image/".$imgFileType.";base64,".$imgBase64;
         return $img;
     }
-    return "0";
+    return false;
 }
 ?>

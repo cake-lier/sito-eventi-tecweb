@@ -37,8 +37,8 @@
             <input class="promoter" type="text" id="vat_id" name="vat_id"/>
             <label class="promoter_non_req" for="website">Sito internet:</label>
             <input class="promoter_non_req" type="text" id="website" name="website"/>
-            <label for="profile_photo">Foto profilo:</label><!-- TODO: add requirements for profile photo -->
-            <input type="file" id="profile_photo" name="profile_photo" required/>
+            <label for="profile_photo">Foto profilo <span>(formato png, jpg o jpeg, massimo 10MB)</span>:</label>
+            <input type="file" id="profile_photo" name="profile_photo" accept="jpg,png,jpeg" required/>
             <label for="password_register">Password:</label>
             <input type="password" id="password_register" name="password" required/>
             <label for="password_register_repeat">Conferma password:</label>
