@@ -16,10 +16,9 @@ if (isset($_SESSION["email"]) && !$dbh->getUsersManager()->isAdmin($_SESSION["em
         $info = $dbh->getEventsManager()->getEventInfo($id);
         $templateParams["events"][] = array_merge(["id" => $id], $info);
     });
-    $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "change_events_page.js"];
+    $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "change_displayed_events.js"];
 } else {
     header("location: index.php");
 }
-
-    require 'template/base.php';
+require 'template/base.php';
 ?>

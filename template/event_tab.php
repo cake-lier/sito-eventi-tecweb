@@ -24,11 +24,15 @@
     </section>
     <footer>
     <?php if (isset($_SESSION["email"])
-                && $dbh->getUsersManager()->isPromoter($_SESSION["email"]) 
-                && $event["promoterEmail"] === $_SESSION["email"]): ?>
-        <a class="button" href="modify_event_page.php?id=<?php echo $event["id"]; ?>"><img src="<?php echo IMG_DIR; ?>new.png" alt="modifica" /></a>
+              && $dbh->getUsersManager()->isPromoter($_SESSION["email"]) 
+              && $event["promoterEmail"] === $_SESSION["email"]): ?>
+        <a class="button" href="modify_event_page.php?id=<?php echo $event["id"]; ?>">
+            <img src="<?php echo IMG_DIR; ?>new.png" alt="modifica" />
+        </a>
     <?php else: ?>
-        <a class="button" href="event.php?id=<?php echo $event["id"]; ?>"><img src="<?php echo IMG_DIR; ?>more.png" alt="modifica" /></a>
+        <a class="button" href="event.php?id=<?php echo $event["id"]; ?>">
+            <img src="<?php echo IMG_DIR; ?>more.png" alt="modifica" />
+        </a>
     <?php endif ?>
     </footer>
 </section>

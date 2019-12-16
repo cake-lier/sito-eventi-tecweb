@@ -10,9 +10,14 @@ if (isset($_GET["id"])) {
     $templateParams["title"] = "SeatHeat - Evento: " . $templateParams["event"]["name"];
     $templateParams["js"] = [
         "https://code.jquery.com/jquery-3.4.1.min.js",
-        JS_DIR . "purchase_flip.js",
         JS_DIR . "search.js"
     ];
+    if (!isset($_SESSION["email"]) || $dbh->getUsersManager()->isCustomer($_SESSION["email"])) {
+        $templateParams["isLoggedUserCustomer"] = true;
+        $templateParams["js"][] = JS_DIR . "purchase_flip.js";
+    } else {
+        $templateParams["isLoggedUserCustomer"] = false;
+    }
     require "template/base.php";
 } else {
     header("location: ./search.php?keyword=\"\"");
