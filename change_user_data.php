@@ -1,7 +1,6 @@
 <?php
     require_once "bootstrap.php";
     header("Content-Type: application/json");
-    // TODO: check if try catch are correctly innested
     if (isset($_SESSION["email"])) {
         $allOk = true;
         if (isset($_FILES["profile_photo"])

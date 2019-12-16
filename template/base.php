@@ -57,7 +57,7 @@
     ?>
     </main>
     <footer>
-        <div class="info_links"><!-- TODO: -->
+        <div class="info_links">
             <a href="./info.php?type=chi_siamo">Chi siamo</a>
             <a href="./info.php?type=termini">Termini di servizio</a>
             <a href="./info.php?type=contatti">Contatti</a>
