@@ -2,12 +2,12 @@ $(() => {
     $("#login_form").show();
     $("#registration_form").hide();
 
-    $("#login_button").click(e => {
+    $("#login_button").click(() => {
         $("#login_form").show();
         $("#registration_form").hide();
         $(".login").prop("required", true);
     });
-    $("#registration_button").click(e => {
+    $("#registration_button").click(() => {
         $("#login_form").hide();
         $("#registration_form").show();
         if ($("input[name=registration_type]").val() === "customer") {
@@ -20,7 +20,7 @@ $(() => {
             $(".customer").hide();
         }
     });
-    $("#check_customer, #check_promoter").change(e => {
+    $("#check_customer, #check_promoter").change(() => {
         if ($("input[name=registration_type]:checked").val() === "customer") {
             $(".customer").prop("required", true);
             $(".customer").show();
@@ -32,6 +32,7 @@ $(() => {
             $(".customer").prop("required", false);
             $(".customer").hide();
         } else {
+            //TODO: check what is happening here...
         }
     });
 

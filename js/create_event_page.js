@@ -18,13 +18,13 @@ $(() => {
         seatCategorySection.append(priceLabel, priceField);
         const removeCatButton = $("<button>", {type: "button", text: "Rimuovi categoria"});
         seatCategorySection.append(removeCatButton);
-        removeCatButton.click(e => {
+        removeCatButton.click(_e => {
             seatCategorySection.remove();
         });
         seatCategoryCount++;
     });
 
-    $("#categories").on("input", e => {
+    $("#categories").on("input", () => {
         let text = $("#categories").val();
         const regex = /((^| )[\w])/gm;
         text = text.replace(regex, x => {
@@ -49,7 +49,7 @@ $(() => {
         const seatCatArray = [];
         $(".seat_category_section").each(function() {
             const catObj = {};
-            $(this).children().each((index, element) => {
+            $(this).children().each((_index, element) => {
                 const el = $(element);
                 if (el.is("input")) {
                     catObj[el.attr("name")] = el.val();

@@ -25,8 +25,8 @@ function organizeUserNotifications(data) {
             visualizedCheck.prop("checked", notification.visualized === 1 ? true : 0);
             const deleteButton = $("<button>", {text: "Elimina"});
             notSection.append(visualizedCheck, visualizedLabel, deleteButton);
-            visualizedCheck.change(e => toggleNotificationView(notification.notificationId, notification.dateTime));
-            deleteButton.click(e => deleteNotification(notification.notificationId, notification.dateTime));
+            visualizedCheck.change(() => toggleNotificationView(notification.notificationId, notification.dateTime));
+            deleteButton.click(() => deleteNotification(notification.notificationId, notification.dateTime));
             mainSection.append(notSection);
         }
     } else {
@@ -189,7 +189,7 @@ function setChangeDataForm(data) {
         // this part is common to every type of user
         const form = $("<form>", {enctype: "multipart/form-data"});
         $("main > section").append(form);
-        const generalSection = $("<section>");
+        const generalSection = $("<fieldset>");
         form.append(generalSection);
         const photo = $("<img>", {src: data.profilePhoto, id: "profile_photo_img"});
         generalSection.append(photo);
@@ -198,7 +198,7 @@ function setChangeDataForm(data) {
         generalSection.append(photoLabel, photoChooser);
         if ("username" in data) {
             // it's a customer
-            const generalCustomerSection = $("<section>");
+            const generalCustomerSection = $("<fieldset>");
             const generalCustomerSectionHeader = $("<h2>", {text: "Dati personali"});
             generalCustomerSection.append(generalCustomerSectionHeader);
             form.append(generalCustomerSection);
@@ -212,24 +212,19 @@ function setChangeDataForm(data) {
             generalCustomerSection.append(nameLabel, nameField);
             // surname
             const surnameLabel = $("<label>", {for: "surname", text: "Cognome: "});
-            const surnameField = $("<input>", {id: "surname", surname: "surname", value: data.surname});
+            const surnameField = $("<input>", {id: "surname", name: "surname", value: data.surname});
             generalCustomerSection.append(surnameLabel, surnameField);
             // birthDate
             const birthDateLabel = $("<label>", {for: "birthdate", text: "Data di nascita: "});
             const date = new Date(data.birthDate);
-            const dateString = date.toLocaleDateString("it-IT", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-            });
-            const birthDateField = $("<input>", {id: "birthdate", value: data.birthDate, type: "date"}); // TODO:
+            const birthDateField = $("<input>", {id: "birthdate", name: "birthDate", value: data.birthDate, type: "date"}); // TODO:
             generalCustomerSection.append(birthDateLabel, birthDateField);
             // birthplace
             const birthplaceLabel = $("<label>", {for: "birthplace", text: "Luogo di nascita: "});
             const birthplaceField = $("<input>", {id: "birthplace", name: "birthplace", value: data.birthplace});
             generalCustomerSection.append(birthplaceLabel, birthplaceField);
             // contacts
-            const contactsSection = $("<section>");
+            const contactsSection = $("<fieldset>");
             const contactsSectionHeader = $("<h2>", {text: "Contatti"});
             contactsSection.append(contactsSectionHeader);
             form.append(contactsSection);
@@ -248,7 +243,7 @@ function setChangeDataForm(data) {
         } else if ("organizationName" in data) {
             // it's a customer
             const generalPromoterSectionHeader = $("<h2>", {text: "Dati organizzazione"});
-            const generalPromoterSection = $("<section>");
+            const generalPromoterSection = $("<fieldset>");
             generalPromoterSection.append(generalPromoterSectionHeader);
             form.append(generalPromoterSection);
             // website
@@ -260,19 +255,19 @@ function setChangeDataForm(data) {
         form.append(submit);
         form.submit(e => {
             e.preventDefault();
-            $.ajax({
+            $.post({
                 url: "change_user_data.php",
-                type: "POST",
                 data: new FormData($("form")[0]), 
                 processData: false,
                 contentType: false,
-            }).done(data => {
-                $("form > p").remove();
-                form.prepend($("<p>", {text: data.resultMessage}));
-                $.get("get_user_data.php", data => {
-                    $("#profile_photo_img").attr("src", data.profilePhoto);
-                    $(".profile_icon").attr("src", data.profilePhoto);
-                });
+                success: data => {
+                    $("form > p").remove();
+                    form.prepend($("<p>", {text: data.resultMessage}));
+                    $.get("get_user_data.php", data => {
+                        $("#profile_photo_img").attr("src", data.profilePhoto);
+                        $(".profile_icon").attr("src", data.profilePhoto);
+                    });
+                }
             });
         });
     }
@@ -302,39 +297,39 @@ function showDeleteAccountForm() {
 $(() => {
     $.get("get_user_notifications.php", organizeUserNotifications);
 
-    $("#notifications_button").click(e => {
+    $("#notifications_button").click(() => {
         $(".selected").removeClass("selected");
         $("#notifications_button").addClass("selected");
         $("main > section").html("");
         $.get("get_user_notifications.php", organizeUserNotifications);
     });
 
-    $("#user_area_button").click(e => {
+    $("#user_area_button").click(() => {
         $(".selected").removeClass("selected");
         $("#user_area_button").addClass("selected");
         $("main > section").html("");
         $.get("get_user_data.php", organizeUserData);
     });
 
-    $("#change_password_button").click(e => {
+    $("#change_password_button").click(() => {
         $(".selected").removeClass("selected");
         $("#change_password_button").addClass("selected");
         $("main > section").html("");
         setChangePasswordForm();
     });
 
-    $("#change_data_button").click(e => {
+    $("#change_data_button").click(() => {
         $(".selected").removeClass("selected");
         $("#change_data_button").addClass("selected");
         $("main > section").html("");
         $.get("get_user_data.php", setChangeDataForm);
     });
 
-    $("#events_button").click(e => {
+    $("#events_button").click(() => {
         window.location.href = "my_events.php";
     });
 
-    $("#delete_account_button").click(e => {
+    $("#delete_account_button").click(() => {
         $(".selected").removeClass("selected");
         $("#delete_account_button").addClass("selected");
         $("main > section").html("");

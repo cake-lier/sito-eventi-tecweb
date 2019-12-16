@@ -1,10 +1,11 @@
 <?php
-    require_once("bootstrap.php");
+    require_once "bootstrap.php";
     header("Content-Type: application/json");
     // TODO: check if try catch are correctly innested
     if (isset($_SESSION["email"])) {
         $allOk = true;
-        if (isset($_FILES["profile_photo"]) && (file_exists($_FILES["profile_photo"]["tmp_name"]) || is_uploaded_file($_FILES["profile_photo"]["tmp_name"]))) {
+        if (isset($_FILES["profile_photo"])
+            && (file_exists($_FILES["profile_photo"]["tmp_name"]) || is_uploaded_file($_FILES["profile_photo"]["tmp_name"]))) {
             $imgData = encodeImg($_FILES["profile_photo"]["name"], $_FILES["profile_photo"]["tmp_name"]);
             try {
                 $dbh->getUsersManager()->changeProfilePhoto($imgData);

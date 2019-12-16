@@ -1,9 +1,12 @@
 <section>
     <form action="./search.php" method="get">
-        <label for="ricerca"><img src="<?php echo IMG_DIR; ?>/search.png" alt="ricerca" /></label>
-        <input type="text" name="keyword" id="ricerca" />
+        <label for="keyword"><img src="<?php echo IMG_DIR; ?>search.png" alt="ricerca per parole chiave" /></label>
+        <input type="text" name="keyword" id="keyword" />
+        <label for="tags"><img src="<?php echo IMG_DIR; ?>hashtag.png" alt="ricerca per tag" /></label>
+        <input type="text" name="tags" id="tags" />
         <label for="luogo">Luogo:</label>
         <select id="luogo" name="place">
+            <option value="">Seleziona un luogo</option>
             <?php
                 foreach($templateParams["places"] as $place):
             ?>
@@ -16,6 +19,7 @@
         <input type="date" id="data" name="date" />
         <label for="posti">Posti liberi:</label>
         <input type="checkbox" id="posti" name="posti" value="free" checked />
+        <input type="submit" id="search" name="search" value="Cerca"/>
     </form>
 </section>
 <section>

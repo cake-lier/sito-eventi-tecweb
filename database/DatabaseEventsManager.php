@@ -25,7 +25,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     public function getMostPopularEvent() {
         try {
             $eventIds = $this->getEventIdsFiltered();
-            $freeSeats = $this->getEventsFreeSeats($eventIds);
+            $freeSeats = $this->getEventsFreeSeats(...$eventIds);
             if (count($eventIds) > 0) {
                 $events = array();
                 array_walk($eventIds, function($e, $i) use (&$freeSeats, &$events) {
@@ -59,7 +59,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         }
         $events = $result->fetch_assoc();
         if ($events !== null) {
-            $id = $events["id"];
+            $id = intval($events["id"]);
             $result->close();
             return $id;
         }
@@ -189,16 +189,16 @@ class DatabaseEventsManager extends DatabaseServiceManager {
      * It can be specified the range of results needed. Throws an exception if something went wrong.
      */
     public function getEventIdsFiltered(int $min = -1, int $max = -1, string $keyword = "", bool $free = true,
-                                        string $place = null, string $date = null, string $promoterEmail = null) {
+                                        string $place = "", string $date = "", string $promoterEmail = null) {
         $condition = "";
         $bindings = "";
         $parameters = array();
-        if ($place !== null) {
+        if ($place !== "") {
             $condition .= " AND place = ?";
             $bindings = "s";
             $parameters[] = $place;
         }
-        if ($date !== null) {
+        if ($date !== "") {
             $condition .= " AND date = ?";
             $bindings = $bindings . "s";
             $parameters[] = $date;
@@ -241,6 +241,34 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         $result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         $stmt->close();
         return array_column($result, "id");
+    }
+    /*
+     * Checks if the event with the given $eventId is associated with a category passed.
+     */
+    public function hasEventCategories(int $eventId, string ...$categories) {
+        if (count($categories) === 0) {
+            return true;
+        }
+        $query = "SELECT COUNT(*)
+                  FROM eventsToCategories etc, eventCategories ec
+                  WHERE etc.eventId = ? AND etc.categoryId = ec.id AND (ec.name = ?";
+        $bindings = "is";
+        for ($i = 0; $i < count($categories) - 1; $i++) {
+            $query .= " OR ec.name = ?";
+            $bindings .= "s";
+        }
+        $query .= ")";
+        $stmt = $this->prepareBindExecute($query, $bindings, $eventId, ...$categories);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $count = -1;
+        $stmt->bind_result($count);
+        $stmt->fetch();
+        if ($count === -1) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        return $count > 0;
     }
     /*
      * Inserts a new event in the database, by the promoter currently logged in. If problems arise, or if the logged
@@ -397,7 +425,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     /*
      * Gets the remaining free seats for every event which event id was passed as a parameter.
      */
-    private function getEventsFreeSeats(...$eventIds) {
+    private function getEventsFreeSeats(int ...$eventIds) {
         $queryTotalSeats = "SELECT SUM(seats) as totalSeats
                             FROM seatCategories
                             WHERE eventId = ?
@@ -440,7 +468,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     /*
      * Checks if the event with the given $eventId was created by the user which is currenly logged in.
      */
-    public function isLoggedUserEventOwner($eventId) {
+    public function isLoggedUserEventOwner(int $eventId) {
         try {
             $eventInfo = $this->getEventInfo($eventId);
         } catch (\Exception $e) {
