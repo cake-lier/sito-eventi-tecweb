@@ -1,19 +1,19 @@
 <?php
-    require_once "bootstrap.php";
-    $result = false;
-    try {
-        if (isset($_POST["password"])) {
-            $result = $dbh->getUsersManager()->deleteLoggedUser($_POST["password"]);
-        }
-    } catch (\Exception $e) {
-    }
-    if ($result) {
+require_once "bootstrap.php";
+
+header("Content-Type: application/json");
+$data["result"] = "La password inserita è sbagliata oppure non è stato fatto il login";
+$data["location"] = "";
+try {
+    if (isset($_POST["password"]) && $dbh->getUsersManager()->deleteLoggedUser($_POST["password"])) {
         session_unset();
         session_destroy();
-        $location = "index.php";
-    } else {
-        $location = "";
+        $data["location"] = "index.php";
+        $data["result"] = "";
     }
-    header("Content-Type: application/json");
-    echo json_encode(array("new_location" => $location));
+} catch (\Exception $e) {
+    error_log($e->getMessage(), 3, LOG_FILE);
+    $data["result"] = "Si è verificato un errore, si prega di riprovare più tardi";
+}
+echo json_encode($data);
 ?>

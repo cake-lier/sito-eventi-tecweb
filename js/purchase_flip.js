@@ -1,13 +1,13 @@
 function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
     const searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.has("id")) {
-        alert("Si è verificato un errore. Per favore ricaricare la pagina");
+        $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
         return;
     }
     const id = searchParams.get("id");
     $.getJSON("get_seat_categories.php?id=" + id, data => {
         if (data["result"] === false) {
-            alert("Si è verificato un errore. Per favore ricaricare la pagina");
+            $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
             return;
         }
         const seatCategories = {};
@@ -49,10 +49,12 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
                                   + seatCategoriesSent[index]["eventId"] + "&amount=" + ticketsAmount,
                                   data => {
                                       if (data["result"] === true) {
-                                          alert("Operazione effettuata con successo");
+                                          $("main").prepend($("<p>", {text: "Operazione effettuata con successo"}));
                                           addTicketSpinner.attr("max", parseInt(addTicketSpinner.attr("max")) - ticketsAmount);
                                       } else {
-                                          alert("C'è stato un errore nell'eseguire l'operazione. Si prega di riprovare");
+                                          $("main").prepend($("<p>", {
+                                                                  text: "C'è stato un errore nell'eseguire l'operazione. Si \
+                                                                         prega di riprovare"}));
                                       }
                                   });
                     }
@@ -62,12 +64,13 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
         });
         purchaseSection.html(table);
     });
-    purchaseButton.off("click");
-    purchaseButton.click(() => toEventDescription(purchaseSection, purchaseButton, purchaseSectionContent));
-    purchaseButton.children().attr({
-        "src": "img/back.png",
-        "alt": "Torna alla descrizione"
-    });
+    purchaseButton.off("click")
+                  .click(() => toEventDescription(purchaseSection, purchaseButton, purchaseSectionContent))
+                  .children()
+                  .attr({
+                      "src": "img/back.png",
+                      "alt": "Torna alla descrizione"
+                  });
 }
 
 function toEventDescription(purchaseSection, purchaseButton, purchaseSectionContent) {
@@ -75,22 +78,23 @@ function toEventDescription(purchaseSection, purchaseButton, purchaseSectionCont
     const freeSeatsPar = purchaseSection.children()[0];
     const searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.has("id")) {
-        alert("Si è verificato un errore. Per favore ricaricare la pagina");
+        $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
         return;
     }
     $.getJSON("get_event_seats.php?eventId=" + searchParams.get("id"), seats => {
         if (seats["status"] === false) {
-            alert("Si è verificato un errore. Per favore ricaricare la pagina");
+            $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
             return;
         }
         freeSeatsPar.text("Posti ancora disponibili: " + seats["freeSeats"] + " su " + seats["totalSeats"]);
     });
-    purchaseButton.off("click");
-    purchaseButton.click(() => toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent));
-    purchaseButton.children().attr({
-        "src": "img/cart.png",
-        "alt": "Vai all'acquisto"
-    });
+    purchaseButton.off("click")
+                  .click(() => toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent))
+                  .children()
+                  .attr({
+                      "src": "img/cart.png",
+                      "alt": "Vai all'acquisto"
+                  });
 }
 
 $(() => {

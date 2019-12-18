@@ -1,20 +1,25 @@
 <?php
-    require_once("bootstrap.php");
-    header("Content-Type: application/json");
-    if (isset($_SESSION["email"])
-        && isset($_POST["old_password"])
-        && isset($_POST["new_password"])
-        && isset($_POST["new_password_repeat"])
-        && $_POST["new_password"] === $_POST["new_password_repeat"]) {
+require_once "bootstrap.php";
+
+header("Content-Type: application/json");
+$data = ["resultMessage" => "Si è verificato un problema, si prega di riprovare più tardi"];
+if (isset($_SESSION["email"])
+    && isset($_POST["old_password"])
+    && isset($_POST["new_password"])
+    && isset($_POST["new_password_repeat"])) {
+    if ($_POST["new_password"] === $_POST["new_password_repeat"]) {
         try {
-            $result = $dbh->getUsersManager()->changePassword($_SESSION["email"], $_POST["old_password"], $_POST["new_password"]);
-            if ($result) {
-                echo json_encode(array("resultMessage" => "Password cambiata correttamente"));
+            if ($dbh->getUsersManager()->changePassword($_SESSION["email"], $_POST["old_password"], $_POST["new_password"])) {
+                $data["resultMessage"] = "Password cambiata correttamente";
             } else {
-                echo json_encode(array("resultMessage" => "Ci sono stati problemi con il database, non é stato possibile cambiare la password!"));
+                $data["resultMessage"] = "Username o password sbagliati";
             }
         } catch (\Exception $e) {
-            echo json_encode(array("resultMessage" => "Ci sono stati problemi con il database, non é stato possibile cambiare la password!"));
+            error_log($e->getMessage(), 3, LOG_FILE);
         }
+    } else {
+        $data["resultMessage"] = "Le due password devono coincidere";
     }
+}
+echo json_encode($data);
 ?>

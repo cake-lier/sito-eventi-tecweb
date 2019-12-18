@@ -7,6 +7,7 @@ require_once("./database/DatabaseServiceManager.php");
 class DatabaseUsersManager extends DatabaseServiceManager {
     private const QUERY_ERROR = "An error occured while executing the query";
     private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
+    private const FILE_ERROR = "Cannot access file contents";
     private const CUSTOMER_TYPE_CODE = "c";
     private const PROMOTER_TYPE_CODE = "p";
     private const HASH_COST = 11;
@@ -74,10 +75,16 @@ class DatabaseUsersManager extends DatabaseServiceManager {
             throw new \Exception(self::QUERY_ERROR);
         } 
         $stmt->store_result();
-        $rows = $stmt->num_rows;
-        if ($rows !== 1) {
-            throw new \Exception(self::QUERY_ERROR);
-        }
+        switch ($stmt->num_rows) {
+            case 0:
+                return false;
+                break;
+            case 1:
+                break;
+            default:
+                throw new \Exception(self::QUERY_ERROR);
+                break;
+        } 
         $userEmail = "";
         $dbPassword = "";
         // Gets the query result and saves it into the corresponding variables
@@ -86,7 +93,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         $stmt->close();
         $pepper = file_get_contents(self::CONFIG_FILE);
         if ($pepper === false) {
-            return false;
+            throw new \Exception(self::FILE_ERROR);
         }
         $pepperedPassword = hash_hmac("sha256", $plainPassword, $pepper);
         return password_verify($pepperedPassword, $dbPassword);
@@ -104,7 +111,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
                           WHERE email = ?";
                 $pepper = file_get_contents(self::CONFIG_FILE);
                 if ($pepper === false) {
-                    return false;
+                    throw new \Exception(self::FILE_ERROR);
                 }
                 $pepperedPassword = hash_hmac("sha256", $newPassword, $pepper);
                 $stmt = $this->prepareBindExecute($query, "ss", password_hash($pepperedPassword, 

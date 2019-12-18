@@ -1,7 +1,7 @@
 <header>
     <h1><?php echo $templateParams["event"]["name"]; ?></h1>
     <p>Luogo: <?php echo $templateParams["event"]["place"]; ?></p>
-    <p>Data e ora: <?php echo convertDateTimeToLocale($templateParams["event"]["dateTime"]); ?></p>
+    <p>Data e ora: <?php echo $templateParams["event"]["dateTime"]; ?></p>
     <p>Organizzato da: <?php echo $templateParams["event"]["organizationName"]; ?></p>
 </header>
 <section id="purchaseSection">

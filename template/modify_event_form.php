@@ -5,7 +5,7 @@
     <section>
         <label for="dateTime">Data e ora: </label>
         <input type="datetime-local" max="9999-12-31T23:59" id="dateTime" name="dateTime" 
-               value="<?php echo str_replace(" ", "T", $templateParams["event"]["dateTime"]); ?>" required />
+               value="<?php echo $templateParams["event"]["dateTime"]; ?>" required />
         <label for="message">Messaggio per gli iscritti: </label>
         <textarea id="message" name="message" rows=4 cols=50 required></textarea>
         <input type="hidden" name="id" value="<?php echo $templateParams["event"]["id"]; ?>" />

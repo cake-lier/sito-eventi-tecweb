@@ -1,6 +1,7 @@
 <?php
 require_once "bootstrap.php";
 
+header("Content-type: application/json");
 $data = ["result" => false];
 if (isset($_GET["eventId"])) {
     $eventId = $_GET["eventId"];
@@ -14,5 +15,4 @@ if (isset($_GET["eventId"])) {
     }
 }
 echo json_encode($data);
-header("Content-type: application/json");
 ?>

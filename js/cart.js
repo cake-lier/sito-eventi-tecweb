@@ -17,7 +17,7 @@ $(() => {
             if (data["result"] === true) {
                 removeSectionIfEmpty($(this).parent().parent());
             } else {
-                alert("Si è verificato un errore. Si prega di riprovare");
+                $("main").prepend($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}));
             }
         });
     });
@@ -33,7 +33,7 @@ $(() => {
                     amountLabel.text(amount + " bigliett" + (amount > 1 ? "i" : "o"));
                 }
             } else {
-                alert("Si è verificato un errore. Si prega di riprovare");
+                $("main").prepend($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}));
             }
         });
     });
@@ -45,7 +45,7 @@ $(() => {
                 const amount = parseInt(amountLabel.text()) + 1;
                 amountLabel.text(amount + " biglietti");
             } else {
-                alert("Si è verificato un errore. Si prega di riprovare");
+                $("main").prepend($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}));
             }
         });
     });

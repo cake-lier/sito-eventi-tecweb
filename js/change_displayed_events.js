@@ -6,7 +6,7 @@ $(() => {
     const resultsShown = landingURLParams.has("count") ? parseInt(landingURLParams.get("count")) : 5;
     $.getJSON("get_events_count.php", data => {
         if (data["result"] === false) {
-            alert("Si è verificato un errore. Per favore ricaricare la pagina");
+            $("main").prepend($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}));
             return;
         }
         const eventCount = data["count"];

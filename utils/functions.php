@@ -31,4 +31,34 @@ function encodeImg(string $name, string $tmp) {
     }
     return false;
 }
+
+function unsetMatrixIfEmpty(array &$matrix, int $firstIndex, int $secondIndex) {
+    unset($matrix[$firstIndex][$secondIndex]);
+    if (empty($matrix[$firstIndex])) {
+        unset($matrix[$firstIndex]);
+        if (empty($matrix)) {
+            unset($matrix);
+        }
+    }
+}
+
+function useTopEventsTemplate(&$templateParams, $dbh) {
+    $templateParams["mostRecentEvent"]
+        = $dbh->getEventsManager()->getEventInfo($dbh->getEventsManager()->getMostRecentEvent());
+    $templateParams["mostRecentEvent"]["dateTime"]
+        = convertDateTimeToLocale($templateParams["mostRecentEvent"]["dateTime"]);
+    $templateParams["mostRecentEvent"]["isLoggedUserEventOwner"]
+        = $dbh->getEventsManager()->isLoggedUserEventOwner($templateParams["mostRecentEvent"]["id"]);
+    $templateParams["mostPopularEvent"]
+        = $dbh->getEventsManager()->getEventInfo($dbh->getEventsManager()->getMostPopularEvent());
+    $templateParams["mostPopularEvent"]["dateTime"]
+        = convertDateTimeToLocale($templateParams["mostPopularEvent"]["dateTime"]);
+    $templateParams["mostPopularEvent"]["isLoggedUserEventOwner"]
+        = $dbh->getEventsManager()->isLoggedUserEventOwner($templateParams["mostPopularEvent"]["id"]);
+}
+
+function useEmptyCartTemplate(&$templateParams, $dbh) {
+    useTopEventsTemplate($templateParams, $dbh);
+    $templateParams["cartBody"] = "empty_cart.php";
+}
 ?>

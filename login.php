@@ -5,8 +5,7 @@ $location = "index.php";
 if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["landing_page"])) {
     $location = $_POST["landing_page"];
     try {
-        $loginResult = $dbh->getUsersManager()->checkLogin($_POST["email"], $_POST["password"]);
-        if ($loginResult) {
+        if ($dbh->getUsersManager()->checkLogin($_POST["email"], $_POST["password"])) {
             $_SESSION["email"] = $_POST["email"];
             if (isset($_SESSION["cart"])) {
                 if ($dbh->getUsersManager()->isCustomer($_SESSION["email"])) {
@@ -27,12 +26,11 @@ if (isset($_POST["email"]) && isset($_POST["password"]) && isset($_POST["landing
             }
             $location = "index.php";
         } else {
-            $_SESSION["loginError"] = "Username o password errata";
+            $_SESSION["loginError"] = "Username o password errati";
         }
     } catch (\Exception $e) {
-        $_SESSION["loginError"] = "Sei sicuro di essere registrato?";
+        $_SESSION["loginError"] = "Si è verificato un errore, si prega di riprovare più tardi";
     }
 }
-
 header("location: " . $location);
 ?>

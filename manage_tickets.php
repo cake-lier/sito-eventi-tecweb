@@ -1,17 +1,8 @@
 <?php
 require_once "bootstrap.php";
 
-function unsetMatrixIfEmpty(&$matrix, $firstIndex, $secondIndex) {
-    unset($matrix[$firstIndex][$secondIndex]);
-    if (empty($matrix[$firstIndex])) {
-        unset($matrix[$firstIndex]);
-        if (empty($matrix)) {
-            unset($matrix);
-        }
-    }
-}
-
 $data["result"] = false;
+header("Content-type: application/json");
 if (isset($_GET["seatId"]) && isset($_GET["eventId"]) && isset($_GET["actionType"])) {
     $eventId = intval($_GET["eventId"]);
     $seatId = intval($_GET["seatId"]);
@@ -56,5 +47,4 @@ if (isset($_GET["seatId"]) && isset($_GET["eventId"]) && isset($_GET["actionType
     }
 }
 echo json_encode($data);
-header("Content-type: application/json");
 ?>

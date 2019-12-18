@@ -1,8 +1,8 @@
+<header>
+    <h2>Crea un nuovo evento</h2>
+</header>
 <form method="POST">
-    <header>
-        <h2>Crea un nuovo evento</h2>
-    </header>
-    <section class="general_section">
+    <fieldset id="general_section">
         <label for="name">Nome: </label>
         <input type="text" id="name" name="event_name" required />
         <label for="place">Luogo: </label>
@@ -13,19 +13,19 @@
         <textarea id="description" name="description" rows=4 cols=50 required></textarea>
         <label for="website">Sito web: </label>
         <input type="text" id="website" name="website" />
-        <label for="categories">Categorie: </label>
+        <label for="categories">Tags: </label>
         <input type="text" id="categories" name="categories" />
-    </section>
-    <section class="seat_category_section">
-        <label for="sCatName_0">Nome categoria: </label>
-        <input type="text" id="sCatName_0" name="name" required />
-        <label for="sCatQuantity_0">Quantità biglietti categoria: </label>
-        <input type="number" step="1" id="sCatQuantity_0" name="seats" required />
-        <label for="sCatPrice_0">Prezzo biglietti categoria: </label>
-        <input type="number" step="any" id="sCatPrice_0" name="price" required />
-    </section>
-    <button type="button">Aggiungi categoria biglietti</button>
-    <footer>
-        <input type="submit" value="Crea" />
-    </footer>
+    </fieldset>
+    <fieldset id="categories_section">
+        <section class="seat_category">
+            <label for="sCatName_0">Tipologia posto: </label>
+            <input type="text" id="sCatName_0" name="name" required />
+            <label for="sCatQuantity_0">Quantità biglietti: </label>
+            <input type="number" step="1" id="sCatQuantity_0" name="seats" required />
+            <label for="sCatPrice_0">Prezzo biglietti: </label>
+            <input type="number" step="any" id="sCatPrice_0" name="price" required />
+        </section>
+        <button type="button">Aggiungi tipologia posto</button>
+    </fieldset>
+    <input type="submit" value="Crea" />
 </form>

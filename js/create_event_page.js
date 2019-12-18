@@ -1,33 +1,38 @@
 $(() => {
     let seatCategoryCount = 1;
-
-    $("form > button").click(e => {
+    $("#categories_section > button").click(function(e) {
         e.preventDefault();
-        const seatCategorySection = $("<section>");
-        seatCategorySection.addClass("seat_category_section");
-        $("form > button").before(seatCategorySection);
-        const nameLabel = $("<label>", {for: "sCatName_" + seatCategoryCount, text: "Nome categoria: "});
-        const nameField = $("<input>", {type: "text", id: "sCatName_" + seatCategoryCount, name: "name"});
-        seatCategorySection.append(nameLabel, nameField);
-        nameLabel.focus();
-        const quantityLabel = $("<label>", {for: "sCatQuantity_" + seatCategoryCount, text: "Quantità biglietti categoria: "});
-        const quantityField = $("<input>", {type: "number", step: "1", id: "sCatQuantity_" + seatCategoryCount, name: "seats"});
-        seatCategorySection.append(quantityLabel, quantityField);
-        const priceLabel = $("<label>", {for: "sCatPrice_" + seatCategoryCount, text: "Prezzo biglietti categoria: "});
-        const priceField = $("<input>", {type: "number", step: "any", id: "sCatPrice_" + seatCategoryCount, name: "price"});
-        seatCategorySection.append(priceLabel, priceField);
-        const removeCatButton = $("<button>", {type: "button", text: "Rimuovi categoria"});
-        seatCategorySection.append(removeCatButton);
-        removeCatButton.click(_e => {
-            seatCategorySection.remove();
-        });
+        $(this).before($("<section>").addClass("seat_category_section")
+                                     .append($("<label>", {for: "sCatName_" + seatCategoryCount, text: "Tipologia posto: "})
+                                                 .focus(),
+                                             $("<input>", {type: "text", id: "sCatName_" + seatCategoryCount, name: "name"}),
+                                             $("<label>", {
+                                                   for: "sCatQuantity_" + seatCategoryCount,
+                                                   text: "Quantità biglietti: "
+                                               }),
+                                             $("<input>", {
+                                                   type: "number",
+                                                   step: "1",
+                                                   id: "sCatQuantity_" + seatCategoryCount,
+                                                   name: "seats"
+                                               }),
+                                             $("<label>", {for: "sCatPrice_" + seatCategoryCount, text: "Prezzo biglietti: "}),
+                                             $("<input>", {
+                                                 type: "number",
+                                                 step: "any",
+                                                 id: "sCatPrice_" + seatCategoryCount,
+                                                 name: "price"
+                                               }),
+                                             $("<button>", {type: "button", text: "Rimuovi categoria"})
+                                                 .click(function() { 
+                                                     $(this).parent().remove();
+                                                     seatCategoryCount--;
+                                                 })));
         seatCategoryCount++;
     });
-
     $("#categories").on("input", () => {
         let text = $("#categories").val();
-        const regex = /((^| )[\w])/gm;
-        text = text.replace(regex, x => {
+        text = text.replace(/((^| )[\w])/gm, x => {
             if (x.charAt(0) === " ") {
                 return " #" + x.substr(1, x.length);
             } else {
@@ -36,7 +41,6 @@ $(() => {
         });
         $("#categories").val(text.replace(/[@$%^&()=\[\]{};':"\\|,<>\/]/gm, ""));
     });
-
     $("form").submit(e => {
         e.preventDefault();
         const formObj = {};
@@ -47,7 +51,7 @@ $(() => {
         formObj["website"] = $("#website").val();
         formObj["eventCategories"] = $("#categories").val().replace(/(#)/g, "").split(" ");
         const seatCatArray = [];
-        $(".seat_category_section").each(function() {
+        $(".seat_category").each(function() {
             const catObj = {};
             $(this).children().each((_index, element) => {
                 const el = $(element);

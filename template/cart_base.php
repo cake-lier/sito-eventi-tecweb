@@ -1,4 +1,3 @@
-<section>
 <?php
     if(isset($_SESSION["cartError"])):
 ?>
@@ -16,4 +15,3 @@
         require $templateParams["cartBody"];
     }
 ?>
-</section>

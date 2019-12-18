@@ -1,17 +1,19 @@
 <?php
-    require_once "bootstrap.php";
-    $result = "Compilare tutto il form.";
-    header("Content-Type: application/json");
+require_once "bootstrap.php";
+
+$data = ["result" => "Compilare tutto il form."];
+header("Content-Type: application/json");
+try {
     if (isset($_POST["dateTime"])
         && isset($_POST["message"])
         && isset($_POST["id"])
         && $dbh->getEventsManager()->isLoggedUserEventOwner(intval($_POST["id"]))) {
-        try {
-            $qResult = $dbh->getEventsManager()->changeEventDate(intval($_POST["id"]), $_POST["dateTime"], $_POST["message"]);
-            $result = "Evento modificato!";
-        } catch (\Exception $e) {
-            $result = "Problema nel modificare l'evento!"; // TODO: better error message
-        }
+        $dbh->getEventsManager()->changeEventDate(intval($_POST["id"]), $_POST["dateTime"], $_POST["message"]);
+        $data["result"] = "Evento modificato.";
     }
-    echo json_encode(array("result" => $result));
+} catch (\Exception $e) {
+    error_log($e->getMessage(), 3, LOG_FILE);
+    $data["result"] = "Si è verificato un errore, si prega di riprovare più tardi.";
+}
+echo json_encode($data);
 ?>

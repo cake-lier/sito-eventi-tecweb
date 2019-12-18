@@ -1,13 +1,14 @@
 function organizeUserNotifications(data) {
     const mainSection = $("main > section");
-    if (data.length > 0) {
-        for (let index in data) {
-            const notification = data[index];
-            const notSection = $("<section>", {id: notification.notificationId});
-            notSection.addClass("notification");
-            if (notification.visualized === 1) {
-                notSection.addClass("visualized");
-            }
+    if (data["result"] === false) {
+        mainSection.append($("<p>", {
+            text: "Si è verificato un errore nel caricare le notifiche, si prega di riprovare più tardi"
+        }));
+        return;
+    }
+    notifications = data.notifications;
+    if (notifications.length > 0) {
+        Object.values(notifications).forEach(notification => {
             const dateTime = new Date(notification.dateTime);
             const dateString = dateTime.toLocaleDateString("it-IT", {
                 day: "numeric",
@@ -17,18 +18,26 @@ function organizeUserNotifications(data) {
                 hour: "2-digit",
                 minute: "2-digit"
             });
-            const date = $("<p>", {text: dateString});
-            const message = $("<p>", {text: notification.message});
-            notSection.append(date, message);
-            const visualizedLabel = $("<label>", {for: "check_" + notification.notificationId, text: "Visualizzata"});
-            const visualizedCheck = $("<input>", {id: "check_" + notification.notificationId, type: "checkbox"});
-            visualizedCheck.prop("checked", notification.visualized === 1 ? true : 0);
-            const deleteButton = $("<button>", {text: "Elimina"});
-            notSection.append(visualizedCheck, visualizedLabel, deleteButton);
-            visualizedCheck.change(() => toggleNotificationView(notification.notificationId, notification.dateTime));
-            deleteButton.click(() => deleteNotification(notification.notificationId, notification.dateTime));
-            mainSection.append(notSection);
-        }
+            mainSection.append(
+                $("<section>", {id: notification.notificationId})
+                    .addClass("notification")
+                    .addClass((_i, c) => {
+                        return notification.visualized === 1 ? c + " visualized" : c;
+                    })
+                    .append($("<p>", {text: dateString}), 
+                            $("<p>", {text: notification.message}),
+                            $("<input>", {
+                                id: "check_" + notification.notificationId, 
+                                type: "checkbox",
+                                change: () => toggleNotificationView(notification.notificationId, notification.dateTime)
+                            })
+                                .prop("checked", notification.visualized === 1),
+                            $("<label>", {for: "check_" + notification.notificationId, text: "Visualizzata"}),
+                            $("<button>", {
+                                text: "Elimina",
+                                click: () => deleteNotification(notification.notificationId, notification.dateTime)
+                            })));
+        });
     } else {
         mainSection.append($("<p>", {text: "Non ci sono notifiche!"}));
     }
@@ -39,12 +48,7 @@ function toggleNotificationView(notificationId, notificationDateTime) {
         if (data.result !== true) {
             e.preventDefault();
         } else {
-            const notSection = $("#" + notificationId);
-            if (notSection.hasClass("visualized")) {
-                notSection.removeClass("visualized");
-            } else {
-                notSection.addClass("visualized");
-            }
+            $("#" + notificationId).toggleClass("visualized");
         }
     });
 }
@@ -60,301 +64,208 @@ function deleteNotification(notificationId, notificationDateTime) {
 }
 
 function organizeUserData(data) {
-    if (Object.keys(data).length > 0) {
+    const mainSection = $("main > section");
+    if (data.result !== false) {
+        userData = data.userData;
         // this part is common to every type of user
-        const mainSection = $("main > section");
-        const generalSection = $("<section>");
-        mainSection.append(generalSection);
-        const photo = $("<img>", {src: data.profilePhoto, id: "profile_photo_img"});
-        generalSection.append(photo);
-        const emailHeader = $("<strong>");
-        emailHeader.text("Email: ");
-        const emailLine = $("<p>");
-        emailLine.text(data.email);
-        emailLine.prepend(emailHeader);
-        generalSection.append(emailLine);
-        if ("username" in data) {
-            // it's a customer
-            const generalCustomerSection = $("<section>");
-            const generalCustomerSectionHeader = $("<h2>", {text: "Dati personali"});
-            generalCustomerSection.append(generalCustomerSectionHeader);
-            mainSection.append(generalCustomerSection);
-            // username
-            const usernameLine = $("<p>", {class: "username", text: data.username});
-            photo.after(usernameLine);
-            // name
-            const nameHeader = $("<strong>", {text: "Nome: "});
-            const nameLine = $("<p>", {text: data.name});
-            nameLine.prepend(nameHeader);
-            generalCustomerSection.append(nameLine);
-            // surname
-            const surnameHeader = $("<strong>", {text: "Cognome: "});
-            const surnameLine = $("<p>", {text: data.surname});
-            surnameLine.prepend(surnameHeader);
-            generalCustomerSection.append(surnameLine);
-            // birthDate
-            const birthDateHeader = $("<strong>", {text: "Data di nascita: "});
-            const date = new Date(data.birthDate);
-            const dateString = date.toLocaleDateString("it-IT", {
+        const photo = $("<img>", {src: userData.profilePhoto, id: "profile_photo_img"});
+        mainSection.append($("<section>").append(photo,
+                                                 $("<p>", {text: userData.email})
+                                                     .prepend($("<strong>", {text: "Email: "}))));
+        // It's a customer
+        if ("username" in userData) {
+            const dateString = new Date(userData.birthDate).toLocaleDateString("it-IT", {
                 day: "numeric",
                 month: "long",
                 year: "numeric",
             });
-            const birthDateLine = $("<p>", {text: dateString});
-            birthDateLine.prepend(birthDateHeader);
-            generalCustomerSection.append(birthDateLine);
-            // birthplace
-            const birthplaceHeader = $("<strong>", {text: "Luogo di nascita: "});
-            const birthplaceLine = $("<p>", {text: data.birthplace});
-            birthplaceLine.prepend(birthplaceHeader);
-            generalCustomerSection.append(birthplaceLine);
-            // contacts
-            const contactsSection = $("<section>");
-            const contactsSectionHeader = $("<h2>", {text: "Contatti"});
-            contactsSection.append(contactsSectionHeader);
-            mainSection.append(contactsSection);
-            // billing address
-            const billingAddressHeader = $("<strong>", {text: "Indirizzo di fatturazione: "});
-            const billingAddressLine = $("<p>", {text: data.billingAddress});
-            billingAddressLine.prepend(billingAddressHeader);
-            contactsSection.append(billingAddressLine);
-            if (data.currentAddress !== null) {
-                // current address
-                const currentAddressHeader = $("<strong>", {text: "Indirizzo corrente: "});
-                const currentAddressLine = $("<p>", {text: data.currentAddress});
-                currentAddressLine.prepend(currentAddressHeader);
-                contactsSection.append(currentAddressLine);
-            }
-            if (data.telephone !== null) {
-                // telephone
-                const telephoneHeader = $("<strong>", {text: "Telefono: "});
-                const telephoneLine = $("<p>", {text: data.telephone});
-                telephoneLine.prepend(telephoneHeader);
-                contactsSection.append(telephoneLine);
-            }
-        } else if ("organizationName" in data) {
-            // it's a promoter
-            console.log("promoter");
-            const generalPromoterSectionHeader = $("<h2>", {text: "Dati organizzazione"});
-            const generalPromoterSection = $("<section>");
-            generalPromoterSection.append(generalPromoterSectionHeader);
-            mainSection.append(generalPromoterSection);
-            // organization name
-            const organizationNameHeader = $("<strong>", {text: "Nome organizzazione: "});
-            const organizationNameLine = $("<p>", {text: data.organizationName});
-            organizationNameLine.prepend(organizationNameHeader);
-            generalPromoterSection.append(organizationNameLine);
-            // VATid
-            const vatHeader = $("<strong>", {text: "VATid: "});
-            const vatLine = $("<p>", {text: data.VATid});
-            vatLine.prepend(vatHeader);
-            generalPromoterSection.append(vatLine);
-            if (data.website !== null) {
-                // website
-                const websiteHeader = $("<strong>", {text: "Sito: "});
-                const websiteLine = $("<p>", {text: data.website});
-                websiteLine.prepend(websiteHeader);
-                generalPromoterSection.append(websiteLine);
-            }
+            mainSection.append($("<section>").append($("<h2>", {text: "Dati personali"})),
+                                                     $("<p>", {text: userData.name})
+                                                         .prepend($("<strong>", {text: "Nome: "})),
+                                                     $("<p>", {text: userData.surname})
+                                                         .prepend($("<strong>", {text: "Cognome: "})),
+                                                     $("<p>", {text: dateString})
+                                                         .prepend($("<strong>", {text: "Data di nascita: "})),
+                                                     $("<p>", {text: userData.birthplace})
+                                                         .prepend($("<strong>", {text: "Luogo di nascita: "})),
+                               $("<section>").append($("<h2>", {text: "Contatti"}),
+                                                     $("<p>", {text: userData.billingAddress})
+                                                         .prepend($("<strong>", {text: "Indirizzo di fatturazione: "})),
+                                                     userData.currentAddress !== null
+                                                         ? $("<p>", {text: userData.currentAddress})
+                                                               .prepend($("<strong>", {text: "Indirizzo corrente: "}))
+                                                         : null,
+                                                     userData.telephone !== null
+                                                         ? $("<p>", {text: userData.telephone})
+                                                               .prepend($("<strong>", {text: "Telefono: "}))
+                                                         : null));
+            photo.after($("<p>", {class: "username", text: userData.username}));
+        } else if ("organizationName" in userData) {
+            // It's a promoter
+            mainSection.append($("<section>").append($("<h2>", {text: "Dati organizzazione"}),
+                                                     $("<p>", {text: userData.organizationName})
+                                                         .prepend($("<strong>", {text: "Nome organizzazione: "})),
+                                                     $("<p>", {text: userData.VATid})
+                                                         .prepend($("<strong>", {text: "VATid: "})),
+                                                     userData.website !== null
+                                                        ? $("<p>", {text: userData.website})
+                                                              .prepend($("<strong>", {text: "Sito: "}))
+                                                        : null));
         }
+    } else {
+        mainSection.append($("<p>", {text: "Si è verificato un errore, impossibile visualizzare i dati dell'utente"}));
     }
 }
 
 function setChangePasswordForm() {
-    const mainSection = $("main > section");
-    const form = $("<form>");
-    mainSection.append(form);
-    const oldPwdLabel = $("<label>", {text: "Password attuale: ", for: "old_password"});
-    const oldPwdField = $("<input>", {type: "password", name: "old_password", id: "old_password"});
-    oldPwdField.prop("required", true);
-    const newPwdLabel = $("<label>", {text: "Nuova password: ", for: "new_password"});
-    const newPwdField = $("<input>", {type: "password", name: "new_password", id: "new_password"});
-    newPwdField.prop("required", true);
-    const newPwdRepeatLabel = $("<label>", {text: "Conferma password: ", for: "new_password_repeat"});
-    const newPwdRepeatField = $("<input>", {type: "password", name: "new_password_repeat", id: "new_password_repeat"});
-    newPwdRepeatField.prop("required", true);
-    const submitButton = $("<input>", {type: "submit", value: "Cambia password"});
-    form.append(oldPwdLabel, oldPwdField, newPwdLabel, newPwdField, newPwdRepeatLabel, newPwdRepeatField, submitButton);
-    form.submit(e => {
-        e.preventDefault();
-        $.post("change_password.php", form.serialize(), data => {
-            $("form > p").remove();
-            form.prepend($("<p>", {text: data.resultMessage}));
-        });
-    })
+    $("main > section").append($("<form>").append(
+                                   $("<label>", {text: "Password attuale: ", for: "old_password"}),
+                                   $("<input>", {type: "password", name: "old_password", id: "old_password"})
+                                       .prop("required", true),
+                                   $("<label>", {text: "Nuova password: ", for: "new_password"}),
+                                   $("<input>", {type: "password", name: "new_password", id: "new_password"})
+                                       .prop("required", true), 
+                                   $("<label>", {text: "Conferma password: ", for: "new_password_repeat"}),
+                                   $("<input>", {type: "password", name: "new_password_repeat", id: "new_password_repeat"})
+                                       .prop("required", true),
+                                   $("<input>", {type: "submit", value: "Cambia password"}))
+                                          .submit(function(e) {
+                                              e.preventDefault();
+                                                  $.post("change_password.php", $(this).serialize(), data => {
+                                                      $("form > p").remove();
+                                                      $(this).prepend($("<p>", {text: data.resultMessage}));
+                                                  });
+                                          }));
 }
 
 function setChangeDataForm(data) {
-    if (Object.keys(data).length > 0) {
+    if (data.result !== false) {
+        userData = data.userData;
         // this part is common to every type of user
-        const form = $("<form>", {enctype: "multipart/form-data"});
+        const form = $("<form>", {enctype: "multipart/form-data"})
+                         .append($("<fieldset>")
+                                     .append($("<img>", {src: userData.profilePhoto, id: "profile_photo_img"}),
+                                             $("<label>", {for: "profile_photo", text: "Nuova foto profilo: "}),
+                                             $("<input>", {type: "file", name: "profile_photo", id: "profile_photo"})));
         $("main > section").append(form);
-        const generalSection = $("<fieldset>");
-        form.append(generalSection);
-        const photo = $("<img>", {src: data.profilePhoto, id: "profile_photo_img"});
-        generalSection.append(photo);
-        const photoLabel = $("<label>", {for: "profile_photo", text: "Nuova foto profilo: "});
-        const photoChooser = $("<input>", {type: "file", name: "profile_photo", id: "profile_photo"});
-        generalSection.append(photoLabel, photoChooser);
-        if ("username" in data) {
-            // it's a customer
-            const generalCustomerSection = $("<fieldset>");
-            const generalCustomerSectionHeader = $("<h2>", {text: "Dati personali"});
-            generalCustomerSection.append(generalCustomerSectionHeader);
-            form.append(generalCustomerSection);
-            // username
-            const usernameLabel = $("<label>", {for: "username", text: "Username: "});
-            const usernameField = $("<input>", {id: "username", name: "username", value: data.username});
-            generalCustomerSection.append(usernameLabel, usernameField);
-            // name
-            const nameLabel = $("<label>", {for: "name", text: "Nome: "});
-            const nameField = $("<input>", {id: "name", name: "name", value: data.name});
-            generalCustomerSection.append(nameLabel, nameField);
-            // surname
-            const surnameLabel = $("<label>", {for: "surname", text: "Cognome: "});
-            const surnameField = $("<input>", {id: "surname", name: "surname", value: data.surname});
-            generalCustomerSection.append(surnameLabel, surnameField);
-            // birthDate
-            const birthDateLabel = $("<label>", {for: "birthdate", text: "Data di nascita: "});
-            const birthDateField = $("<input>", {id: "birthdate", name: "birthDate", value: data.birthDate, type: "date"});
-            generalCustomerSection.append(birthDateLabel, birthDateField);
-            // birthplace
-            const birthplaceLabel = $("<label>", {for: "birthplace", text: "Luogo di nascita: "});
-            const birthplaceField = $("<input>", {id: "birthplace", name: "birthplace", value: data.birthplace});
-            generalCustomerSection.append(birthplaceLabel, birthplaceField);
-            // contacts
-            const contactsSection = $("<fieldset>");
-            const contactsSectionHeader = $("<h2>", {text: "Contatti"});
-            contactsSection.append(contactsSectionHeader);
-            form.append(contactsSection);
-            // billing address
-            const billingAddressLabel = $("<label>", {for: "billing_add", text: "Indirizzo di fatturazione: "});
-            const billingAddressField = $("<input>", {id: "billing_add", name: "billingAddress", value: data.billingAddress});
-            contactsSection.append(billingAddressLabel, billingAddressField);
-            // current address
-            const currentAddressLabel = $("<label>", {for: "current_add", text: "Indirizzo corrente: "});
-            const currentAddressField = $("<input>", {id: "current_add", name: "currentAddress", value: data.currentAddress !== null ? data.currentAddress : ""});
-            contactsSection.append(currentAddressLabel, currentAddressField);
-            // telephone
-            const telephoneLabel = $("<label>", {for: "telephone", text: "Telefono: "});
-            const telephoneField = $("<input>", {id: "telephone", name: "telephone", value: data.telephone !== null ? data.telephone : ""});
-            contactsSection.append(telephoneLabel, telephoneField);
-        } else if ("organizationName" in data) {
-            // it's a promoter
-            const generalPromoterSectionHeader = $("<h2>", {text: "Dati organizzazione"});
-            const generalPromoterSection = $("<fieldset>");
-            generalPromoterSection.append(generalPromoterSectionHeader);
-            form.append(generalPromoterSection);
-            // website
-            const websiteLabel = $("<label>", {for: "website", text: "Sito internet: "});
-            const websiteField = $("<input>", {id: "website", type: "text", name: "website", value: data.website !== null ? data.website : ""});
-            generalPromoterSection.append(websiteLabel, websiteField);
+        // It's a customer
+        if ("username" in userData) {
+            form.append($("<fieldset>")
+                            .append($("<h2>", {text: "Dati personali"}),
+                                    $("<label>", {for: "username", text: "Username: "}),
+                                    $("<input>", {id: "username", name: "username", value: userData.username}),
+                                    $("<label>", {for: "name", text: "Nome: "}),
+                                    $("<input>", {id: "name", name: "name", value: userData.name}),
+                                    $("<label>", {for: "surname", text: "Cognome: "}),
+                                    $("<input>", {id: "surname", name: "surname", value: userData.surname}),
+                                    $("<label>", {for: "birthdate", text: "Data di nascita: "}),
+                                    $("<input>", {id: "birthdate", name: "birthDate", value: userData.birthDate, type: "date"}),
+                                    $("<label>", {for: "birthplace", text: "Luogo di nascita: "}),
+                                    $("<input>", {id: "birthplace", name: "birthplace", value: userData.birthplace})),
+                        $("<fieldset>")
+                            .append($("<h2>", {text: "Contatti"}),
+                                    $("<label>", {for: "billing_add", text: "Indirizzo di fatturazione: "}),
+                                    $("<input>", {id: "billing_add", name: "billingAddress", value: userData.billingAddress}),
+                                    $("<label>", {for: "current_add", text: "Indirizzo corrente: "}),
+                                    $("<input>", {
+                                        id: "current_add",
+                                        name: "currentAddress",
+                                        value: userData.currentAddress !== null ? userData.currentAddress : ""
+                                    }),
+                                    $("<label>", {for: "telephone", text: "Telefono: "}),
+                                    $("<input>", {
+                                        id: "telephone",
+                                        name: "telephone",
+                                        value: userData.telephone !== null ? userData.telephone : ""
+                                    })));
+        // It's a promoter
+        } else if ("organizationName" in userData) {
+            form.append($("<fieldset>")
+                            .append($("<h2>", {text: "Dati organizzazione"}),
+                                    $("<label>", {for: "website", text: "Sito internet: "}),
+                                    $("<input>", {
+                                        id: "website",
+                                        type: "text",
+                                        name: "website",
+                                        value: userData.website !== null ? userData.website : ""
+                                    })));
         }
-        const submit = $("<input>", {type: "submit", value: "Modifica dati"});
-        form.append(submit);
-        form.submit(e => {
-            e.preventDefault();
-            $.post({
-                url: "change_user_data.php",
-                data: new FormData($("form")[0]), 
-                processData: false,
-                contentType: false,
-                success: data => {
-                    $("form > p").remove();
-                    form.prepend($("<p>", {text: data.resultMessage}));
-                    $.get("get_user_data.php", data => {
-                        $("#profile_photo_img").attr("src", data.profilePhoto);
-                        $(".profile_icon").attr("src", data.profilePhoto);
-                    });
-                }
+        form.append($("<input>", {type: "submit", value: "Modifica dati"}))
+            .submit(function(e) {
+                e.preventDefault();
+                $.post({
+                    url: "change_user_data.php",
+                    data: new FormData($("form")[0]), 
+                    processData: false,
+                    contentType: false,
+                    success: data => {
+                        $("form > p").remove();
+                        $(this).prepend($("<p>", {text: data.resultMessage}));
+                        $.get("get_user_data.php", data => {
+                            if (data.result !== false) {
+                                userData = data.userData;
+                                $("#profile_photo_img").attr("src", userData.profilePhoto);
+                                $(".profile_icon").attr("src", userData.profilePhoto);
+                            }
+                        });
+                    }
+                });
             });
-        });
-    }
-}
-
-function updateChangeDataForm(data) {
-    $("#profile_photo_img").attr("src", data.profilePhoto);
-    $(".profile_icon").attr("src", data.profilePhoto);
-    if ("username" in data) {
-        // username
-        $("#username").val(data.username);
-        // name
-        $("#name").val(data.name);
-        // surname
-        $("#surname").val(data.surname);
-        // birthDate
-        $("#birthdate").val(data.birthDate);
-        // birthplace
-        $("#birthplace").val(data.birthplace);
-        // billing address
-        $("#billing_add").val(data.billingAddress);
-        // current address
-        $("#current_add").val(data.currentAddress !== null ? data.currentAddress : "");
-        // telephone
-        $("#telephone").val(data.telephone !== null ? data.telephone : "");
-    } else if ("organizationName" in data) {
-        // it's a promoter
-        // website
-        $("#website").val(data.website !== null ? data.website : "");
+    } else {
+        mainSection.append($("<p>", {text: "Si è verificato un errore, impossibile visualizzare i dati dell'utente"}));
     }
 }
 
 function showDeleteAccountForm() {
-    const mainSection = $("main > section");
-    const form = $("<form>");
-    mainSection.append(form);
-    const question = $("<p>", {text: "Sei sicuro di voler cancellare il tuo account? Questa azione non é reversibile!"});
-    const passwordLabel = $("<label>", {text: "Password attuale: ", for: "password"});
-    const passwordField = $("<input>", {type: "password", name: "password", id: "password"});
-    passwordField.prop("required", true);
-    const buttonYes = $("<button>", {text: "Elimina", type: "button"});
-    form.submit(e => {
-        e.preventDefault();
-        $.post("delete_account.php", form.serialize(), d => {
-            console.log(d);
-            if (d.new_location !== "") {
-                window.location.href = d.new_location;
-            }
-        });
-    });
-    form.append(question, passwordLabel, passwordField, buttonYes);
+    $("main > section")
+        .append($("<form>")
+                    .append($("<p>", {text: "Sei sicuro di voler cancellare il tuo account? Questa azione non é reversibile!"}),
+                            $("<label>", {text: "Password attuale: ", for: "password"}),
+                            $("<input>", {type: "password", name: "password", id: "password"})
+                                .prop("required", true),
+                            $("<button>", {text: "Elimina", type: "submit"}))
+                    .submit(function(e) {
+                        e.preventDefault();
+                        $.post("delete_account.php", $(this).serialize(), data => {
+                            if (data.location !== "") {
+                                window.location.href = data.location;
+                            } else {
+                                $("form + p").remove();
+                                $("main > section").append($("<p>", {text : data.result}))
+                            }
+                        });
+                    }));
 }
 
 $(() => {
     $.get("get_user_notifications.php", organizeUserNotifications);
-
     $("#notifications_button").click(() => {
         $(".selected").removeClass("selected");
         $("#notifications_button").addClass("selected");
         $("main > section").html("");
         $.get("get_user_notifications.php", organizeUserNotifications);
     });
-
     $("#user_area_button").click(() => {
         $(".selected").removeClass("selected");
         $("#user_area_button").addClass("selected");
         $("main > section").html("");
         $.get("get_user_data.php", organizeUserData);
     });
-
     $("#change_password_button").click(() => {
         $(".selected").removeClass("selected");
         $("#change_password_button").addClass("selected");
         $("main > section").html("");
         setChangePasswordForm();
     });
-
     $("#change_data_button").click(() => {
         $(".selected").removeClass("selected");
         $("#change_data_button").addClass("selected");
         $("main > section").html("");
         $.get("get_user_data.php", setChangeDataForm);
     });
-
     $("#events_button").click(() => {
         window.location.href = "my_events.php";
     });
-
     $("#delete_account_button").click(() => {
         $(".selected").removeClass("selected");
         $("#delete_account_button").addClass("selected");

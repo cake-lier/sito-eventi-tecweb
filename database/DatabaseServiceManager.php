@@ -40,7 +40,7 @@ abstract class DatabaseServiceManager {
      * Checks if the user on which the current operation is being done is the user that is currently logged in.
      */
     protected function isUserLoggedIn(string $email) {
-        return $_SESSION["email"] === $email;
+        return isset($_SESSION["email"]) && $_SESSION["email"] === $email;
     }
     /*
      * Prepares a statement from the given query, and binds the arguments to the statement using the given binding

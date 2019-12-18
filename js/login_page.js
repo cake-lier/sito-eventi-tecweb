@@ -10,13 +10,13 @@ function showRightForm() {
         $(".customer").prop("required", false);
         $(".customer, .customer_non_req").hide();
     } else {
+        //TODO: What happens here?
     }
 }
 
 $(() => {
     $("#login_form").show();
     $("#registration_form").hide();
-
     $("#login_button").click(() => {
         $("#login_form").show();
         $("#registration_form").hide();
@@ -27,19 +27,18 @@ $(() => {
         $("#registration_form").show();
         showRightForm();
     });
-    $("#check_customer, #check_promoter").change(e => {
+    $("#check_customer, #check_promoter").change(() => {
         showRightForm();
     });
-
     $("#registration_form").submit(e => {
-        if ($("#profile_photo")[0].files.item(0).size > 10485760) { // 10MB
+        if ($("#profile_photo")[0].files.item(0).size > 12000000) {
             e.preventDefault();
-            alert("Immagine troppo grande");
+            $("main").prepend($("<p>", {text: "Immagine troppo grande"}));
         }
         if ($("#telephone").val() !== ""
             && (isNaN($("telephone").val()) || $("telephone").val().includes(".") || $("telephone").val().includes(","))) {
             e.preventDefault();
-            alert("Numero di telefono non corretto!");
+            $("main").prepend($("<p>", {text: "Numero di telefono non corretto!"}));
         }
     });
 });
