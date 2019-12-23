@@ -43,18 +43,20 @@ function unsetMatrixIfEmpty(array &$matrix, int $firstIndex, int $secondIndex) {
 }
 
 function useTopEventsTemplate(&$templateParams, $dbh) {
-    $templateParams["mostRecentEvent"]
-        = $dbh->getEventsManager()->getEventInfo($dbh->getEventsManager()->getMostRecentEvent());
-    $templateParams["mostRecentEvent"]["dateTime"]
-        = convertDateTimeToLocale($templateParams["mostRecentEvent"]["dateTime"]);
-    $templateParams["mostRecentEvent"]["isLoggedUserEventOwner"]
-        = $dbh->getEventsManager()->isLoggedUserEventOwner($templateParams["mostRecentEvent"]["id"]);
-    $templateParams["mostPopularEvent"]
-        = $dbh->getEventsManager()->getEventInfo($dbh->getEventsManager()->getMostPopularEvent());
-    $templateParams["mostPopularEvent"]["dateTime"]
-        = convertDateTimeToLocale($templateParams["mostPopularEvent"]["dateTime"]);
-    $templateParams["mostPopularEvent"]["isLoggedUserEventOwner"]
-        = $dbh->getEventsManager()->isLoggedUserEventOwner($templateParams["mostPopularEvent"]["id"]);
+    $mostRecentEvent = $dbh->getEventsManager()->getEventInfo($dbh->getEventsManager()->getMostRecentEvent());
+    $mostPopularEvent = $dbh->getEventsManager()->getEventInfo($dbh->getEventsManager()->getMostPopularEvent());
+    if (isset($mostRecentEvent["id"])) {
+        $templateParams["mostRecentEvent"] = $mostRecentEvent;
+        $templateParams["mostRecentEvent"]["dateTime"]
+            = convertDateTimeToLocale($templateParams["mostRecentEvent"]["dateTime"]);
+        $templateParams["mostRecentEvent"]["isLoggedUserEventOwner"]
+            = $dbh->getEventsManager()->isLoggedUserEventOwner($templateParams["mostRecentEvent"]["id"]);
+        $templateParams["mostPopularEvent"] = $mostPopularEvent;
+        $templateParams["mostPopularEvent"]["dateTime"]
+            = convertDateTimeToLocale($templateParams["mostPopularEvent"]["dateTime"]);
+        $templateParams["mostPopularEvent"]["isLoggedUserEventOwner"]
+            = $dbh->getEventsManager()->isLoggedUserEventOwner($templateParams["mostPopularEvent"]["id"]);
+    }
 }
 
 function useEmptyCartTemplate(&$templateParams, $dbh) {

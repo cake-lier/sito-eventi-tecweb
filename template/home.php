@@ -8,6 +8,10 @@
 </section>
 <?php
 
-require "template/top_events.php";
+if (isset($templateParams["mostPopularEvent"]) && isset($templateParams["mostRecentEvent"])) {
+    require "template/top_events.php";
+} else {
+    require "template/no_events.php";
+}
 
 ?>
