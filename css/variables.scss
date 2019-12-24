@@ -1,0 +1,23 @@
+@import "imports";
+
+$standardFont: 'Open Sans', sans-serif;
+$titlesFont: 'Righteous', cursive;
+
+$mainRed: #DC2002;
+$textOnMainRed: #FFFFFF;
+$formText: #757575;
+$mainText: #79353F;
+$boxShadows: #111111;
+$mainBackground: #FFF5EB;
+
+$titleGradient: linear-gradient(rgba($mainRed, 255) 0%, rgba($mainRed, 255) 50%, rgba($mainRed, 0) 100%);
+
+@mixin upperBorder($image) {
+    border-top: 20px solid $mainRed;   
+    border-image: url($image);
+    border-image-slice: 33% 33%;
+    border-image-repeat: repeat;
+    border-image-outset: 1;
+    border-image-width: 2.5;
+    padding-bottom: 20px;
+}
