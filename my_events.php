@@ -19,7 +19,7 @@ try {
                 = array_merge(["id" => $id, "isLoggedUserEventOwner" => $dbh->getEventsManager()->isLoggedUserEventOwner($id)],
                               $info);
         });
-        $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "change_displayed_events.js"];
+        $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "common.js", JS_DIR . "change_displayed_events.js"];
         $templateParams["user_area_link"] = "user_area.php";
         $templateParams["user_area_alt"] = "Area personale";
         $templateParams["user_area_img"] = getProfileImage($dbh, $_SESSION["email"]);

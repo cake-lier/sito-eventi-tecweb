@@ -7,7 +7,7 @@ try {
         $templateParams["title"] = "SeatHeat - Area personale";
         $templateParams["name"] = "user_area_base.php";
         $templateParams["isAdmin"] = $dbh->getUsersManager()->isAdmin($_SESSION["email"]);
-        $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "user_area.js"];
+        $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "common.js", JS_DIR . "user_area.js"];
         $templateParams["user_area_link"] = "user_area.php";
         $templateParams["user_area_alt"] = "Area personale";
         $templateParams["user_area_img"] = getProfileImage($dbh, $_SESSION["email"]);

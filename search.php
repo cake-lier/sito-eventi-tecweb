@@ -24,6 +24,7 @@ try {
     $templateParams["title"] = "SeatHeat - Cerca";
     $templateParams["js"] = [
         "https://code.jquery.com/jquery-3.4.1.min.js",
+        JS_DIR . "common.js",
         JS_DIR . "search.js",
         JS_DIR . "change_displayed_events.js"
     ];

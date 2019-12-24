@@ -12,6 +12,7 @@ try {
         $templateParams["title"] = "SeatHeat - Evento: " . $templateParams["event"]["name"];
         $templateParams["js"] = [
             "https://code.jquery.com/jquery-3.4.1.min.js",
+            JS_DIR . "common.js",
             JS_DIR . "search.js"
         ];
         if (!isset($_SESSION["email"])) {

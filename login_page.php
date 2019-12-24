@@ -6,7 +6,7 @@ if (isset($_SESSION["email"])) {
 } else {
     $templateParams["title"] = "SeatHeat - Login";
     $templateParams["name"] = "register_login.php";
-    $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "login_page.js"];
+    $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "common.js", JS_DIR . "login_page.js"];
     $templateParams["location"] = "login_page.php";
     $templateParams["user_area_link"] = "login_page.php";
     $templateParams["user_area_alt"] = "Login";

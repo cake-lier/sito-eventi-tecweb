@@ -5,7 +5,12 @@ try {
     if (isset($_SESSION["email"]) && $dbh->getUsersManager()->isPromoter($_SESSION["email"])) {
         $templateParams["title"] = "SeatHeat - Nuovo evento";
         $templateParams["name"] = "create_event_form.php";
-        $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "create_event_page.js"];
+        $templateParams["js"] = 
+            [
+                "https://code.jquery.com/jquery-3.4.1.min.js", 
+                JS_DIR . "common.js",
+                JS_DIR . "create_event_page.js"
+            ];
         $templateParams["user_area_link"] = "user_area.php";
         $templateParams["user_area_alt"] = "Area personale";
         $templateParams["user_area_img"] = getProfileImage($dbh, $_SESSION["email"]);

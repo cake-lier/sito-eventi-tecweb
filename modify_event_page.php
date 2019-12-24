@@ -7,7 +7,7 @@ try {
         $templateParams["name"] = "modify_event_form.php";
         $templateParams["event"] = $dbh->getEventsManager()->getEventInfo(intval($_GET["id"]));
         $templateParams["event"]["dateTime"] = str_replace(" ", "T", $templateParams["event"]["dateTime"]);
-        $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "modify_event_page.js"];
+        $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "common.js", JS_DIR . "modify_event_page.js"];
         $templateParams["user_area_link"] = "user_area.php";
         $templateParams["user_area_alt"] = "Area personale";
         $templateParams["user_area_img"] = getProfileImage($dbh, $_SESSION["email"]);

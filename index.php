@@ -5,6 +5,7 @@ try {
     //Base Template
     $templateParams["title"] = "SeatHeat - Home";
     $templateParams["name"] = "home.php";
+    $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "common.js"];
     useTopEventsTemplate($templateParams, $dbh);
     if (!isset($_SESSION["email"])) {
         $templateParams["user_area_link"] = "login_page.php";

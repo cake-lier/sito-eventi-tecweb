@@ -61,7 +61,7 @@ try {
     }
     $templateParams["title"] = "SeatHeat - Carrello";
     $templateParams["name"] = "cart_base.php";
-    $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "cart.js"];
+    $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "common.js", JS_DIR . "cart.js"];
     require "template/base.php";
 } catch (\Exception $e) {
     error_log($e->getMessage(), 3, LOG_FILE);
