@@ -16,66 +16,66 @@
     ?>
 </head>
 <body>
+<nav>
+        <img id="menu_icon" class="icon" src="<?php echo IMG_DIR; ?>menu.png" alt="menu" />
+        <ul>
+            <li>
+                <a href="<?php echo $templateParams["user_area_link"]; ?>">
+                    <img class="<?php echo $templateParams["user_area_class"];?>"
+                            src="<?php echo $templateParams["user_area_img"]?>"
+                            alt="<?php echo $templateParams["user_area_alt"]; ?>"/>
+                    <p class="menu_links"><?php echo $templateParams["user_area_alt"]; ?></p>
+                </a>
+            </li>
+            <?php
+                if ($templateParams["showCart"]):
+            ?>
+                <li>
+                    <a href="cart.php">
+                        <img class="icon" src="<?php echo IMG_DIR . "cart.png"; ?>" alt="carrello"/>
+                        <p class="menu_links">Carrello</p>
+                    </a>
+                </li>
+            <?php
+                endif;
+                if ($templateParams["showMyEvents"]):
+            ?>
+                <li>
+                    <a href="my_events.php">
+                        <img class="icon" src="<?php echo IMG_DIR . "calendar.png"; ?>" alt="I miei eventi"/>
+                        <p class="menu_links">I miei eventi</p>
+                    </a>
+                </li>
+            <?php
+                endif;
+                if ($templateParams["showCreateEvent"]):
+            ?>
+                <li>
+                    <a href="create_event_page.php">
+                        <img class="icon" src="<?php echo IMG_DIR . "new.png"; ?>" alt="Crea evento"/>
+                        <p class="menu_links">Crea evento</p>
+                    </a>
+                </li>
+            <?php
+                endif;
+                if ($templateParams["showLogout"]):
+            ?>
+                <li>
+                    <a href="logout.php">
+                        <img class="icon" src="<?php echo IMG_DIR . "logout.png"; ?>" alt="Logout"/>
+                        <p class="menu_links">Logout</p>
+                    </a>
+                </li>
+            <?php
+                endif;
+            ?>
+        </ul>
+    </nav>
     <header>
         <a href="index.php">
             <img id="home" src="<?php echo IMG_DIR; ?>home-icon.png" alt="home"/>
             <img id="logo" src="<?php echo IMG_DIR; ?>SeatHeat.png" alt="SeatHeat logo"/>
         </a>
-        <img id="menu_icon" class="icon" src="<?php echo IMG_DIR; ?>menu.png" alt="menu" />
-        <nav>
-            <ul>
-                <li>
-                    <a href="<?php echo $templateParams["user_area_link"]; ?>">
-                        <img class="<?php echo $templateParams["user_area_class"];?>"
-                             src="<?php echo $templateParams["user_area_img"]?>"
-                             alt="<?php echo $templateParams["user_area_alt"]; ?>"/>
-                        <p class="menu_links"><?php echo $templateParams["user_area_alt"]; ?></p>
-                    </a>
-                </li>
-                <?php
-                    if ($templateParams["showCart"]):
-                ?>
-                    <li>
-                        <a href="cart.php">
-                            <img class="icon" src="<?php echo IMG_DIR . "cart.png"; ?>" alt="carrello"/>
-                            <p class="menu_links">Carrello</p>
-                        </a>
-                    </li>
-                <?php
-                    endif;
-                    if ($templateParams["showMyEvents"]):
-                ?>
-                    <li>
-                        <a href="my_events.php">
-                            <img class="icon" src="<?php echo IMG_DIR . "calendar.png"; ?>" alt="I miei eventi"/>
-                            <p class="menu_links">I miei eventi</p>
-                        </a>
-                    </li>
-                <?php
-                    endif;
-                    if ($templateParams["showCreateEvent"]):
-                ?>
-                    <li>
-                        <a href="create_event_page.php">
-                            <img class="icon" src="<?php echo IMG_DIR . "new.png"; ?>" alt="Crea evento"/>
-                            <p class="menu_links">Crea evento</p>
-                        </a>
-                    </li>
-                <?php
-                    endif;
-                    if ($templateParams["showLogout"]):
-                ?>
-                    <li>
-                        <a href="logout.php">
-                            <img class="icon" src="<?php echo IMG_DIR . "logout.png"; ?>" alt="Logout"/>
-                            <p class="menu_links">Logout</p>
-                        </a>
-                    </li>
-                <?php
-                    endif;
-                ?>
-            </ul>
-        </nav>
     </header>
     <main>
     <?php

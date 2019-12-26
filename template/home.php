@@ -1,6 +1,6 @@
-<section>
-    <h1>Non perderti neanche un evento che ami</h1>
+<section class="home">
     <img src="<?php echo IMG_DIR; ?>home.jpg" alt="" />
+    <h1>Non perderti neanche un evento che ami</h1>
     <form id="main_search" action="search.php" method="get">
         <label for="keyword"><img class="icon" src="<?php echo IMG_DIR; ?>search.png" alt="ricerca" /></label>
         <input type="text" name="keyword" id="keyword" />
