@@ -1,5 +1,11 @@
 @import "variables";
 
+// TODO:
+// nav is outside header
+// header zi is 0, nav button zi is 2, h1 button is 1, img zi is -1
+// nav button floats
+// nav ul I fucking don't know what it does
+
 body {
     margin: 0;
     padding: 0;
@@ -10,6 +16,7 @@ body {
 body > header, body > footer {
     background: $mainRed;
     color: $textOnMainRed;
+    width: 100%;
 }
 
 body > header a, body > footer a {
@@ -25,11 +32,8 @@ body > footer {
 body > header {
     background: $titleGradient;
     height: 17em;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    flex-direction: row;
-    justify-content: space-between;
+    position: absolute;
+    z-index: 0;
 }
 
 .home_links {
@@ -43,50 +47,47 @@ img.icon, #menu_icon, img.profile_icon {
 
 #home {
     display: none;
-    flex-basis: 15%;
+    max-width: 15%;
     max-height: 25%;
 }
 
 #logo {
-    max-width: 100%;
+    max-width: 65%;
+    max-height: 4em;
     padding: 3% 1%;
 }
 
 #menu_icon {
     cursor: pointer;
-    flex-basis: 20%;
     max-width: 20%;
 }
 
 header > a {
     max-width: 60%;
-    flex-basis: 60%;
 }
 
 /* title */
-main > section > img {
+section.home:first-of-type > img {
     width: 100%;
-    position: absolute;
-    left: 0;
-    top: 13%;
-    z-index: -1;
+    float: left;
+    margin: 15% 0 0 0;
+    max-height: 20em;
 }
 
-main > section > h1 { // TODO: this is horrible on real mobile devices
+section.home:first-of-type > h1 {
     position: absolute;
-    top: 5%;
-    left: 10%;
     width: 80%;
+    margin: 10% 10% 0 10%;
     text-align: center;
     font-family: $titlesFont;
     color: $textOnMainRed;
-    font-size: 200%;
+    font-size: 2em;
     padding: 40px 0px;
     box-shadow: $boxShadows;
+    z-index: 1;
 }
 
 /* search */
-
 form, input {
     color: $formText;
 }
@@ -94,6 +95,8 @@ form, input {
 #main_search {
     width: 100%;
     text-align: center;
+    position: relative;
+    top: -5em;
 }
 
 #main_search > input {
@@ -116,44 +119,55 @@ form, input {
 }
 
 /* main section */
-main > p, main > section:last-child {
+main > p, main > section:last-child { // TODO: test this with events in homepage
     @include upperBorder("../img/pink_circles.svg");
-    
+    padding: 5% 0;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    top: -2.75em;
+    color: $mainText;
 }
 
 /* menu */
-header > nav {
+nav {
+    float: right;
+    width: 100%;
+    text-align: right;
+    position: relative;
+    z-index: 3;
+}
+
+nav > ul {
     display: none;
     background: $mainRed;
-    flex-basis: 100%;
     width: 100%;
-    z-index: 1;
-}
-
-header > nav > ul {
     padding-inline-start: 0;
+    text-align: left;
 }
 
-header > nav > ul > li {
+nav > ul > li {
     list-style: none;
     padding: 10px 0px;
     margin: 0 20px;
 }
 
-header > nav > ul > li:not(:last-of-type) {
+nav > ul > li:not(:last-of-type) {
     border-bottom: thin solid $textOnMainRed;
 }
 
-header > nav > ul > li > a {
+nav > ul > li > a {
     width: inherit;
     display: block;
+    color: $textOnMainRed;
+    text-decoration: none;
 }
 
-header > nav > ul > li > a > p {
+nav > ul > li > a > p {
     display: inline-block;
 }
 
-header > nav > ul > li > a > img, header > nav > ul > li > a > p {
+nav > ul > li > a > img, nav > ul > li > a > p {
     vertical-align: middle;
     margin: 2px 5px;
 }

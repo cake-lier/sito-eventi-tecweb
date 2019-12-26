@@ -3,7 +3,7 @@ $(() => {
         $("#menu_icon").click(e => {
             e.preventDefault();
             e.stopPropagation();
-            $("nav").toggle();
+            $("nav > ul").toggle();
         });
     
         $("nav").click(e => {
@@ -11,9 +11,9 @@ $(() => {
         });
     
         $("body").click(e => {
-            if (!$(e.target).is("img#menu_icon.icon") && !$(e.target).is("nav > ul > li > a") && $("nav").is(":visible")) {
+            if (!$(e.target).is("img#menu_icon.icon") && !$(e.target).is("nav > ul > li > a") && $("nav > ul").is(":visible")) {
                 e.preventDefault();
-                $("nav").hide();
+                $("nav > ul").hide();
             }
         });
     }
@@ -23,7 +23,7 @@ $(() => {
             $("#menu_icon").click(e => {
                 e.preventDefault();
                 e.stopPropagation();
-                $("nav").toggle();
+                $("nav > ul").toggle();
             });
         
             $("nav").click(e => {
@@ -31,16 +31,14 @@ $(() => {
             });
         
             $("body").click(e => {
-                if (!$(e.target).is("img#menu_icon.icon") && !$(e.target).is("nav > ul > li > a") && $("nav").is(":visible")) {
+                if (!$(e.target).is("img#menu_icon.icon") && !$(e.target).is("nav > ul > li > a") && $("nav > ul").is(":visible")) {
                     e.preventDefault();
-                    $("nav").hide();
+                    $("nav > ul").hide();
                 }
             });
         } else {
             $("#menu_icon").unbind("click");
-        
-            $("nav").unbind("click");
-        
+            $("nav").unbind("click");     
             $("body").unbind("click");
         }
     });
