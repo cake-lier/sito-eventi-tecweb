@@ -1,11 +1,5 @@
 @import "variables";
 
-// TODO:
-// nav is outside header
-// header zi is 0, nav button zi is 2, h1 button is 1, img zi is -1
-// nav button floats
-// nav ul I fucking don't know what it does
-
 body {
     margin: 0;
     padding: 0;
@@ -134,7 +128,7 @@ nav {
     float: right;
     width: 100%;
     text-align: right;
-    position: relative;
+    position: absolute;
     z-index: 3;
 }
 
