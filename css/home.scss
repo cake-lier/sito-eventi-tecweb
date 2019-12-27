@@ -27,7 +27,7 @@ body > header {
     background: $titleGradient;
     height: 17em;
     position: absolute;
-    z-index: 0;
+    z-index: 1;
 }
 
 .home_links {
@@ -46,8 +46,7 @@ img.icon, #menu_icon, img.profile_icon {
 }
 
 #logo {
-    max-width: 65%;
-    max-height: 4em;
+    max-width: 100%;
     padding: 3% 1%;
 }
 
@@ -57,7 +56,9 @@ img.icon, #menu_icon, img.profile_icon {
 }
 
 header > a {
-    max-width: 60%;
+    max-width: 50%;
+    max-height: 3em;
+    display: inline-block;
 }
 
 /* title */
@@ -78,10 +79,16 @@ section.home:first-of-type > h1 {
     font-size: 2em;
     padding: 40px 0px;
     box-shadow: $boxShadows;
-    z-index: 1;
+    z-index: 2;
 }
 
 /* search */
+section.home:nth-of-type(2) {
+    position: relative;
+    top: -5em;
+    z-index: 0;
+}
+
 form, input {
     color: $formText;
 }
@@ -89,8 +96,6 @@ form, input {
 #main_search {
     width: 100%;
     text-align: center;
-    position: relative;
-    top: -5em;
 }
 
 #main_search > input {
@@ -125,10 +130,10 @@ main > p, main > section:last-child { // TODO: test this with events in homepage
 
 /* menu */
 nav {
-    float: right;
-    width: 100%;
+    width: 50%;
     text-align: right;
     position: absolute;
+    left: 50%;
     z-index: 3;
 }
 
