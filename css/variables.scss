@@ -9,6 +9,8 @@ $formText: #757575;
 $mainText: #79353F;
 $boxShadows: #111111;
 $mainBackground: #FFF5EB;
+$sectionBackground: #FFFFFF;
+$sectionShadow: #FBCEC4;
 
 $titleGradient: linear-gradient(rgba($mainRed, 255) 0%, rgba($mainRed, 255) 50%, rgba($mainRed, 0) 100%);
 
@@ -20,4 +22,19 @@ $titleGradient: linear-gradient(rgba($mainRed, 255) 0%, rgba($mainRed, 255) 50%,
     border-image-outset: 1;
     border-image-width: 2.5;
     padding-bottom: 20px;
+}
+
+@mixin button($buttonWidthPerc, $textSizeEm) {
+    border: none;
+    background-color: $mainRed;
+    border-radius: $textSizeEm + 0em;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    color: $textOnMainRed;
+    font-size: $textSizeEm + 0em;
+    width: $buttonWidthPerc + 0%;
+    box-sizing: border-box;
+    padding: $textSizeEm / 8 + 0em;
+    cursor: pointer;
 }

@@ -1,0 +1,211 @@
+@import "variables";
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: $standardFont;
+    background: $mainBackground;
+}
+
+body > header, body > footer {
+    background: $mainRed;
+    color: $textOnMainRed;
+    width: 100%;
+}
+
+body > header a, body > footer a {
+    color: $textOnMainRed;
+    text-decoration: none;
+}
+
+body > footer {
+    text-align: center;
+    @include upperBorder("../img/red_circles.svg");
+}
+
+body > header {
+    background: $titleGradient;
+    height: 10em;
+    position: relative;
+    z-index: 0;
+}
+
+.home_links {
+    font-family: $titlesFont;
+    font-size: larger;
+}
+
+img.icon, #menu_icon, img.profile_icon {
+    max-height: 50px;
+}
+
+#home {
+    display: none;
+    max-width: 15%;
+    max-height: 25%;
+}
+
+#logo {
+    max-width: 100%;
+    padding: 3% 1%;
+}
+
+#menu_icon {
+    cursor: pointer;
+    max-width: 20%;
+}
+
+header > a {
+    max-width: 50%;
+    max-height: 2em;
+    display: inline-block;
+}
+
+/* menu */
+nav {
+    width: 50%;
+    left: 50%;
+    text-align: right;
+    position: absolute;
+    z-index: 3;
+}
+
+nav > ul {
+    display: none;
+    background: $mainRed;
+    width: 100%;
+    padding-inline-start: 0;
+    text-align: left;
+}
+
+nav > ul > li {
+    list-style: none;
+    padding: 10px 0px;
+    margin: 0 20px;
+}
+
+nav > ul > li:not(:last-of-type) {
+    border-bottom: thin solid $textOnMainRed;
+}
+
+nav > ul > li > a {
+    width: inherit;
+    display: block;
+    color: $textOnMainRed;
+    text-decoration: none;
+}
+
+nav > ul > li > a > p {
+    display: inline-block;
+}
+
+nav > ul > li > a > img, nav > ul > li > a > p {
+    vertical-align: middle;
+    margin: 2px 5px;
+}
+
+#profile_photo_img {
+    max-height: 100px;
+}
+
+a.button > img, button > img {
+    background: $mainRed;
+}
+
+/* general section */
+main > section {
+    margin: 0 5% 10% 5%;
+    background-color: $sectionBackground;
+    padding: 2% 2%;
+    border-radius: 5px;
+    box-shadow: 2px 2px 3px $sectionShadow;
+    color: $mainText;
+}
+
+main > section > p {
+    text-align: center;
+}
+
+/* registration and login */
+#register_login > header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 1% 1% 3% 1%;
+}
+
+#register_login > header > button {
+    font-family: $titlesFont;
+    border: none;
+    color: $mainRed;
+    opacity: 0.5;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    background-color: transparent;
+    font-size: 1.3em;
+}
+
+#register_login > header > button:not(.selected):hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+#register_login > header > button.selected {
+    font-size: 2em;
+    opacity: 1;
+}
+
+#login_form, #registration_form, #registration_form > fieldset > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    align-content: space-around;
+    justify-content: center;
+    width: 100%;
+}
+
+#registration_form > fieldset {
+    box-sizing: border-box;
+    border: 0;
+    width: 100%;
+}
+
+#registration_form > fieldset:not(:first-of-type) {
+    border-top: 1px solid $mainText;
+}
+
+#register_login p {
+    text-align: center;
+    font-size: 0.8em;
+}
+
+#register_login p a {
+    font-weight: bold;
+    color: $mainText;
+}
+
+#register_login form label {
+    flex: 2 1 30%;
+    max-width: 30%;
+    overflow: auto;
+}
+
+#register_login form label > span {
+    font-size: 0.7em;
+}
+
+#register_login form input {
+    flex: 1 1 65%;
+    max-width: 65%;;
+    margin: 2% 0;
+    height: 1.5em;
+}
+
+#register_login form input[type=submit] {
+    @include button(30%, 1.3);
+    flex-basis: 30%;
+}
+
+

@@ -3,8 +3,13 @@ $(() => {
         $("#menu_icon").click(e => {
             e.preventDefault();
             e.stopPropagation();
-            $("nav").css("width", "100%")
-                    .css("left", "0%");
+            if ($("nav > ul").is(":visible")) {
+                $("nav").css("width", "50%")
+                        .css("left", "50%");
+            } else {
+                $("nav").css("width", "100%")
+                        .css("left", "0%");
+            }
             $("nav > ul").toggle();
         });
     
@@ -27,8 +32,13 @@ $(() => {
             $("#menu_icon").click(e => {
                 e.preventDefault();
                 e.stopPropagation();
-                $("nav").css("width", "100%")
-                        .css("left", "0%");
+                if ($("nav > ul").is(":visible")) {
+                    $("nav").css("width", "50%")
+                            .css("left", "50%");
+                } else {
+                    $("nav").css("width", "100%")
+                            .css("left", "0%");
+                }
                 $("nav > ul").toggle();
             });
         

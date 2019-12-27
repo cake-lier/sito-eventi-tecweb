@@ -15,16 +15,20 @@ function showRightForm() {
 }
 
 $(() => {
-    $("#login_form").show();
-    $("#registration_form").hide();
+    $(".login").show();
+    $(".registration").hide();
     $("#login_button").click(() => {
-        $("#login_form").show();
-        $("#registration_form").hide();
+        $(".login").show();
+        $(".registration").hide();
         $(".login").prop("required", true);
+        $("#login_button").addClass("selected");
+        $("#registration_button").removeClass("selected");
     });
     $("#registration_button").click(() => {
-        $("#login_form").hide();
-        $("#registration_form").show();
+        $(".login").hide();
+        $(".registration").show();
+        $("#registration_button").addClass("selected");
+        $("#login_button").removeClass("selected");
         showRightForm();
     });
     $("#check_customer, #check_promoter").change(() => {
