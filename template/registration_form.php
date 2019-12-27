@@ -28,9 +28,9 @@
         <input class="customer" type="text" id="birthplace" name="birthplace"/>
         <label class="customer" for="billing">Indirizzo di fatturazione</label>
         <input class="customer" type="text" id="billing" name="billing"/>
-        <label class="customer" for="billing">Indirizzo corrente: </label>
+        <label class="customer_non_req" for="current">Indirizzo corrente: </label>
         <input class="customer_non_req" type="text" id="current" name="current"/>
-        <label class="customer_non_req" for="billing">Telefono: </label>
+        <label class="customer_non_req" for="telephone">Telefono: </label>
         <input class="customer_non_req" type="text" id="telephone" name="telephone"/>
         <label class="promoter" for="organization_name">Nome organizzazione:</label>
         <input class="promoter" type="text" id="organization_name" name="organization_name"/>
