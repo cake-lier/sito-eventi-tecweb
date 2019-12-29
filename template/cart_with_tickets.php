@@ -16,15 +16,15 @@
             </header>
             <section>
                 <p><?php echo $ticket["category"]; ?></p>
-                    <a class="button" href="#" id="dec_button_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">
+                    <a class="button quantity_button" href="#" id="dec_button_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">
                         <img src="img/less.png" alt="Togli un biglietto"/>
                     </a>
                     <p><?php echo $ticket["amount"] . " bigliett" . ($ticket["amount"] > 1 ? "i" : "o"); ?></p>
-                    <a class="button" href="#" id="inc_button_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">
+                    <a class="button quantity_button" href="#" id="inc_button_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">
                         <img src="img/more.png" alt="Aggiungi un biglietto"/>
                     </a>
                 <p><?php echo $ticket["price"] . "€/cad." ?></p>
-                <a class="button_no_image" href="#" id="remove_button_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">
+                <a class="button_no_image remove_button" href="#" id="remove_button_<?php echo $ticket["seatId"] . "_" . $ticket["eventId"]; ?>">
                     Rimuovi
                 </a>
             </section>
