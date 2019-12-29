@@ -1,4 +1,5 @@
-<nav id="user_area_menu">
+<section id="user_area_menu">
+    <a href="#"><img src="img/menu.png" alt="Chiudi menu area utente"/></a>
     <ul>
         <li class="selected" id="notifications_button">Notifiche</li>
         <li id="user_area_button">Dati personali</li>
@@ -13,4 +14,4 @@
         ?>
         <li id="delete_account_button">Chiudi account</li>
     </ul>
-</nav>
+</section>

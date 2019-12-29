@@ -1,9 +1,12 @@
 function organizeUserNotifications(data) {
     const mainSection = $("main");
     if (data["result"] === false) {
-        mainSection.append($("<p>", {
-            text: "Si è verificato un errore nel caricare le notifiche, si prega di riprovare più tardi"
-        }));
+        mainSection.append(
+            $("<section>").append(
+                $("<p>",
+                  {
+                       text: "Si è verificato un errore nel caricare le notifiche, si prega di riprovare più tardi"
+                  })));
         return;
     }
     notifications = data.notifications;
@@ -40,7 +43,12 @@ function organizeUserNotifications(data) {
                             })));
         });
     } else {
-        mainSection.append($("<p>", {text: "Non ci sono notifiche!"}));
+        mainSection.append(
+            $("<section>").append(
+                $("<p>",
+                  {
+                      text: "Non ci sono notifiche!"
+                  })));
     }
 }
 
@@ -80,7 +88,7 @@ function organizeUserData(data) {
                 month: "long",
                 year: "numeric",
             });
-            mainSection.append($("<section>").append($("<h2>", {text: "Dati personali"})),
+            mainSection.append($("<section>").append($("<h2>", {text: "Dati personali"}),
                                                      $("<p>", {text: userData.name})
                                                          .prepend($("<strong>", {text: "Nome: "})),
                                                      $("<p>", {text: userData.surname})
@@ -88,7 +96,7 @@ function organizeUserData(data) {
                                                      $("<p>", {text: dateString})
                                                          .prepend($("<strong>", {text: "Data di nascita: "})),
                                                      $("<p>", {text: userData.birthplace})
-                                                         .prepend($("<strong>", {text: "Luogo di nascita: "})),
+                                                         .prepend($("<strong>", {text: "Luogo di nascita: "}))),
                                $("<section>").append($("<h2>", {text: "Contatti"}),
                                                      $("<p>", {text: userData.billingAddress})
                                                          .prepend($("<strong>", {text: "Indirizzo di fatturazione: "})),
@@ -119,36 +127,43 @@ function organizeUserData(data) {
 }
 
 function setChangePasswordForm() {
-    $("main").append($("<form>").append(
-                                   $("<label>", {text: "Password attuale: ", for: "old_password"}),
-                                   $("<input>", {type: "password", name: "old_password", id: "old_password"})
-                                       .prop("required", true),
-                                   $("<label>", {text: "Nuova password: ", for: "new_password"}),
-                                   $("<input>", {type: "password", name: "new_password", id: "new_password"})
-                                       .prop("required", true), 
-                                   $("<label>", {text: "Conferma password: ", for: "new_password_repeat"}),
-                                   $("<input>", {type: "password", name: "new_password_repeat", id: "new_password_repeat"})
-                                       .prop("required", true),
-                                   $("<input>", {type: "submit", value: "Cambia password"}))
-                                          .submit(function(e) {
-                                              e.preventDefault();
-                                                  $.post("change_password.php", $(this).serialize(), data => {
-                                                      $("form > p").remove();
-                                                      $(this).prepend($("<p>", {text: data.resultMessage}));
-                                                  });
-                                          }));
+    $("main").append(
+        $("<section>").append(
+            $("<form>", {
+                class: "user_area_form"
+            }).append(
+                $("<label>", {text: "Password attuale: ", for: "old_password"}),
+                $("<input>", {type: "password", name: "old_password", id: "old_password"})
+                    .prop("required", true),
+                $("<label>", {text: "Nuova password: ", for: "new_password"}),
+                $("<input>", {type: "password", name: "new_password", id: "new_password"})
+                    .prop("required", true), 
+                $("<label>", {text: "Conferma password: ", for: "new_password_repeat"}),
+                $("<input>", {type: "password", name: "new_password_repeat", id: "new_password_repeat"})
+                    .prop("required", true),
+                $("<input>", {type: "submit", value: "Cambia password", class: "button_no_image"}))
+                    .submit(function(e) {
+                        e.preventDefault();
+                        $.post("change_password.php", $(this).serialize(), data => {
+                            $("form > p").remove();
+                            $(this).prepend($("<p>", {text: data.resultMessage}));
+                        });
+                    })));
 }
 
 function setChangeDataForm(data) {
     if (data.result !== false) {
         userData = data.userData;
         // this part is common to every type of user
-        const form = $("<form>", {enctype: "multipart/form-data"})
-                         .append($("<fieldset>")
+        const form = $("<form>",
+                       {
+                           enctype: "multipart/form-data",
+                           class: "user_area_form"
+                       }).append($("<fieldset>")
                                      .append($("<img>", {src: userData.profilePhoto, id: "profile_photo_img"}),
                                              $("<label>", {for: "profile_photo", text: "Nuova foto profilo: "}),
                                              $("<input>", {type: "file", name: "profile_photo", id: "profile_photo"})));
-        $("main").append(form);
+        $("<section>").appendTo($("main")).append(form);
         // It's a customer
         if ("username" in userData) {
             form.append($("<fieldset>")
@@ -191,7 +206,7 @@ function setChangeDataForm(data) {
                                         value: userData.website !== null ? userData.website : ""
                                     })));
         }
-        form.append($("<input>", {type: "submit", value: "Modifica dati"}))
+        form.append($("<input>", {type: "submit", value: "Modifica dati", class: "button_no_image"}))
             .submit(function(e) {
                 e.preventDefault();
                 $.post({
@@ -218,51 +233,74 @@ function setChangeDataForm(data) {
 }
 
 function showDeleteAccountForm() {
-    $("main")
-        .append($("<form>")
-                    .append($("<p>", {text: "Sei sicuro di voler cancellare il tuo account? Questa azione non é reversibile!"}),
+    $("<section>")
+        .appendTo($("main"))
+        .append($("<form>", 
+                  {
+                       class: "user_area_form"
+                  }).append($("<p>", {text: "Sei sicuro di voler cancellare il tuo account? Questa azione non é reversibile!"}),
                             $("<label>", {text: "Password attuale: ", for: "password"}),
                             $("<input>", {type: "password", name: "password", id: "password"})
                                 .prop("required", true),
-                            $("<button>", {text: "Elimina", type: "submit"}))
-                    .submit(function(e) {
-                        e.preventDefault();
-                        $.post("delete_account.php", $(this).serialize(), data => {
-                            if (data.location !== "") {
-                                window.location.href = data.location;
-                            } else {
-                                $("form + p").remove();
-                                $("main").append($("<p>", {text : data.result}))
-                            }
-                        });
-                    }));
+                            $("<input>",
+                              {
+                                  value: "Elimina",
+                                  type: "submit",
+                                  class: "button_no_image",
+                                  submit: function(e) {
+                                    e.preventDefault();
+                                    $.post("delete_account.php", $(this).serialize(), data => {
+                                        if (data.location !== "") {
+                                            window.location.href = data.location;
+                                        } else {
+                                            $("form + p").remove();
+                                            $("main").append($("<p>", {text : data.result}))
+                                        }
+                                    });
+                                }
+                              })));
 }
 
-$(() => {
-    $.get("get_user_notifications.php", organizeUserNotifications);
+function hideMenu(menu, menuContent) {
+    menu.html("")
+        .append($("<a>",
+                  {
+                      href: "#",
+                      click: () => showMenu(menu, menuContent)
+                  }).append($("<img>", {src: "img/menu.png", alt: "Apri menu area utente"})));
+}
+
+function showMenu(menu, menuContent) {
+    menu.html(menuContent)
+        .children("a")
+        .click(() => hideMenu(menu, menuContent));
     $("#notifications_button").click(() => {
         $(".selected").removeClass("selected");
         $("#notifications_button").addClass("selected");
-        $("main > section").remove();
+        $("main > section:nth-child(n+2)").remove();
         $.get("get_user_notifications.php", organizeUserNotifications);
+        hideMenu(menu, menuContent);
     });
     $("#user_area_button").click(() => {
         $(".selected").removeClass("selected");
         $("#user_area_button").addClass("selected");
-        $("main > section").remove();
+        $("main > section:nth-child(n+2)").remove();
         $.get("get_user_data.php", organizeUserData);
+        hideMenu(menu, menuContent);
     });
     $("#change_password_button").click(() => {
         $(".selected").removeClass("selected");
         $("#change_password_button").addClass("selected");
-        $("main > section").remove();
+        $("main > section:nth-child(n+2)").remove();
         setChangePasswordForm();
+        hideMenu(menu, menuContent);
     });
     $("#change_data_button").click(() => {
         $(".selected").removeClass("selected");
         $("#change_data_button").addClass("selected");
-        $("main > section").remove();
+        $("main > section:nth-child(n+2)").remove();
         $.get("get_user_data.php", setChangeDataForm);
+        hideMenu(menu, menuContent);
     });
     $("#events_button").click(() => {
         window.location.href = "my_events.php";
@@ -270,7 +308,15 @@ $(() => {
     $("#delete_account_button").click(() => {
         $(".selected").removeClass("selected");
         $("#delete_account_button").addClass("selected");
-        $("main > section").remove();
+        $("main > section:nth-child(n+2)").remove();
         showDeleteAccountForm();
+        hideMenu(menu, menuContent);
     });
+}
+
+$(() => {
+    const menu = $("#user_area_menu");
+    const menuContent = menu.html();
+    hideMenu(menu, menuContent);
+    $.get("get_user_notifications.php", organizeUserNotifications);
 });

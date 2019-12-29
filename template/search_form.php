@@ -19,7 +19,7 @@
         --><input type="date" id="data" name="date" /><!--
         --><label for="posti">Posti liberi:</label><!--
         --><input type="checkbox" id="posti" name="posti" value="free" checked /><!--
-        --><input type="submit" id="search" name="search" value="Cerca"/>
+        --><input class="button_no_image" type="submit" id="search" name="search" value="Cerca"/>
     </form>
 </section>
 <?php

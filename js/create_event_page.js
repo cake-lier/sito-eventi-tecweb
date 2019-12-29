@@ -23,7 +23,7 @@ $(() => {
                                                  id: "sCatPrice_" + seatCategoryCount,
                                                  name: "price"
                                                }),
-                                             $("<button>", {type: "button", text: "Rimuovi categoria"})
+                                             $("<button>", {type: "button", text: "Rimuovi categoria", class: "button_no_image"})
                                                  .click(function() { 
                                                      $(this).parent().remove();
                                                      seatCategoryCount--;

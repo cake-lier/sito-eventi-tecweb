@@ -21,6 +21,6 @@
     <a class="button_no_image" href="#" id="buy_button">Acquista</a>  
 </section>
 <footer>
-    <p>Completando l'acquisto accetti i nostri <emph><a href="info.php?type=termini">Termini di Servizio</a></emph> e affermi <!--
-    -->di aver preso visione dell'<emph><a href="info.php?type=privacy"></emp>Informativa privacy</a>.</p>
+    <p>Completando l'acquisto accetti i nostri <strong><a href="info.php?type=termini">Termini di Servizio</a></strong> e affermi <!--
+    -->di aver preso visione dell'<strong><a href="info.php?type=privacy"></strong>Informativa privacy</a>.</p>
 </footer> 
