@@ -125,7 +125,7 @@ form, input {
 /* main section */
 main > p, main > section:last-child { // TODO: test this with events in homepage
     @include upperBorder("../img/pink_circles.svg");
-    margin: 5% 0;
+    margin: 4% 0;
     padding: 5% 0;
     width: 100%;
     text-align: center;
