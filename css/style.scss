@@ -1,8 +1,16 @@
 @import "variables";
 
-body {
+* {
     margin: 0;
     padding: 0;
+}
+
+a {
+    text-decoration: none;
+    color: $mainText;
+}
+
+body {
     font-family: $standardFont;
     background: $mainBackground;
 }
@@ -20,6 +28,8 @@ body > header a, body > footer a {
 
 body > footer {
     text-align: center;
+    position: relative;
+    bottom: 0;
     @include upperBorder("../img/red_circles.svg");
 }
 
@@ -36,7 +46,7 @@ body > header {
 }
 
 img.icon, #menu_icon, img.profile_icon {
-    max-height: 50px;
+    max-height: 40px;
 }
 
 #home {
@@ -108,22 +118,98 @@ nav > ul > li > a > img, nav > ul > li > a > p {
     max-height: 100px;
 }
 
-a.button > img, button > img {
-    background: $mainRed;
+a.button > img {
+    background-color: $mainRed;
+    padding: 2.5%;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-shadow: 3px 3px 3px rgba($boxShadows, 0.7);
+    width: 15%;
+    cursor: pointer;
+}
+
+a.button.disabled > img {
+    background-color: grayscale($mainRed);
+    cursor: default;
+}
+
+.alert {
+    position: fixed;
+    margin-left: 5%;
+    margin-top: 0.5em;
+    padding: 0.5em;
+    width: 90%;
+    z-index: 3;
+    background-color: $mainBackground;
+    border: 0.2em solid $mainRed;
+    border-radius: 0.5em;
+    box-sizing: border-box;
+    color: $mainText;
+}
+
+.button_no_image {
+    background-color: $mainRed;
+    color: $textOnMainRed;
+    padding: 2.5%;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-shadow: 3px 3px 3px rgba($boxShadows, 0.7);
 }
 
 /* general section */
 main > section {
-    margin: 0 5% 10% 5%;
+    margin: 0 5% 2em 5%;
+    width: 80%;
     background-color: $sectionBackground;
-    padding: 2% 2%;
+    padding: 30px 5%;
     border-radius: 5px;
     box-shadow: 2px 2px 3px $sectionShadow;
     color: $mainText;
 }
 
+main > section:first-of-type {
+    margin-top: -5.5em;
+    position: relative;
+    z-index: 1;
+}
+
 main > section > p {
     text-align: center;
+}
+
+main > section > header > h1 {
+    padding-bottom: 20px;
+}
+
+main > section > header > h1 > a {
+    color: $mainText;
+}
+
+main > section > section {
+    padding-bottom: 30px;
+}
+
+main > section > footer {
+    text-align: right;
+}
+
+main > footer {
+    margin: 0 5% 50px 5%;
+    width: 90%;
+    text-align: center;
+}
+
+main > footer > a:last-of-type {
+    margin-left: 70%;
+}
+
+#discover_link {
+    width: 50%;
+    margin-left: 25%;
+    margin-right: 25%;
+    margin-bottom: 2em;
+    text-align: center;
+    display: inline-block;
 }
 
 /* registration and login */
@@ -208,4 +294,232 @@ main > section > p {
     flex-basis: 30%;
 }
 
+/* search form */
+form, input, select, option {
+    color: $formText;
+}
 
+#search_section > form {
+    width: 100%;
+    background-color: $sectionBackground;
+    text-align: center;
+}
+
+#search_section > form > label:first-of-type, #search_section > form > label:nth-of-type(2) {
+    width: 10%;
+    float: left;
+    clear: left;
+    margin-left: 2.5%;
+}
+
+#search_section > form > label > img {
+    height: 1.6em;
+    padding: 0.1em;
+}
+
+#search_section > form > input[type=text] {
+    background: transparent;
+    box-sizing: border-box;
+    width: 100%;
+    margin-left: -12.5%;
+    height: 2em;
+    border-radius: 2em;
+    box-shadow: $boxShadows;
+    border: 0.1em solid $formText; 
+    padding-left: 15%;
+    padding-right: 2%;
+}
+
+#search_section > form > *:nth-child(n+5):not(:last-child) {
+    width: 100%;
+    display: inline-block;
+    background-color: $sectionBackground;
+    text-align: center;
+}
+
+#search_section > form > input:not(:last-child), #search_section > form > select {
+    margin-bottom: 0.5em;
+}
+
+#search_section > form > input[type=date], #search_section > form > select {
+    border: 0.1em solid $formText;
+    border-radius: 2em;
+    height: 2em;
+} 
+
+#search_section > form > input[type=submit] {
+    background-color: $mainRed;
+    color: $textOnMainRed;
+    padding: 1em;
+    border: 0;
+    border-radius: 5px;
+    box-shadow: 3px 3px 3px rgba($boxShadows, 0.7);
+    cursor: pointer;
+}
+
+/* purchase section */
+#purchase_section > table {
+    text-align: center;
+    width: 100%;
+    display: block;
+    margin-top: 1em;
+}
+
+#purchase_section > table > tr > * {
+    width: 33%;
+}
+
+#purchase_section > table > tr:nth-child(odd) > th:nth-child(n+4) {
+    display: none;
+}
+
+#purchase_section > table > tr > * {
+    display: inline-block;
+}
+
+#purchase_section > table > tr:nth-child(even) > td:nth-child(n+4) {
+    padding: 0.5em 5% 2em 5%;
+    width: 40%;
+}
+
+#purchase_section > table > tr:nth-child(even) > td:nth-child(n+4) > * {
+    width: 100%;
+}
+
+#purchase_section > table > tr:nth-child(even) > td:nth-child(n+4) > a {
+    background-color: $mainRed;
+    box-shadow: 3px 3px 3px rgba($boxShadows, 0.7);
+    border-radius: 5px;
+    box-sizing: border-box;
+    display: block;
+}
+
+#purchase_section > table > tr:nth-child(even) > td:nth-child(n+4) > a > img {
+    max-height: 100%;
+    width: 15%;
+    cursor: pointer;
+}
+
+/* cart */
+#cart_payment_section > section {
+    text-align: center;
+}
+
+#cart_payment_section > section > section {
+    margin-bottom: 1em;
+    text-align: left;
+}
+
+#cart_payment_section > section > p {
+    text-align: center;
+    font-size: 200%;
+    font-weight: bold;
+    margin-bottom: 0.5em;
+}
+
+#cart_payment_section > section > section > h1 {
+    text-align: center;
+    margin-bottom: 0.5em;
+}
+
+#cart_payment_section > section > section > p {
+    padding-left: 1em;
+}
+
+#cart_payment_section > footer {
+    text-align: center;
+    font-size: 70%;
+}
+
+#cart_payment_section > footer > p > emph {
+    font-weight: bold;
+}
+
+#payment_types > ul {
+    list-style-type: none;
+}
+
+#payment_types > ul > li {
+    display: inline-block;
+    width: 19%;
+    cursor: pointer;
+    padding-bottom: 0.75em;
+}
+
+#payment_types > ul > li:not(:last-child) {
+    margin-right: 1%;
+}
+
+#payment_types > ul > li.selected {
+    padding-bottom: 0.5em;
+    border-bottom: 0.25em solid $mainRed;
+}
+
+#payment_types > ul > li > img {
+    width: 100%;
+}
+
+section.event_tickets {
+    text-align: center;
+}
+
+section.event_tickets > section > * {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+section.event_tickets > section > a:not(:last-of-type) {
+    padding: 0 5%;
+    width: 15%;
+}
+
+section.event_tickets > section > a:last-of-type {
+    display: inline;
+}
+
+section.event_tickets > section > a > img {
+    width: 100%;
+    padding: 15%;
+    display: inline-block;
+}
+
+section.event_tickets > section > p:first-of-type, section.event_tickets > section > p:last-of-type {
+    display: block;
+    margin-bottom: 0.5em;
+    font-size: 150%;
+}
+
+section.event_tickets > section > p:last-of-type {
+    margin-top: 0.5em;
+}
+
+/* notification */
+.notification {
+    text-align: center;
+}
+
+.notification > a {
+    display: block;
+    width: 50%;
+    margin: 1em 25% 0 25%;
+}
+
+.notification > label {
+    margin-right: 1em;
+}
+
+.notification > input[type=checkbox] {
+    vertical-align: middle;
+}
+
+.notification > p {
+    margin-bottom: 1em;
+}
+
+.notification.visualized {
+    background-color: darken($sectionBackground, 15%);
+}
+
+.notification.visualized > a {
+    background-color: $mainText;
+}

@@ -1,13 +1,21 @@
 function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
     const searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.has("id")) {
-        $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
+        $("main").prepend($("<p>",
+                            {
+                                class: "alert",
+                                text: "Si è verificato un errore. Per favore ricaricare la pagina"
+                            }));
         return;
     }
     const id = searchParams.get("id");
     $.getJSON("get_seat_categories.php?id=" + id, data => {
         if (data["result"] === false) {
-            $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
+            $("main").prepend($("<p>",
+                                {
+                                    class: "alert",
+                                    text: "Si è verificato un errore. Per favore ricaricare la pagina"
+                                }));
             return;
         }
         const seatCategories = {};
@@ -21,26 +29,26 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
             seatCategories[index] = tableRow;
         });
         const table = $("<table>");
-        const headerRow = $("<tr>");
-        Object.keys(seatCategories[0]).concat("Quantità", "").forEach(headerName => {
-            headerRow.append($("<th>", {text: headerName, id: headerName.replace(" ", "").toLowerCase()}));
-        });
-        table.append(headerRow);
-        Object.values(seatCategories).forEach((category, index) => {
+        Object.values(seatCategories).forEach((category, index) => {const headerRow = $("<tr>");
+            Object.keys(seatCategories[0]).concat("Quantità", "Acquista").forEach(headerName => {
+                headerRow.append($("<th>", {text: headerName, id: headerName.replace(/ /g, "_").toLowerCase()}));
+            });
+            table.append(headerRow);
             const row = $("<tr>");
             Object.entries(category).forEach(([key, value]) => {
-                row.append($("<td>", {text: value, headers: key.replace(" ", "").toLowerCase()}));
+                row.append($("<td>", {text: value, headers: key.replace(/ /g, "_").toLowerCase()}));
             });
             row.append($("<td>").append($("<input>", {
                 value: 0,
                 type: "number",
                 name: "addTicketsCategory" + seatCategoriesSent[index]["id"],
                 min: 0,
-                max: seatCategoriesSent[index]["seats"] - seatCategoriesSent[index]["occupiedSeats"]
+                max: seatCategoriesSent[index]["seats"] - seatCategoriesSent[index]["occupiedSeats"],
+                step: 1,
+                headers: "quantità"
             })));
-            row.append($("<td>").append($("<input>", {
-                type: "button", 
-                value: "Aggiungi al carrello",
+            row.append($("<td>").append($("<a>", {
+                href: "#",
                 click: function() {
                     const addTicketSpinner = $(this).parent().prev().children();
                     const ticketsAmount = parseInt(addTicketSpinner.val());
@@ -49,17 +57,27 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
                                   + seatCategoriesSent[index]["eventId"] + "&amount=" + ticketsAmount,
                                   data => {
                                       if (data["result"] === true) {
-                                          $("main").prepend($("<p>", {text: "Operazione effettuata con successo"}));
+                                          $("main").prepend($("<p>",
+                                                              {
+                                                                  class: "alert",
+                                                                  text: "Operazione effettuata con successo"
+                                                              }));
                                           addTicketSpinner.attr("max", parseInt(addTicketSpinner.attr("max")) - ticketsAmount);
                                       } else {
-                                          $("main").prepend($("<p>", {
-                                                                  text: "C'è stato un errore nell'eseguire l'operazione. Si \
-                                                                         prega di riprovare"}));
+                                          $("main").prepend($("<p>",
+                                                              {
+                                                                   class: "alert", 
+                                                                   text: "C'è stato un errore nell'eseguire l'operazione. Si \
+                                                                          prega di riprovare"}));
                                       }
                                   });
                     }
                 }
-            })));
+                                          }).append($("<img>", {
+                                                        src: "img/cart.png",
+                                                        alt: "acquista"
+                                                    }))
+                ));
             table.append(row);
         });
         purchaseSection.html(table);
@@ -98,8 +116,8 @@ function toEventDescription(purchaseSection, purchaseButton, purchaseSectionCont
 }
 
 $(() => {
-    const purchaseSection = $("#purchaseSection");
+    const purchaseSection = $("#purchase_section");
     const purchaseSectionContent = purchaseSection.html();
-    const purchaseButton = $("#purchaseButton");
+    const purchaseButton = $("#purchase_button");
     purchaseButton.click(() => toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent));
 });

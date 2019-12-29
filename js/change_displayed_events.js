@@ -11,10 +11,10 @@ $(() => {
         }
         const eventCount = data["count"];
         if (minEventIndex - resultsShown < 0) {
-            previousPage.attr("disabled", "");
+            previousPage.addClass("disabled");
         }
         if (minEventIndex + resultsShown >= eventCount) {
-            nextPage.attr("disabled", "");
+            nextPage.addClass("disabled");
         }
         previousPage.click(() => {
             if (minEventIndex - resultsShown >= 0) {

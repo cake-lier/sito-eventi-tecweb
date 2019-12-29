@@ -11,5 +11,5 @@ if (isset($_GET["dateTime"]) && isset($_GET["id"])) {
         error_log($e->getMessage(), 3, LOG_FILE);
     }
 }
-json_encode($data);
+echo json_encode($data);
 ?>
