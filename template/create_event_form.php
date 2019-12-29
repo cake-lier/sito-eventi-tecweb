@@ -1,7 +1,7 @@
-<header>
-    <h2>Crea un nuovo evento</h2>
-</header>
 <form method="POST">
+    <header>
+        <h2>Crea un nuovo evento</h2>
+    </header>
     <fieldset id="general_section">
         <label for="name">Nome: </label>
         <input type="text" id="name" name="event_name" required />

@@ -157,7 +157,7 @@ a.button.disabled > img {
 }
 
 /* general section */
-main > section {
+main > section, main > form {
     margin: 0 5% 2em 5%;
     width: 80%;
     background-color: $sectionBackground;
@@ -212,7 +212,12 @@ main > footer > a:last-of-type {
     display: inline-block;
 }
 
-/* registration and login */
+/* registration and login, other forms */
+form > header > h2 {
+    font-family: $titlesFont;
+    color: $mainRed;
+}
+
 #register_login > header {
     width: 100%;
     display: flex;
@@ -243,19 +248,19 @@ main > footer > a:last-of-type {
     opacity: 1;
 }
 
-#login_form, #registration_form, #registration_form > fieldset {
+form, form > fieldset {
     display: inline-block;
     width: 100%;
 }
 
-#registration_form > fieldset {
+form > fieldset {
     box-sizing: border-box;
     border: 0;
     margin: 1% 0;
     padding: 1% 0;
 }
 
-#registration_form > fieldset:not(:first-of-type) {
+form > fieldset:not(:first-of-type) {
     border-top: 1px solid $mainText;
 }
 
@@ -270,7 +275,7 @@ main > footer > a:last-of-type {
     color: $mainText;
 }
 
-#register_login form label {
+form label {
     display: inline-block;
     min-width: 30%;
     max-width: 30%;
@@ -278,18 +283,18 @@ main > footer > a:last-of-type {
     word-wrap: break-word;
 }
 
-#register_login form label > span {
+form label > span {
     font-size: 0.7em;
 }
 
-#register_login form input {
+form input {
     display: inline-block;
     min-width: 66%;
     margin: 2% 0;
     height: 1.5em;
 }
 
-#register_login form input[type=submit] {
+form input[type=submit] {
     @include button(30%, 1.3);
     margin: 2% 35%;
 }
