@@ -5,7 +5,7 @@
         <p>Data e ora: <?php echo $templateParams["event"]["dateTime"]; ?></p>
         <p>Organizzato da: <?php echo $templateParams["event"]["organizationName"]; ?></p>
     </header>
-    <section id="purchase_section">
+    <section id="purchase_section" class="info_section">
         <p>
         Posti ancora disponibili: <?php echo $templateParams["event"]["freeSeats"]; ?> su
         <?php echo $templateParams["event"]["totalSeats"]; ?>

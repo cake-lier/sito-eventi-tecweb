@@ -1,10 +1,10 @@
 <section>
     <header>
-        <h1><a href="event.php?id=<?php echo $event["id"]; ?>"><?php echo $event["name"]; ?></a></h1>
+        <h3><a href="event.php?id=<?php echo $event["id"]; ?>"><?php echo $event["name"]; ?></a></h3>
         <p><?php echo $event["place"]; ?>, <?php echo $event["dateTime"]; ?></p>
         <p>Organizzato da <?php echo $event["organizationName"]; ?></p> 
     </header>
-    <section>
+    <section class="info_section">
         <p>Posti ancora disponibili: <?php echo $event["freeSeats"]; ?> su <?php echo $event["totalSeats"]; ?></p>
         <p>
         <?php

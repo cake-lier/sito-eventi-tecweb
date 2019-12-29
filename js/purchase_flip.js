@@ -104,7 +104,7 @@ function toEventDescription(purchaseSection, purchaseButton, purchaseSectionCont
             $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
             return;
         }
-        freeSeatsPar.text("Posti ancora disponibili: " + seats["freeSeats"] + " su " + seats["totalSeats"]);
+        $(freeSeatsPar).text("Posti ancora disponibili: " + seats["freeSeats"] + " su " + seats["totalSeats"]);
     });
     purchaseButton.off("click")
                   .click(() => toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent))

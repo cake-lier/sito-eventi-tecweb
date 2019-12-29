@@ -1,5 +1,10 @@
 @import "variables";
 
+* {
+    margin: 0;
+    padding: 0;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -61,6 +66,10 @@ header > a {
     display: inline-block;
 }
 
+#profile_photo_img {
+    max-height: 100px;
+}
+
 /* title */
 section.home:first-of-type > img {
     width: 100%;
@@ -118,14 +127,89 @@ form, input {
 }
 
 /* main section */
-main > p, main > section:last-child { // TODO: test this with events in homepage
+#main_section { // TODO: test this with events in homepage
     @include upperBorder("../img/pink_circles.svg");
-    padding: 5% 0;
+    margin: 3% 0 0 0;
     width: 100%;
     text-align: center;
     position: relative;
     top: -2.75em;
     color: $mainText;
+} 
+
+#main_section > section > header {
+    margin: 3% 5%;
+    text-align: left;
+}   
+
+#main_section > section > header > h2 {
+    font-family: $titlesFont;
+    color: $mainRed;
+    font-size: 1.7em;
+}
+
+#main_section > section > section, #main_section > p {
+    width: 80%;
+    background-color: $sectionBackground;
+    padding: 3% 5%;
+    border-radius: 5px;
+    box-shadow: 2px 2px 3px $sectionShadow;
+    color: $mainText;
+    box-sizing: border-box;
+}
+
+#main_section > section > section {
+    margin: 0 10% 2em 10%;
+    text-align: left;
+}
+
+#main_section > section:last-of-type > section {
+    margin: 0 10% 0 10%;
+    text-align: left;
+}
+
+#main_section > p {
+    margin: 5% 10% 1% 10%;
+}
+
+#main_section > p {
+    text-align: center;
+}
+
+#main_section > section > section > header > h3 {
+    padding-bottom: 20px;
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+#main_section > section > section > header > h3 > a {
+    color: $mainText;
+    text-decoration: none;
+}
+
+#main_section > section > section > section {
+    padding-bottom: 3%;
+}
+
+#main_section > section > section > footer {
+    margin: 0 5% 0 5%;
+    width: 90%;
+    text-align: right;
+}
+
+a.button > img {
+    background: $mainRed;
+    padding: 2.5% 2.5%;
+    width: 13%;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-shadow: 2px 2px 2px rgba($boxShadows, 0.7);
+    cursor: pointer;
+}
+
+#discover_link {
+    @include button(30%, 1em);
+    margin-bottom: 1%;
 }
 
 /* menu */
@@ -169,12 +253,4 @@ nav > ul > li > a > p {
 nav > ul > li > a > img, nav > ul > li > a > p {
     vertical-align: middle;
     margin: 2px 5px;
-}
-
-#profile_photo_img {
-    max-height: 100px;
-}
-
-a.button > img, button > img {
-    background: $mainRed;
 }
