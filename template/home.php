@@ -8,12 +8,12 @@
         <input type="text" name="keyword" id="keyword" />
     </form>
 </section>
-<?php
-
-if (isset($templateParams["mostPopularEvent"]) && isset($templateParams["mostRecentEvent"])) {
-    require "template/top_events.php";
-} else {
-    require "template/no_events.php";
-}
-
-?>
+<section id="main_section">
+    <?php
+        if (isset($templateParams["mostPopularEvent"]) && isset($templateParams["mostRecentEvent"])) {
+            require "template/top_events.php";
+        } else {
+            require "template/no_events.php";
+        }
+    ?>
+</section>

@@ -5,7 +5,7 @@
         }
     ?>
 </section>
-<section>
+<section id="tickets">
     <?php
         foreach ($templateParams["tickets"] as $ticket):
     ?>
