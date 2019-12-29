@@ -34,8 +34,7 @@ $titleGradient: linear-gradient(rgba($mainRed, 255) 0%, rgba($mainRed, 255) 50%,
     color: $textOnMainRed;
     font-size: $textSizeEm + 0em;
     min-width: $buttonWidthPerc + 0%;
-    max-width: $buttonWidthPerc + 0%;
     box-sizing: border-box;
-    padding: $textSizeEm / 6 + 0em;
+    padding: $textSizeEm / 6 + 0em $textSizeEm / 4 + 0em;
     cursor: pointer;
 }

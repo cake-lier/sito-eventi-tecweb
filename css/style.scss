@@ -294,6 +294,10 @@ main > footer > a:last-of-type {
     margin: 2% 35%;
 }
 
+#registration_form :required:invalid {
+    border: 0.5px solid $mainRed;
+}
+
 /* search form */
 form, input, select, option {
     color: $formText;
