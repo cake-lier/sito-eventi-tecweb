@@ -244,29 +244,36 @@ main > footer > a:last-of-type {
 main > section.alert {
     position: fixed;
     float: left;
+    margin-top: 1.5%;
     margin-left: 5%;
     margin-bottom: 1.25em;
-    padding: 0.5em;
+    padding: 1em;
     width: 90%;
     background-color: $mainBackground;
-    border: 0.2em solid $mainRed;
+    border: 0.15em solid $mainRed;
     border-radius: 0.5em;
     box-sizing: border-box;
     color: $mainText;
+    box-shadow: 0 0 0;
+    z-index: 4;
 }
 
 main > section.alert > p {
     width: 90%;
+    font-size: 1.25em;
     display: inline-block;
+    vertical-align: middle;
 }
 
 main > section.alert > a {
     display: inline-block;
+    text-align: center;
     width: 10%;
 }
 
 main > section.alert > a > img {
-    width: 100%;
+    height: 1.5em;
+    vertical-align: middle;
 }
 
 
