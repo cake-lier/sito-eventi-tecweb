@@ -4,11 +4,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="UTF-8" />
     <title><?php echo $templateParams["title"]; ?></title>
-    <link rel="stylesheet" type="text/css" href="css/<?php if ($templateParams["name"] === "home.php") { 
-                                                                echo "home.css"; 
-                                                           } else { 
-                                                                echo "style.css";
-                                                           } ?>"/><!-- DEBUG: change to style -->
+    <link rel="stylesheet" type="text/css" href="css/<?php echo ($templateParams["name"] === "home.php" ? "home.css" : "style.css"); ?>"/>
     <?php
     if (isset($templateParams["js"])):
         foreach($templateParams["js"] as $script):

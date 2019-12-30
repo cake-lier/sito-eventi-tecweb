@@ -55,6 +55,11 @@ img.icon, #menu_icon, img.profile_icon {
     max-height: 50px;
 }
 
+img.profile_icon {
+    border-radius: 50%;
+    border: 0.2em solid $sectionBackground;
+}
+
 #home {
     display: none;
     max-width: 15%;
