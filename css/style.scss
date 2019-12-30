@@ -352,7 +352,8 @@ form input {
 
 form input[type=submit] {
     @include button(30%, 1.3);
-    margin: 2% 35%;
+    margin: 3% 35% 1% 35%;
+    box-shadow: 2px 2px 2px rgba($boxShadows, 0.7);
 }
 
 #registration_form :required:invalid {
@@ -363,49 +364,57 @@ form input[type=submit] {
 #search_section > form {
     width: 100%;
     background-color: $sectionBackground;
-    text-align: center;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 #search_section > form > label:first-of-type, #search_section > form > label:nth-of-type(2) {
-    width: 10%;
+    max-width: 10%;
+    min-width: 10%;
     float: left;
     clear: left;
-    margin-left: 2.5%;
+    margin-top: 0.7em;
+    padding-left: 3%;
+    box-sizing: border-box;
 }
 
 #search_section > form > label > img {
-    height: 1.6em;
+    height: 1.20em;
     padding: 0.1em;
+}
+
+#search_section > form > label:not(:first-of-type):not(:nth-of-type(2)) {
+    max-width: 30%;
+    min-width: 30%;
+}
+
+#search_section > form > input {
+    box-sizing: border-box;
 }
 
 #search_section > form > input[type=text] {
     background: transparent;
-    box-sizing: border-box;
+    margin-left: -10%;
     width: 100%;
-    margin-left: -12.5%;
-    height: 2em;
-    border-radius: 2em;
+    height: 2.1em;
+    border-radius: 2.1em;
     box-shadow: $boxShadows;
     border: 0.1em solid $formText; 
-    padding-left: 15%;
+    padding-left: 10%;
     padding-right: 2%;
 }
 
-#search_section > form > *:nth-child(n+5):not(:last-child) {
-    width: 100%;
-    display: inline-block;
-    background-color: $sectionBackground;
-    text-align: center;
-}
-
-#search_section > form > input:not(:last-child), #search_section > form > select {
-    margin-bottom: 0.5em;
+#search_section > form > input:not(:last-child):not([type=text]), #search_section > form > select {
+    max-width: 70%;
+    min-width: 70%;
+    margin: 2% 0;
 }
 
 #search_section > form > input[type=date], #search_section > form > select {
     border: 0.1em solid $formText;
     border-radius: 2em;
     height: 2em;
+    padding: 0 0.3em;
 }
 
 /* purchase section */
@@ -507,11 +516,11 @@ form input[type=submit] {
     width: 100%;
 }
 
-#inc_button_1_1, #dec_button_1_1 {
+.quantity_button {
     max-width: 1.5em;
 }
 
-#remove_button_1_1 {
+.remove_button {
     margin-left: 70%;
     max-width: 30%;
 }

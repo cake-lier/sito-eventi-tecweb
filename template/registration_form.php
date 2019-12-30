@@ -15,7 +15,7 @@
             }
         ?>
         <label for="email_register">Email:</label>
-        <input type="text" id="email_register" name="email" required/>
+        <input type="email" id="email_register" name="email" required/>
         <label class="customer" for="name">Nome:</label>
         <input class="customer" type="text" id="name" name="name"/>
         <label class="customer" for="surname">Cognome:</label>
