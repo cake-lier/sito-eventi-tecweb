@@ -27,7 +27,8 @@ $(() => {
             }
         });
     });
-    $("a[id^='dec_button_']").click(function() {
+    $("a[id^='dec_button_']").click(function(e) {
+        e.preventDefault();
         const [seatId, eventId] = getDataFromId($(this).attr("id"));
         $.getJSON("manage_tickets.php?seatId=" + seatId + "&eventId=" + eventId + "&actionType=1", data => {
             if (data["result"] === true) {
@@ -49,7 +50,8 @@ $(() => {
             }
         });
     });
-    $("a[id^='inc_button_']").click(function() {
+    $("a[id^='inc_button_']").click(function(e) {
+        e.preventDefault();
         const [seatId, eventId] = getDataFromId($(this).attr("id"));
         $.getJSON("manage_tickets.php?seatId=" + seatId + "&eventId=" + eventId + "&actionType=2", data => {
             if (data["result"] === true) {
