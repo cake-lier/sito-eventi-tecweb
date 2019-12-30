@@ -365,7 +365,7 @@ form label > span {
     font-size: 0.7em;
 }
 
-form input {
+form input:not([type=submit]) {
     display: inline-block;
     margin: 2% 0;
     height: 2em;
@@ -383,8 +383,11 @@ form p, form h2 {
     margin-bottom: 1em;
 }
 
-form > input:last-of-type, form button {
-    height: 1.5em;
+#categories_section button {
+    font-size: 100%;
+    border-radius: 0.5em;
+    float: left;
+    margin: 2% 0;
 }
 
 form input[type=submit], form button {
@@ -622,8 +625,10 @@ section.event_tickets > section > * {
 }
 
 section.event_tickets > section > a {
-    padding: 0 5%;
-    width: 11%;
+    padding: 0 2.5%;
+    width: 1.5em;
+    display: inline-block;
+    vertical-align: middle;
 }
 
 section.event_tickets > section > a > img {

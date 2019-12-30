@@ -45,7 +45,7 @@ function unsetMatrixIfEmpty(array &$matrix, int $firstIndex, int $secondIndex) {
 function useTopEventsTemplate(&$templateParams, $dbh) {
     $mostRecentEvent = $dbh->getEventsManager()->getEventInfo($dbh->getEventsManager()->getMostRecentEvent());
     $mostPopularEvent = $dbh->getEventsManager()->getEventInfo($dbh->getEventsManager()->getMostPopularEvent());
-    if (isset($mostRecentEvent["id"])) {
+    if (isset($mostRecentEvent["id"]) && isset($mostPopularEvent["id"])) {
         $templateParams["mostRecentEvent"] = $mostRecentEvent;
         $templateParams["mostRecentEvent"]["dateTime"]
             = convertDateTimeToLocale($templateParams["mostRecentEvent"]["dateTime"]);
