@@ -15,6 +15,7 @@ try {
         }
         array_walk($eventIds, function($id) use (&$templateParams, $dbh) {
             $info = $dbh->getEventsManager()->getEventInfo($id);
+            $info["dateTime"] = convertDateTimeToLocale($info["dateTime"]);
             $templateParams["events"][] 
                 = array_merge(["id" => $id, "isLoggedUserEventOwner" => $dbh->getEventsManager()->isLoggedUserEventOwner($id)],
                               $info);

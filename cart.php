@@ -45,8 +45,9 @@ try {
             $templateParams["cartBody"] = "cart_with_tickets.php";
             $templateParams["cartPaymentSection"] = "payment_section.php";
             $partialCosts = array();
-            array_walk($templateParams["tickets"], function($e) use (&$templateParams, &$partialCosts) {
+            array_walk($templateParams["tickets"], function($e, $i) use (&$templateParams, &$partialCosts) {
                 $partialCosts[] = $e["amount"] * $e["price"];
+                $templateParams["tickets"][$i]["dateTime"] = convertDateTimeToLocale($e["dateTime"]);
             });
             $templateParams["total"] = number_format(array_sum($partialCosts), 2);
             $templateParams["user"] = $dbh->getUsersManager()->getLoggedUserLongProfile();

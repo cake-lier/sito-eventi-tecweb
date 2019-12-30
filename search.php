@@ -13,9 +13,11 @@ try {
     $templateParams["events"] = array();
     array_walk($eventIdsUncategorized, function($id) use ($dbh, $tags, &$templateParams) {
         if ($dbh->getEventsManager()->hasEventCategories($id, ...$tags)) {
+            $eventInfo = $dbh->getEventsManager()->getEventInfo($id);
+            $eventInfo["dateTime"] = convertDateTimeToLocale($eventInfo["dateTime"]);
             $templateParams["events"][] 
                 = array_merge(["id" => $id, "isLoggedUserEventOwner" => $dbh->getEventsManager()->isLoggedUserEventOwner($id)], 
-                              $dbh->getEventsManager()->getEventInfo($id));
+                              $eventInfo);
         }
     });
     $templateParams["places"] = $dbh->getEventsManager()->getEventsPlaces();

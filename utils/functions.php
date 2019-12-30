@@ -51,6 +51,8 @@ function useTopEventsTemplate(&$templateParams, $dbh) {
             = convertDateTimeToLocale($templateParams["mostRecentEvent"]["dateTime"]);
         $templateParams["mostRecentEvent"]["isLoggedUserEventOwner"]
             = $dbh->getEventsManager()->isLoggedUserEventOwner($templateParams["mostRecentEvent"]["id"]);
+    }
+    if (isset($mostPopularEvent["id"])) {
         $templateParams["mostPopularEvent"] = $mostPopularEvent;
         $templateParams["mostPopularEvent"]["dateTime"]
             = convertDateTimeToLocale($templateParams["mostPopularEvent"]["dateTime"]);
