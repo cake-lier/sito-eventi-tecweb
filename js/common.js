@@ -1,6 +1,8 @@
 $(() => {
     $("body").click(bodyHandler);
     if ($(window).width() < 768) {
+        $("#menu_icon").css("width", $("#logo").height());
+        console.log($("#logo").height());
         $("#menu_icon").click(e => {
             e.preventDefault();
             e.stopPropagation();
@@ -23,6 +25,7 @@ $(() => {
 
     $(window).resize(() => {
         if ($(window).width() < 768) {
+            $("#menu_icon").css("width", $("#logo").height());
             $("#menu_icon").click(e => {
                 e.preventDefault();
                 e.stopPropagation();
