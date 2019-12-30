@@ -57,7 +57,7 @@ img.icon, #menu_icon, img.profile_icon {
 
 img.profile_icon {
     border-radius: 50%;
-    border: 0.1em solid $sectionBackground;
+    border: 0.15em solid $sectionBackground;
 }
 
 #home {
@@ -244,6 +244,8 @@ nav > ul {
     width: 100%;
     padding-inline-start: 0;
     text-align: left;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 
 nav > ul > li {
