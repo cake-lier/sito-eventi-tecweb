@@ -1,5 +1,4 @@
 <section class="home">
-    <img src="<?php echo IMG_DIR; ?>home.jpg" alt="" />
     <h1>Non perderti neanche un evento che ami</h1>
 </section>
 <section class="home">
