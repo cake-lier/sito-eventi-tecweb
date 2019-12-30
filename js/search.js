@@ -33,22 +33,39 @@ $(() => {
 
 function collapseSearch() {
     $("#specific_search, #search_section > form > input[type=submit]").hide();
-    $("#general_search").css("background", "transparent")
-                        .css("padding", "0 0")
+    $("#general_search").css("padding", "0 0")
                         .css("margin", "0 0")
+                        .css("border-radius", "2em")
                         .css("width", "100%")
+                        .css("box-sizing", "border-box")
                         .css("height", "100%")
-                        .css("display", "inline-block");
+                        .css("display", "inline-block")
+                        .css("vertical-align", "middle");
     $("#general_search input").css("margin-top", "0%")
                               .css("margin-bottom", "0%")
-                              .css("height", "2.35em");
-    $("#general_search label").css("margin-top", "1%");
+                              .css("box-sizing", "border-box")
+                              .css("height", "100%")
+                              .css("display", "inline-block")
+                              .css("vertical-align", "middle");
+    $("#general_search label").css("box-sizing", "border-box")
+                              .css("height", "2em")
+                              .css("margin-top", "0%")
+                              .css("display", "inline-block")
+                              .css("vertical-align", "middle");
+    $("#general_search label img").css("box-sizing", "border-box")
+                                  .css("height", "2em")
+                                  .css("margin-top", "0%");
     $("#search_section").css("padding", "0 0")
                         .css("box-sizing", "border-box")
                         .css("border-radius", "2em")
                         .css("width", "90%")
+                        .css("height", "2em")
                         .css("box-shadow", "0 0 0");
-    $("#filters_button").css("height", "1.87em")
+    $("#search_section > form").css("margin", "0 0")
+                               .css("height", "100%");
+    $("#filters_button").css("height", "100%")
+                        .css("display", "inline-block")
+                        .css("vertical-align", "middle")
                         .unbind("click", collapseSearch)
                         .click(displaySearch);
 }

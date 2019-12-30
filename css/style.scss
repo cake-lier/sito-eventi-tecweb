@@ -404,6 +404,11 @@ form input[type=radio], form input[type=checkbox] {
     width: 80%;
 }
 
+button, input, select, label {
+    font-family: $standardFont;
+    font-size: 0.9em;
+}
+
 /* search form */
 #search_section {
     padding-top: 2%;
@@ -413,23 +418,21 @@ form input[type=radio], form input[type=checkbox] {
     width: 100%;
     background-color: $sectionBackground;
     display: inline-block;
-    vertical-align: middle;
     text-align: left;
 }
 
 #search_section > form > fieldset > label:first-of-type {
-    max-width: 10%;
-    min-width: 10%;
+    width: 2em;
+    min-width: 2em;
     float: left;
-    clear: left;
     margin-top: 0.65em;
     padding-left: 3%;
     box-sizing: border-box;
 }
 
 #search_section > form > fieldset > label > img {
-    height: 1.20em;
-    padding: 0.1em;
+    height: 1.40em;
+    padding: 0.3em;
 }
 
 #search_section > form > fieldset > label:not(:first-of-type) {
@@ -443,13 +446,14 @@ form input[type=radio], form input[type=checkbox] {
 
 #search_section > form > fieldset > input[type=text] {
     background: transparent;
-    margin-left: -10%;
-    height: 2.1em;
-    border-radius: 2.1em;
+    margin-left: -2em;
+    height: 2em;
+    border-radius: 2em;
     box-shadow: $boxShadows;
     border: 0.1em solid $formText; 
     padding-left: 10%;
     padding-right: 2%;
+    box-sizing: border-box;
 }
 
 #general_search > input[type=text] {
@@ -473,7 +477,7 @@ form input[type=radio], form input[type=checkbox] {
     border: 0.1em solid $formText;
     border-radius: 2em;
     height: 2em;
-    padding: 0 0.3em;
+    padding: 0 0.6em;
 }
 
 #search_section > form > fieldset:not(:first-of-type) {
@@ -483,9 +487,9 @@ form input[type=radio], form input[type=checkbox] {
 }
 
 #filters_button {
-    border-radius: 1.5em;
-    border: thin solid $formText;
-    height: 1.7em;
+    border-radius: 2em;
+    border: 0.1em solid $formText;
+    height: 2em;
     background: $sectionBackground;
     box-shadow: 1px 1px 1px rgba($boxShadows, 0.7);
     width: 18%;
