@@ -25,7 +25,7 @@ $(() => {
     }
 
     $(window).resize(() => {
-        if ($(window).width() < 768) {
+        if ($(window).width() > 768) {
             displaySearch();
         }
     });
