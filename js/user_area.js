@@ -256,12 +256,16 @@ function showDeleteAccountForm() {
 }
 
 function hideMenu() {
-    $("#user_area_menu > ul").slideUp();
-    $("#user_area_menu > a > img").attr("alt", "Apri menu area utente");
+    if ($(window).width() < 768) {
+        $("#user_area_menu > ul").slideUp();
+        $("#user_area_menu > a > img").attr("alt", "Apri menu area utente");
+    }
 }
 
 $(() => {
-    $("#user_area_menu > ul").hide();
+    if ($(window).width() < 768) {
+        $("#user_area_menu > ul").hide();
+    }
     $.get("get_user_notifications.php", organizeUserNotifications);
     $("#notifications_button").click(() => {
         $(".selected").removeClass("selected");

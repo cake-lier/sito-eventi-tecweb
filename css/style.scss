@@ -686,10 +686,16 @@ section.event_tickets > footer {
 #user_area_menu > ul > li {
     width: 80%;
     padding-left: 10%;
+    padding-right: 10%;
     padding-bottom: 0.5em;
-    margin: 0.5em 10% 0 0;
+    margin: 0.5em 0 0 0;
     height: 1.5em;
     cursor: pointer;
+}
+
+#user_area_menu > ul > li.selected {
+    font-weight: bold;
+    font-size: 1.2em;
 }
 
 #user_area_menu > ul > li:not(:last-of-type) {
@@ -730,4 +736,138 @@ section.event_tickets > footer {
 
 #admin_message_section > p {
     margin-bottom: 1em;
+}
+
+
+@media only screen and (min-width: 768px) {
+    #home {
+        width: 10%;
+        max-height: 3.1em;
+        padding: 3% 0 3% 1%;
+        display: inline-block;
+    }
+
+    #logo {
+        display: inline-block;
+        max-height: 3.5em;
+        max-width: 90%;
+        padding: 3% 0;
+    }
+
+    #menu_icon {
+        display: none;
+    }
+
+    body > div > nav {
+        width: 50%;
+        text-align: right;
+        position: absolute;
+        left: 50%;
+        z-index: 3;
+        height: 3.5em;
+    }
+    
+    body > div > nav > ul {
+        display: inline-block;
+        background: $mainRed;
+        width: 100%;
+        padding-inline-start: 0;
+        text-align: right;
+    }
+    
+    body > div > nav > ul > li {
+        display: inline-block;
+        list-style: none;
+        margin: 0 1%;
+    }
+    
+    body > div > nav > ul > li:not(:last-of-type) {
+        border-bottom: 0;
+    }
+    
+    body > div > nav > ul > li > a {
+        width: inherit;
+        display: block;
+        color: $textOnMainRed;
+        text-decoration: none;
+    }
+    
+    body > div > nav > ul > li > a > p {
+        display: none;
+    }
+
+    main {
+        width: 100%;
+        text-align: right;
+        display: inline-block;
+    }
+
+    main > section, main > footer { 
+        display: inline-block;
+        text-align: center;
+    }
+
+    /* there is only one large section */
+    main > section:only-of-type:first-child {
+        width: 60%;
+        margin: 0 20% 5% 20%;
+        box-sizing: border-box;
+    }
+
+    /* there is more than one section or element */
+    main > section:not(:only-of-type), main > section:not(:first-child), main > footer, #user_area_menu {
+        width: 40%;
+        margin: 0 5% 5% 5%;
+        box-sizing: border-box;
+    }
+
+    /* the first section must float left */
+    main > section:not(:only-of-type):first-child, #user_area_menu {
+        float: left;
+        margin-top: -2em;
+    }
+
+    main > section.top_event {
+        margin-bottom: 0;
+    }
+
+    main > section:first-child:only-of-type, main > section:nth-of-type(2) { // TODO: problem in user area
+        margin-top: -2em;
+    }
+
+    main > #discover_link {
+        @include button(20%, 1em);
+        margin: 1% 15%;
+    }
+
+    main > section:last-of-type {
+        margin-bottom: 5%;
+    }
+
+    a.button > img {
+        background: $mainRed;
+        padding: 1% 1%;
+        width: 7%;
+        border-radius: 5px;
+        box-sizing: border-box;
+        box-shadow: 2px 2px 2px rgba($boxShadows, 0.7);
+        cursor: pointer;
+    }
+
+    #filters_button {
+        display: none;
+
+    }
+
+    #general_search > input[type=text] {
+        width: 100%;
+    }
+
+    #user_area_menu {
+        text-align: center;
+    }
+
+    #user_area_menu a:first-of-type {
+        display: none;
+    }
 }
