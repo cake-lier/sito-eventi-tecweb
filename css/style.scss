@@ -68,7 +68,7 @@ img.icon, #menu_icon, img.profile_icon {
 
 img.profile_icon {
     border-radius: 50%;
-    border: 0.2em solid $sectionBackground;
+    border: 0.1em solid $sectionBackground;
 }
 
 #home {
@@ -80,11 +80,12 @@ img.profile_icon {
 #logo {
     max-width: 100%;
     padding: 3% 1%;
+    max-height: 3em;
 }
 
 #menu_icon {
     cursor: pointer;
-    max-width: 20%;
+    padding: 1% 1%;
 }
 
 header > a {
@@ -273,7 +274,7 @@ main > section.alert > a > img {
 
 #profile_photo_img {
     border-radius: 50%;
-    border: 0.5em solid $mainText;
+    border: 0.2em solid $mainText;
 }
 
 /* registration and login, other forms */
@@ -444,6 +445,8 @@ form input[type=radio], form input[type=checkbox] {
 
 #general_search > input[type=text] {
     width: 80%;
+    margin-bottom: 0;
+    box-sizing: border-box;
 }
 
 #specific_search > input[type=text] {
@@ -472,7 +475,7 @@ form input[type=radio], form input[type=checkbox] {
 #filters_button {
     border-radius: 1.5em;
     border: thin solid $formText;
-    height: 1.5em;
+    height: 1.7em;
     background: $sectionBackground;
     box-shadow: 1px 1px 1px rgba($boxShadows, 0.7);
     width: 18%;
@@ -480,6 +483,8 @@ form input[type=radio], form input[type=checkbox] {
     margin-left: 2%;
     color: $formText;
     cursor: pointer;
+    box-sizing: border-box;
+    font-size: 1em;
 }
 
 /* purchase section */

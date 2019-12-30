@@ -37,15 +37,19 @@ function collapseSearch() {
                         .css("padding", "0 0")
                         .css("margin", "0 0")
                         .css("width", "100%")
+                        .css("height", "1.9em")
                         .css("display", "inline-block");
-    $("#general_search input").css("margin-top", "0.25%")
-                              .css("margin-bottom", "0%");
+    $("#general_search input").css("margin-top", "0%")
+                              .css("margin-bottom", "0%")
+                              .css("height", "2.35em");
     $("#general_search label").css("margin-top", "1%");
     $("#search_section").css("padding", "0 0")
                         .css("box-sizing", "border-box")
                         .css("border-radius", "2em")
-                        .css("width", "90%");
-    $("#filters_button").unbind("click", collapseSearch)
+                        .css("width", "90%")
+                        .css("box-shadow", "0 0 0");
+    $("#filters_button").css("height", "1.87em")
+                        .unbind("click", collapseSearch)
                         .click(displaySearch);
 }
 
@@ -55,6 +59,7 @@ function displaySearch() {
     $("#general_search input").removeAttr("style");
     $("#general_search label").removeAttr("style");
     $("#search_section").removeAttr("style");
-    $("#filters_button").unbind("click", displaySearch)
+    $("#filters_button").removeAttr("style")
+                        .unbind("click", displaySearch)
                         .click(collapseSearch);
 }
