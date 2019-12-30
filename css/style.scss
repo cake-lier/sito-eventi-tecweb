@@ -361,41 +361,44 @@ form input[type=submit] {
 }
 
 /* search form */
-#search_section > form {
+#search_section {
+    padding-top: 2%;
+}
+
+#search_section > form > fieldset {
     width: 100%;
     background-color: $sectionBackground;
     display: inline-block;
     vertical-align: middle;
 }
 
-#search_section > form > label:first-of-type, #search_section > form > label:nth-of-type(2) {
+#search_section > form > fieldset > label:first-of-type, #search_section > form > fieldset > label:first-of-type {
     max-width: 10%;
     min-width: 10%;
     float: left;
     clear: left;
-    margin-top: 0.7em;
+    margin-top: 0.65em;
     padding-left: 3%;
     box-sizing: border-box;
 }
 
-#search_section > form > label > img {
+#search_section > form > fieldset > label > img {
     height: 1.20em;
     padding: 0.1em;
 }
 
-#search_section > form > label:not(:first-of-type):not(:nth-of-type(2)) {
+#search_section > form > fieldset > label:not(:first-of-type) {
     max-width: 30%;
     min-width: 30%;
 }
 
-#search_section > form > input {
+#search_section > form > fieldset > input {
     box-sizing: border-box;
 }
 
-#search_section > form > input[type=text] {
+#search_section > form > fieldset > input[type=text] {
     background: transparent;
     margin-left: -10%;
-    width: 100%;
     height: 2.1em;
     border-radius: 2.1em;
     box-shadow: $boxShadows;
@@ -404,17 +407,45 @@ form input[type=submit] {
     padding-right: 2%;
 }
 
-#search_section > form > input:not(:last-child):not([type=text]), #search_section > form > select {
+
+#general_search > input[type=text] {
+    width: 80%;
+}
+
+
+#specific_search > input[type=text] {
+    width: 100%;
+}
+
+#search_section > form > fieldset > input:not(:last-child):not([type=text]), #search_section > form > fieldset > select {
     max-width: 70%;
     min-width: 70%;
     margin: 2% 0;
 }
 
-#search_section > form > input[type=date], #search_section > form > select {
+#search_section > form > fieldset > input[type=date], #search_section > form > fieldset > select {
     border: 0.1em solid $formText;
     border-radius: 2em;
     height: 2em;
     padding: 0 0.3em;
+}
+
+#search_section > form > fieldset:not(:first-of-type) {
+    border-top: 0;
+    padding: 0;
+    margin: 0;
+}
+
+#filters_button {
+    border-radius: 2em;
+    border: 0.1em solid $formText;
+    height: 2em;
+    background: $sectionBackground;
+    box-shadow: 1px 1px 1px rgba($boxShadows, 0.7);
+    width: 18%;
+    margin-left: 2%;
+    color: $formText;
+    cursor: pointer;
 }
 
 /* purchase section */
