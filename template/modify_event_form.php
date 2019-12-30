@@ -1,5 +1,5 @@
 <section>
-    <form class="user_area_form" method="POST">
+    <form method="POST">
         <h2>Modifica "<?php echo $templateParams["event"]["name"]; ?>"</h2>
         <label for="dateTime">Data e ora: </label>
         <input type="datetime-local" max="9999-12-31T23:59" id="dateTime" name="dateTime" 

@@ -17,11 +17,13 @@ $(() => {
             if (data["result"] === true) {
                 removeSectionIfEmpty($(this).parent().parent());
             } else {
-                $("main").prepend($("<p>",
-                                    {
-                                        class: "alert",
-                                        text: "Si è verificato un errore. Si prega di ricaricare la pagina"
-                                    }));
+                $("main").prepend($("<section>", {class: "alert"})
+                                      .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
+                                              $("<a>", {href: "#"})
+                                                  .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                                  .click(function() {
+                                                      $(this).parent().remove();
+                                                  })));
             }
         });
     });
@@ -37,11 +39,13 @@ $(() => {
                     amountLabel.text(amount + " bigliett" + (amount > 1 ? "i" : "o"));
                 }
             } else {
-                $("main").prepend($("<p>",
-                                    {
-                                        class: "alert",
-                                        text: "Si è verificato un errore. Si prega di ricaricare la pagina"
-                                    }));
+                $("main").prepend($("<section>", {class: "alert"})
+                                      .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
+                                              $("<a>", {href: "#"})
+                                                  .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                                  .click(function() {
+                                                      $(this).parent().remove();
+                                                  })));
             }
         });
     });
@@ -53,11 +57,13 @@ $(() => {
                 const amount = parseInt(amountLabel.text()) + 1;
                 amountLabel.text(amount + " biglietti");
             } else {
-                $("main").prepend($("<p>", 
-                                    {
-                                        class: "alert",
-                                        text: "Si è verificato un errore. Si prega di ricaricare la pagina"
-                                    }));
+                $("main").prepend($("<section>", {class: "alert"})
+                                      .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
+                                              $("<a>", {href: "#"})
+                                                  .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                                  .click(function() {
+                                                      $(this).parent().remove();
+                                                  })));
             }
         });
     });
@@ -67,11 +73,13 @@ $(() => {
     });
     $("#buy_button").click(() => {
         if ($("section#payment_types > ul > li").filter((_i, e) => $(e).hasClass("selected")).length == 0) {
-            $("main").prepend($("<p>",
-                                {
-                                    class: "alert",
-                                    text: "Selezionare una modalità di pagamento"
-                                }));
+            $("main").prepend($("<section>", {class: "alert"})
+                                  .append($("<p>", {text: "Selezionare una modalità di pagamento"}),
+                                          $("<a>", {href: "#"})
+                                              .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                              .click(function() {
+                                                  $(this).parent().remove();
+                                              })));
         } else {
             window.location.href = "buy_tickets.php";
         }

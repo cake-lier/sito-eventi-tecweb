@@ -1,21 +1,22 @@
 function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
     const searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.has("id")) {
-        $("main").prepend($("<p>",
-                            {
-                                class: "alert",
-                                text: "Si è verificato un errore. Per favore ricaricare la pagina"
-                            }));
+        $("main").prepend($("<section>", {class: "alert"})
+                              .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
+                                      $("<a>", {href: "#"})
+                                          .append($("<img>", {src: "img/close.png", alt: "Chiudi"}))));
         return;
     }
     const id = searchParams.get("id");
     $.getJSON("get_seat_categories.php?id=" + id, data => {
         if (data["result"] === false) {
-            $("main").prepend($("<p>",
-                                {
-                                    class: "alert",
-                                    text: "Si è verificato un errore. Per favore ricaricare la pagina"
-                                }));
+            $("main").prepend($("<section>", {class: "alert"})
+                                  .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
+                                          $("<a>", {href: "#"})
+                                              .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                              .click(function() {
+                                                  $(this).parent().remove();
+                                              })));
             return;
         }
         const seatCategories = {};
@@ -57,18 +58,37 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
                                   + seatCategoriesSent[index]["eventId"] + "&amount=" + ticketsAmount,
                                   data => {
                                       if (data["result"] === true) {
-                                          $("main").prepend($("<p>",
-                                                              {
-                                                                  class: "alert",
-                                                                  text: "Operazione effettuata con successo"
-                                                              }));
+                                          $("main").prepend($("<section>", {class: "alert"})
+                                                                .append($("<p>", 
+                                                                          {
+                                                                              text: "Operazione effettuata con successo"
+                                                                          }),
+                                                                        $("<a>", {href: "#"})
+                                                                          .append($("<img/>",
+                                                                                    {
+                                                                                         src: "img/close.png",
+                                                                                         alt: "Chiudi"
+                                                                                    }))
+                                                                          .click(function() {
+                                                                              $(this).parent().remove();
+                                                                          })));
                                           addTicketSpinner.attr("max", parseInt(addTicketSpinner.attr("max")) - ticketsAmount);
                                       } else {
-                                          $("main").prepend($("<p>",
-                                                              {
-                                                                   class: "alert", 
-                                                                   text: "C'è stato un errore nell'eseguire l'operazione. Si \
-                                                                          prega di riprovare"}));
+                                          $("main").prepend($("<section>", {class: "alert"})
+                                                                .append($("<p>",
+                                                                          {
+                                                                               text: "Si è verificato un errore. Si prega di \
+                                                                                      riprovare"
+                                                                          }),
+                                                                        $("<a>", {href: "#"})
+                                                                            .append($("<img/>",
+                                                                                      {
+                                                                                           src: "img/close.png",
+                                                                                           alt: "Chiudi"
+                                                                                      }))
+                                                                            .click(function() {
+                                                                                $(this).parent().remove();
+                                                                            })));
                                       }
                                   });
                     }
@@ -96,12 +116,24 @@ function toEventDescription(purchaseSection, purchaseButton, purchaseSectionCont
     const freeSeatsPar = purchaseSection.children()[0];
     const searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.has("id")) {
-        $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
+        $("main").prepend($("<section>", {class: "alert"})
+                              .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
+                                      $("<a>", {href: "#"})
+                                          .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                          .click(function() {
+                                              $(this).parent().remove();
+                                          })));
         return;
     }
     $.getJSON("get_event_seats.php?eventId=" + searchParams.get("id"), seats => {
         if (seats["status"] === false) {
-            $("main").prepend($("<p>", {text: "Si è verificato un errore. Per favore ricaricare la pagina"}));
+            $("main").prepend($("<section>", {class: "alert"})
+                                  .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
+                                          $("<a>", {href: "#"})
+                                              .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                              .click(function() {
+                                                  $(this).parent().remove();
+                                              })));
             return;
         }
         $(freeSeatsPar).text("Posti ancora disponibili: " + seats["freeSeats"] + " su " + seats["totalSeats"]);

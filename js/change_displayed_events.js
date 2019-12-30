@@ -6,7 +6,13 @@ $(() => {
     const resultsShown = landingURLParams.has("count") ? parseInt(landingURLParams.get("count")) : 5;
     $.getJSON("get_events_count.php", data => {
         if (data["result"] === false) {
-            $("main").prepend($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}));
+            $("main").prepend($("<section>", {class: "alert"})
+                                  .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
+                                          $("<a>", {href: "#"})
+                                              .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                              .click(function() {
+                                                  $(this).parent().remove();
+                                              })));
             return;
         }
         const eventCount = data["count"];

@@ -129,9 +129,7 @@ function organizeUserData(data) {
 function setChangePasswordForm() {
     $("main").append(
         $("<section>").append(
-            $("<form>", {
-                class: "user_area_form"
-            }).append(
+            $("<form>").append(
                 $("<label>", {text: "Password attuale: ", for: "old_password"}),
                 $("<input>", {type: "password", name: "old_password", id: "old_password"})
                     .prop("required", true),
@@ -152,18 +150,16 @@ function setChangePasswordForm() {
 }
 
 function setChangeDataForm(data) {
+    const mainSection = $("<section>").appendTo($("main"));
     if (data.result !== false) {
         userData = data.userData;
         // this part is common to every type of user
-        const form = $("<form>",
-                       {
-                           enctype: "multipart/form-data",
-                           class: "user_area_form"
-                       }).append($("<fieldset>")
+        const form = $("<form>", {enctype: "multipart/form-data"})
+                         .append($("<fieldset>")
                                      .append($("<img>", {src: userData.profilePhoto, id: "profile_photo_img"}),
                                              $("<label>", {for: "profile_photo", text: "Nuova foto profilo: "}),
                                              $("<input>", {type: "file", name: "profile_photo", id: "profile_photo"})));
-        $("<section>").appendTo($("main")).append(form);
+        mainSection.append(form);
         // It's a customer
         if ("username" in userData) {
             form.append($("<fieldset>")
@@ -235,30 +231,28 @@ function setChangeDataForm(data) {
 function showDeleteAccountForm() {
     $("<section>")
         .appendTo($("main"))
-        .append($("<form>", 
-                  {
-                       class: "user_area_form"
-                  }).append($("<p>", {text: "Sei sicuro di voler cancellare il tuo account? Questa azione non é reversibile!"}),
-                            $("<label>", {text: "Password attuale: ", for: "password"}),
-                            $("<input>", {type: "password", name: "password", id: "password"})
-                                .prop("required", true),
-                            $("<input>",
-                              {
-                                  value: "Elimina",
-                                  type: "submit",
-                                  class: "button_no_image",
-                                  submit: function(e) {
-                                    e.preventDefault();
-                                    $.post("delete_account.php", $(this).serialize(), data => {
-                                        if (data.location !== "") {
-                                            window.location.href = data.location;
-                                        } else {
-                                            $("form + p").remove();
-                                            $("main").append($("<p>", {text : data.result}))
-                                        }
-                                    });
-                                }
-                              })));
+        .append($("<form>")
+            .append($("<p>", {text: "Sei sicuro di voler cancellare il tuo account? Questa azione non é reversibile!"}),
+                    $("<label>", {text: "Password attuale: ", for: "password"}),
+                    $("<input>", {type: "password", name: "password", id: "password"})
+                        .prop("required", true),
+                    $("<input>",
+                      {
+                          value: "Elimina",
+                          type: "submit",
+                          class: "button_no_image",
+                          submit: function(e) {
+                              e.preventDefault();
+                              $.post("delete_account.php", $(this).serialize(), data => {
+                                  if (data.location !== "") {
+                                      window.location.href = data.location;
+                                  } else {
+                                      $("form + p").remove();
+                                      $("main").append($("<p>", {text : data.result}))
+                                  }
+                              });
+                          }
+                      })));
 }
 
 function hideMenu(menu, menuContent) {

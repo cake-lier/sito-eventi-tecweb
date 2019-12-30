@@ -13,15 +13,16 @@ try {
                 $event = $dbh->getEventsManager()->getEventInfo($eventId);
                 array_walk($seatCategories, function($amount, $seatId) use ($event, $eventId, &$templateParams, $dbh) {
                     $seat = $dbh->getEventsManager()->getSeatInfo($eventId, $seatId);
-                    $templateParams["tickets"][] = ["eventId" => $eventId,
-                                                    "seatId" => $seatId,
-                                                    "eventName" => $event["name"],
-                                                    "eventPlace" => $event["place"],
-                                                    "dateTime" => $event["dateTime"],
-                                                    "amount" => $amount,
-                                                    "category" => $seat["name"],
-                                                    "price" => $seat["price"]
-                                                ]; 
+                    $templateParams["tickets"][] = [
+                                                        "eventId" => $eventId,
+                                                        "seatId" => $seatId,
+                                                        "eventName" => $event["name"],
+                                                        "eventPlace" => $event["place"],
+                                                        "dateTime" => $event["dateTime"],
+                                                        "amount" => $amount,
+                                                        "category" => $seat["name"],
+                                                        "price" => $seat["price"]
+                                                    ]; 
                 });
             });
         }
@@ -47,7 +48,7 @@ try {
             array_walk($templateParams["tickets"], function($e) use (&$templateParams, &$partialCosts) {
                 $partialCosts[] = $e["amount"] * $e["price"];
             });
-            $templateParams["total"] = array_sum($partialCosts);
+            $templateParams["total"] = number_format(array_sum($partialCosts), 2);
             $templateParams["user"] = $dbh->getUsersManager()->getLoggedUserLongProfile();
         }
         $templateParams["user_area_link"] = "user_area.php";

@@ -1,5 +1,4 @@
 $(() => {
-    $("body").click(bodyHandler);
     if ($(window).width() < 768) {
         $("#menu_icon").click(e => {
             e.preventDefault();
@@ -20,7 +19,6 @@ $(() => {
     
         $("body").click(bodyHandlerMobile);
     }
-
     $(window).resize(() => {
         if ($(window).width() < 768) {
             $("#menu_icon").click(e => {
@@ -39,7 +37,6 @@ $(() => {
             $("nav > ul").click(e => {
                 e.stopPropagation();
             });
-        
             $("body").click(bodyHandlerMobile);
         } else {
             $("#menu_icon").unbind("click");
@@ -55,11 +52,5 @@ function bodyHandlerMobile(e) {
         $("nav").css("width", "50%")
                 .css("left", "50%");
         $("nav > ul").hide();
-    }
-}
-
-function bodyHandler(e) {
-    if (!$(e.target).is(".alert") && $(".alert").is(":visible")) {
-        $(".alert").hide();
     }
 }

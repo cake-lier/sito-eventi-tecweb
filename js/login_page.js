@@ -37,12 +37,24 @@ $(() => {
     $("#registration_form").submit(e => {
         if ($("#profile_photo")[0].files.item(0).size > 12000000) {
             e.preventDefault();
-            $("main").prepend($("<p>", {text: "Immagine troppo grande"}));
+            $("main").prepend($("<section>", {class: "alert"})
+                                  .append($("<p>", {text: "Immagine troppo grande"}),
+                                          $("<a>", {href: "#"})
+                                              .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                              .click(function() {
+                                                  $(this).parent().remove();
+                                              })));
         }
         if ($("#telephone").val() !== ""
             && (isNaN($("telephone").val()) || $("telephone").val().includes(".") || $("telephone").val().includes(","))) {
             e.preventDefault();
-            $("main").prepend($("<p>", {text: "Numero di telefono non corretto!"}));
+            $("main").prepend($("<section>", {class: "alert"})
+                                  .append($("<p>", {text: "Numero di telefono non corretto"}),
+                                          $("<a>", {href: "#"})
+                                              .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                              .click(function() {
+                                                  $(this).parent().remove();
+                                              })));
         }
     });
 });
