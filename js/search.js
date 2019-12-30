@@ -37,7 +37,7 @@ function collapseSearch() {
                         .css("padding", "0 0")
                         .css("margin", "0 0")
                         .css("width", "100%")
-                        .css("height", "1.9em")
+                        .css("height", "100%")
                         .css("display", "inline-block");
     $("#general_search input").css("margin-top", "0%")
                               .css("margin-bottom", "0%")

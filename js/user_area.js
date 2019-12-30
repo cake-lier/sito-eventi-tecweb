@@ -73,7 +73,7 @@ function deleteNotification(notificationId, notificationDateTime) {
 }
 
 function organizeUserData(data) {
-    const mainSection = $("<section>").appendTo($("main"));
+    const mainSection = $("main");
     if (data.result !== false) {
         userData = data.userData;
         // this part is common to every type of user
@@ -255,46 +255,41 @@ function showDeleteAccountForm() {
                       })));
 }
 
-function hideMenu(menu, menuContent) {
-    menu.html("")
-        .append($("<a>",
-                  {
-                      href: "#",
-                      click: () => showMenu(menu, menuContent)
-                  }).append($("<img>", {src: "img/menu.png", alt: "Apri menu area utente"})));
+function hideMenu() {
+    $("#user_area_menu > ul").slideUp();
+    $("#user_area_menu > a > img").attr("alt", "Apri menu area utente");
 }
 
-function showMenu(menu, menuContent) {
-    menu.html(menuContent)
-        .children("a")
-        .click(() => hideMenu(menu, menuContent));
+$(() => {
+    $("#user_area_menu > ul").hide();
+    $.get("get_user_notifications.php", organizeUserNotifications);
     $("#notifications_button").click(() => {
         $(".selected").removeClass("selected");
         $("#notifications_button").addClass("selected");
         $("main > section:nth-child(n+2)").remove();
         $.get("get_user_notifications.php", organizeUserNotifications);
-        hideMenu(menu, menuContent);
+        hideMenu();
     });
     $("#user_area_button").click(() => {
         $(".selected").removeClass("selected");
         $("#user_area_button").addClass("selected");
         $("main > section:nth-child(n+2)").remove();
         $.get("get_user_data.php", organizeUserData);
-        hideMenu(menu, menuContent);
+        hideMenu();
     });
     $("#change_password_button").click(() => {
         $(".selected").removeClass("selected");
         $("#change_password_button").addClass("selected");
         $("main > section:nth-child(n+2)").remove();
         setChangePasswordForm();
-        hideMenu(menu, menuContent);
+        hideMenu();
     });
     $("#change_data_button").click(() => {
         $(".selected").removeClass("selected");
         $("#change_data_button").addClass("selected");
         $("main > section:nth-child(n+2)").remove();
         $.get("get_user_data.php", setChangeDataForm);
-        hideMenu(menu, menuContent);
+        hideMenu();
     });
     $("#events_button").click(() => {
         window.location.href = "my_events.php";
@@ -304,13 +299,14 @@ function showMenu(menu, menuContent) {
         $("#delete_account_button").addClass("selected");
         $("main > section:nth-child(n+2)").remove();
         showDeleteAccountForm();
-        hideMenu(menu, menuContent);
+        hideMenu();
     });
-}
-
-$(() => {
-    const menu = $("#user_area_menu");
-    const menuContent = menu.html();
-    hideMenu(menu, menuContent);
-    $.get("get_user_notifications.php", organizeUserNotifications);
+    $("#user_area_menu > a").click(() => {
+        if ($("#user_area_menu > ul").is(":hidden")) {
+            $("#user_area_menu > ul").slideDown();
+            $("#user_area_menu > a > img").attr("alt", "Chiudi menu area utente");
+        } else {
+            hideMenu();
+        }
+    });
 });
