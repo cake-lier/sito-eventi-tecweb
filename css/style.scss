@@ -431,11 +431,9 @@ form input[type=submit], form button {
     padding-right: 2%;
 }
 
-
 #general_search > input[type=text] {
     width: 80%;
 }
-
 
 #specific_search > input[type=text] {
     width: 100%;
@@ -622,10 +620,11 @@ section.event_tickets > footer {
 /* user area menu */
 #user_area_menu {
     padding: 0;
-    background-color: $mainText;
+    background-color: $mainRed;
     color: $sectionBackground;
     width: 90%;
     margin-bottom: 2.5em;
+    border: 0.1em solid $sectionShadow;
 }
 
 #user_area_menu > a {

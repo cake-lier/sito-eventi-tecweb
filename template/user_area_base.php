@@ -15,8 +15,3 @@
         <li id="delete_account_button">Chiudi account</li>
     </ul>
 </section>
-<?php 
-    if (isset($templateParams["userAreaSecondSection"])) {
-        require $templateParams["userAreaSecondSection"];
-    }
-?>
