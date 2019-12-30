@@ -18,18 +18,28 @@ form, input, select, option {
     color: $formText;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     font-family: $standardFont;
     background: $mainBackground;
+    display: flex;
+    flex-direction: column;
 }
 
-body > header, body > footer {
+div#wrapper {
+    flex: 1 0 auto;
+}
+
+body > div > header, body > footer {
     background: $mainRed;
     color: $textOnMainRed;
     width: 100%;
 }
 
-body > header a, body > footer a {
+body > div > header a, body > footer a {
     color: $textOnMainRed;
     text-decoration: none;
 }
@@ -37,9 +47,10 @@ body > header a, body > footer a {
 body > footer {
     text-align: center;
     @include upperBorder("../img/red_circles.svg");
+    flex-shrink: 0;
 }
 
-body > header {
+body > div > header {
     background: $titleGradient;
     height: 10em;
     position: relative;
@@ -185,35 +196,6 @@ main > section:not(#cart_payment_section) > section:not(.info_section) {
     margin: 1% 0;
 }
 
-main > section.alert {
-    position: fixed;
-    float: left;
-    margin-left: 5%;
-    margin-top: 0.5em;
-    padding: 0.5em;
-    width: 90%;
-    z-index: 3;
-    background-color: $mainBackground;
-    border: 0.2em solid $mainRed;
-    border-radius: 0.5em;
-    box-sizing: border-box;
-    color: $mainText;
-}
-
-main > section.alert > p {
-    width: 90%;
-    display: inline-block;
-}
-
-main > section.alert > a {
-    display: inline-block;
-    width: 10%;
-}
-
-main > section.alert > a > img {
-    width: 100%;
-}
-
 main > p {
     text-align: center;
 }
@@ -254,6 +236,35 @@ main > footer {
 main > footer > a:last-of-type {
     margin-left: 70%;
 }
+
+main > section.alert {
+    position: fixed;
+    float: left;
+    margin-left: 5%;
+    margin-bottom: 1.25em;
+    padding: 0.5em;
+    width: 90%;
+    background-color: $mainBackground;
+    border: 0.2em solid $mainRed;
+    border-radius: 0.5em;
+    box-sizing: border-box;
+    color: $mainText;
+}
+
+main > section.alert > p {
+    width: 90%;
+    display: inline-block;
+}
+
+main > section.alert > a {
+    display: inline-block;
+    width: 10%;
+}
+
+main > section.alert > a > img {
+    width: 100%;
+}
+
 
 #discover_link {
     @include button(40%, 1em);

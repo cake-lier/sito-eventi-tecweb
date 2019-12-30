@@ -5,20 +5,30 @@
     padding: 0;
 }
 
+html, body {
+    height: 100%;
+}
+
 body {
     margin: 0;
     padding: 0;
     font-family: $standardFont;
     background: $mainBackground;
+    display: flex;
+    flex-direction: column;
 }
 
-body > header, body > footer {
+div#wrapper {
+    flex: 1 0 auto;
+}
+
+body > div > header, body > footer {
     background: $mainRed;
     color: $textOnMainRed;
     width: 100%;
 }
 
-body > header a, body > footer a {
+body > div > header a, body > footer a {
     color: $textOnMainRed;
     text-decoration: none;
 }
@@ -26,9 +36,10 @@ body > header a, body > footer a {
 body > footer {
     text-align: center;
     @include upperBorder("../img/red_circles.svg");
+    flex-shrink: 0;
 }
 
-body > header {
+body > div > header {
     background: $titleGradient;
     height: 15em;
     position: absolute;
