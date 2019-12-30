@@ -1,8 +1,8 @@
 function bodyHandlerMobile(e) {
-    if (!$(e.target).is("img#menu_icon.icon") && !$(e.target).is("nav > ul > li > a") && $("nav > ul").is(":visible")) {
+    if (!$(e.target).is("img#menu_icon.icon") && !$(e.target).is("body > div > nav > ul > li > a") && $("body > div > nav > ul").is(":visible")) {
         e.preventDefault();
-        $("nav > ul").slideUp(() => {
-            $("nav").css("width", "50%")
+        $("body > div > nav > ul").slideUp(() => {
+            $("body > div > nav").css("width", "50%")
                     .css("left", "50%");
         });
     }
@@ -13,18 +13,18 @@ function mobileMenuBehavior() {
     $("#menu_icon").click(e => {
         e.preventDefault();
         e.stopPropagation();
-        if ($("nav > ul").is(":visible")) {
-            $("nav > ul").slideUp(() => {
-                $("nav").css("width", "50%")
+        if ($("body > div > nav > ul").is(":visible")) {
+            $("body > div > nav > ul").slideUp(() => {
+                $("body > div > nav").css("width", "50%")
                         .css("left", "50%");
             });
         } else {
-            $("nav").css("width", "100%")
+            $("body > div > nav").css("width", "100%")
                     .css("left", "0%");
-            $("nav > ul").slideDown();
+            $("body > div > nav > ul").slideDown();
         }
     });   
-    $("nav > ul").click(e => {
+    $("body > div > nav > ul").click(e => {
         e.stopPropagation();
     });
     $("body").click(bodyHandlerMobile);
@@ -39,7 +39,7 @@ $(window).on("load", () => {
             mobileMenuBehavior();
         } else {
             $("#menu_icon").unbind("click");
-            $("nav > ul").unbind("click");     
+            $("body > div > nav > ul").unbind("click");     
             $("body").unbind("click", bodyHandlerMobile);
         }
     });

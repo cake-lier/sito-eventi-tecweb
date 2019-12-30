@@ -95,7 +95,7 @@ header > a {
 }
 
 /* menu */
-nav {
+body > div > nav {
     width: 50%;
     left: 50%;
     text-align: right;
@@ -103,7 +103,7 @@ nav {
     z-index: 3;
 }
 
-nav > ul {
+body > div > nav > ul {
     display: none;
     background: $mainRed;
     width: 100%;
@@ -113,28 +113,28 @@ nav > ul {
     border-bottom-right-radius: 5px;
 }
 
-nav > ul > li {
+body > div > nav > ul > li {
     list-style: none;
     padding: 10px 0px;
     margin: 0 20px;
 }
 
-nav > ul > li:not(:last-of-type) {
+body > div > nav > ul > li:not(:last-of-type) {
     border-bottom: thin solid $textOnMainRed;
 }
 
-nav > ul > li > a {
+body > div > nav > ul > li > a {
     width: inherit;
     display: block;
     color: $textOnMainRed;
     text-decoration: none;
 }
 
-nav > ul > li > a > p {
+body > div > nav > ul > li > a > p {
     display: inline-block;
 }
 
-nav > ul > li > a > img, nav > ul > li > a > p {
+body > div > nav > ul > li > a > img, body > div > nav > ul > li > a > p {
     vertical-align: middle;
     margin: 2px 5px;
 }
@@ -226,7 +226,7 @@ main > section > section > footer, main > section > footer {
     text-align: right;
 }
 
-main > section:first-of-type {
+main > section:first-child {
     margin-top: -5.5em;
 }
 
@@ -655,10 +655,15 @@ section.event_tickets > footer {
 
 /* user area menu */
 #user_area_menu {
+    margin-top: -4em;
+    position: relative;
+    z-index: 1;
     padding: 0;
     background-color: $mainRed;
     color: $sectionBackground;
     width: 90%;
+    margin-left: 5%;
+    margin-right: 5%;
     margin-bottom: 2.5em;
     border: 0.1em solid $sectionShadow;
 }
