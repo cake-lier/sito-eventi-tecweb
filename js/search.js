@@ -66,7 +66,7 @@ function collapseSearch() {
     $("#filters_button").css("height", "100%")
                         .css("display", "inline-block")
                         .css("vertical-align", "middle")
-                        .unbind("click", collapseSearch)
+                        .off("click", "#filters_button", collapseSearch)
                         .click(displaySearch);
 }
 
@@ -77,6 +77,6 @@ function displaySearch() {
     $("#general_search label").removeAttr("style");
     $("#search_section").removeAttr("style");
     $("#filters_button").removeAttr("style")
-                        .unbind("click", displaySearch)
+                        .off("click", "#filters_button", displaySearch)
                         .click(collapseSearch);
 }
