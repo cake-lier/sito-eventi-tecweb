@@ -18,7 +18,7 @@ try {
                                                         "seatId" => $seatId,
                                                         "eventName" => $event["name"],
                                                         "eventPlace" => $event["place"],
-                                                        "dateTime" => $event["dateTime"],
+                                                        "dateTime" => convertDateTimeToLocale($event["dateTime"]),
                                                         "amount" => $amount,
                                                         "category" => $seat["name"],
                                                         "price" => $seat["price"]

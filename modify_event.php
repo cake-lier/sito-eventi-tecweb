@@ -8,7 +8,8 @@ try {
         && isset($_POST["message"])
         && isset($_POST["id"])
         && $dbh->getEventsManager()->isLoggedUserEventOwner(intval($_POST["id"]))) {
-        $dbh->getEventsManager()->changeEventDate(intval($_POST["id"]), $_POST["dateTime"], $_POST["message"]);
+        $dateTime = str_replace("T", " ", $_POST["dateTime"]);
+        $dbh->getEventsManager()->changeEventDate(intval($_POST["id"]), $dateTime, $_POST["message"]);
         $data["result"] = "Evento modificato.";
     }
 } catch (\Exception $e) {

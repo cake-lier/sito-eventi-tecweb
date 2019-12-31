@@ -92,10 +92,10 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
             throw new \Exception(self::QUERY_ERROR);
         }
         $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
-                  SELECT customerEmail, ?, ?, false
+                  SELECT DISTINCT customerEmail, CURRENT_TIMESTAMP, ?, false
                   FROM purchases
                   WHERE eventId = ?";
-        $stmt = $this->prepareBindExecute($query, "ssi", date("Y-m-d H:i:s"), $notificationId, $eventId);
+        $stmt = $this->prepareBindExecute($query, "ii", $notificationId, $eventId);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
@@ -120,10 +120,10 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
         }
 
         $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
-                  SELECT email, ?, ?, false
+                  SELECT email, CURRENT_TIMESTAMP, ?, false
                   FROM users
                   WHERE type = 'a'";
-        $stmt = $this->prepareBindExecute($query, "ss", date("Y-m-d H:i:s"), $notificationId);
+        $stmt = $this->prepareBindExecute($query, "i", $notificationId);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
