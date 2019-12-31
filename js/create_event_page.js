@@ -51,7 +51,7 @@ $(() => {
         formObj["website"] = $("#website").val();
         formObj["eventCategories"] = $("#categories").val().replace(/(#)/g, "").split(" ");
         const seatCatArray = [];
-        $(".seat_category").each(function() {
+        $(".seat_category_section").each(function() {
             const catObj = {};
             $(this).children().each((_index, element) => {
                 const el = $(element);
