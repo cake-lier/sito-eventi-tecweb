@@ -201,6 +201,14 @@ main > section:not(#cart_payment_section) > section:not(.info_section) {
     margin: 1% 0;
 }
 
+.info_section > p {
+    margin: 0.5em 0;
+}
+
+.event {
+    text-align: left;
+}
+
 main > p {
     text-align: center;
 }
@@ -481,12 +489,17 @@ button, input, select, label {
     border-radius: 2em;
     height: 2em;
     padding: 0 0.6em;
+    margin-top: 3%;
 }
 
 #search_section > form > fieldset:not(:first-of-type) {
     border-top: 0;
     padding: 0;
     margin: 0;
+}
+
+#search {
+    margin-top: 4%;
 }
 
 #filters_button {
@@ -805,6 +818,7 @@ section.event_tickets > footer {
     main {
         width: 100%;
         display: inline-block;
+        text-align: center;
     }
 
     main > section, main > footer { 
@@ -834,18 +848,16 @@ section.event_tickets > footer {
 
     main > section.top_event {
         margin-bottom: 0;
+        width: 40%;
+        display: inline-block;
+        margin-bottom: 2em;
     }
 
     main > section:first-child:only-of-type, main > section:nth-of-type(2) {
         margin-top: -2em;
     }
 
-    main > #discover_link {
-        @include button(20%, 1em);
-        margin: 1% 15%;
-    }
-
-    main > section:last-of-type {
+    main > section:last-of-type:not(.top_event) {
         margin-bottom: 5%;
     }
 
@@ -908,20 +920,25 @@ section.event_tickets > footer {
 
     #empty_cart_message {
         width: 90%;
-        font-size: 150%;
+        font-size: 145%;
         margin-bottom: 2em;
     }
 
     a#discover_link {
-        @include button(30%, 1em);
+        @include button(20%, 1em);
         display: inline;
+        vertical-align: bottom;
         font-size: 125%;
         padding: 0 1em;
         margin: 0;
     }
 
+    main {
+        padding-bottom: 5em;
+    }
+
     main > #empty_cart_message ~ section.top_event {
-        width: 40%;
+        width: 35%;
         margin-left: 2.5%;
         margin-right: 2.5%;
         margin-top: 0;

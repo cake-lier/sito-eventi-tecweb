@@ -1,4 +1,4 @@
-<section>
+<section class="event">
     <header>
         <h3><a href="event.php?id=<?php echo $event["id"]; ?>"><?php echo $event["name"]; ?></a></h3>
         <p><?php echo $event["place"]; ?>, <?php echo $event["dateTime"]; ?></p>

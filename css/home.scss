@@ -337,6 +337,11 @@ nav > ul > li > a > img, nav > ul > li > a > p {
 
     #main_search > label {
         top: 0.15em;
+        left: 2.5em;
+    }
+
+    #main_search > label > img {
+        height: 1.5em;
     }
 
     #main_section {
@@ -353,17 +358,18 @@ nav > ul > li > a > img, nav > ul > li > a > p {
     }
 
     #main_section > section.top_event {
-        width: 44%;
+        width: 40%;
         display: inline-block;
         margin-bottom: 2em;
     }
 
     #discover_link {
-        @include button(30%, 1em);
+        @include button(20%, 1em);
         display: inline;
         vertical-align: bottom;
         font-size: 125%;
-        padding: 0 2em;
+        padding: 0 1em;
+        margin: 0;
     }
 
     a.button > img {

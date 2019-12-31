@@ -1,4 +1,4 @@
-<section>
+<section class="event">
     <header>
         <h1><?php echo $templateParams["event"]["name"]; ?></h1>
         <p>Luogo: <?php echo $templateParams["event"]["place"]; ?></p>
