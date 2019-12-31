@@ -372,6 +372,10 @@ nav > ul > li > a > img, nav > ul > li > a > p {
         margin: 0;
     }
 
+    section.info_section > p > a {
+        color: $mainText;
+    }
+
     a.button > img {
         background: $mainRed;
         padding: 1% 1%;

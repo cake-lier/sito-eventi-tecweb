@@ -288,6 +288,9 @@ main > section.alert > a > img {
     vertical-align: middle;
 }
 
+section.info_section > p > a {
+    color: $mainText;
+}
 
 #discover_link {
     @include button(40%, 1em);

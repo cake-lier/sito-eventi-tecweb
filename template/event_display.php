@@ -12,7 +12,7 @@
         </p>
         <p>
             <?php foreach($templateParams["event"]["categories"] as $category): ?>
-            <span>#<?php echo $category; ?></span>
+                <a href="search.php?keyword=&tags=%23<?php echo $category ?>&place=&date=&posti=free&search=Cerca">#<?php echo $category; ?></a>
             <?php endforeach; ?>
         </p>
         <p><?php echo $templateParams["event"]["description"]; ?></p>
