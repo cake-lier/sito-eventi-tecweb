@@ -288,8 +288,9 @@ main > section.alert > a > img {
     vertical-align: middle;
 }
 
-section.info_section > p > a {
+.event p > a {
     color: $mainText;
+    text-decoration: underline;
 }
 
 #discover_link {

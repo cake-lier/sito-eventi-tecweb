@@ -189,7 +189,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
      * It can be specified the range of results needed. Throws an exception if something went wrong.
      */
     public function getEventIdsFiltered(int $min = -1, int $max = -1, string $keyword = "", bool $free = true,
-                                        string $place = "", string $date = "", string $promoterEmail = null) {
+                                        string $place = "", string $date = "", string $promoterEmail = "") {
         $condition = "";
         $bindings = "";
         $parameters = array();
@@ -208,7 +208,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             $bindings = $bindings . "s";
             $parameters[] = $keyword;
         }
-        if ($promoterEmail !== null) {
+        if ($promoterEmail !== "") {
             $condition .= " AND promoterEmail = ?";
             $bindings = $bindings . "s";
             $parameters[] = $promoterEmail;

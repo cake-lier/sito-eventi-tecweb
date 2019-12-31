@@ -5,11 +5,16 @@ $keyword = isset($_GET["keyword"]) ? $_GET["keyword"] : "";
 $free = isset($_GET["posti"]) && $_GET["posti"] === "free";
 $place = isset($_GET["place"]) ? $_GET["place"] : "";
 $date = isset($_GET["date"]) ? $_GET["date"] : "";
+if (isset($_GET["promoter"]) && $dbh->getUsersManager()->getPromoterEmail($_GET["promoter"]) !== false) {
+    $promoter = $dbh->getUsersManager()->getPromoterEmail($_GET["promoter"])["email"];
+} else {
+    $promoter = "";
+}
 $tags = isset($_GET["tags"]) && $_GET["tags"] !== "" ? explode(" ", str_replace("#", "", $_GET["tags"])) : array();
 $min = isset($_GET["min"]) ? $_GET["min"] : 0;
 $count = isset($_GET["count"]) ? $_GET["count"] : 5;
 try {
-    $eventIdsUncategorized = $dbh->getEventsManager()->getEventIdsFiltered($min, $min + $count, $keyword, $free, $place, $date);
+    $eventIdsUncategorized = $dbh->getEventsManager()->getEventIdsFiltered($min, $min + $count, $keyword, $free, $place, $date, $promoter);
     $templateParams["events"] = array();
     array_walk($eventIdsUncategorized, function($id) use ($dbh, $tags, &$templateParams) {
         if ($dbh->getEventsManager()->hasEventCategories($id, ...$tags)) {
@@ -21,6 +26,7 @@ try {
         }
     });
     $templateParams["places"] = $dbh->getEventsManager()->getEventsPlaces();
+    $templateParams["promoters"] = array_column($dbh->getUsersManager()->getPromoters(), "organizationName");
     $templateParams["name"] = "search_form.php";
     $templateParams["searchSecondSection"] = "events_list_display.php";
     $templateParams["title"] = "SeatHeat - Cerca";

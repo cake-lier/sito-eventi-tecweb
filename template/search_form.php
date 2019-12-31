@@ -19,6 +19,17 @@
                     endforeach;
                 ?>
             </select><!--
+            --><label for="promoter">Organizzatore:</label><!--
+            --><select id="promoter" name="promoter">
+                <option value="">Seleziona un promoter</option>
+                    <?php
+                        foreach($templateParams["promoters"] as $promoter):
+                    ?>
+                        <option value="<?php echo $promoter; ?>"><?php echo $promoter; ?></option>
+                    <?php
+                        endforeach;
+                    ?>
+            </select><!--
             --><label for="data">Data:</label><!--
             --><input type="date" id="data" name="date" /><!--
             --><label for="posti">Posti liberi:</label><!--

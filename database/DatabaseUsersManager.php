@@ -304,6 +304,22 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         return $data;
     }
     /*
+     * Gets the email of a promoter given the organization name.
+     */
+    public function getPromoterEmail(string $organizationName) {
+        $query = "SELECT email
+                  FROM promoters
+                  WHERE organizationName = ?";
+        $stmt = $this->prepareBindExecute($query, "s", $organizationName);
+        if ($stmt !== false) {
+            $result = $stmt->get_result()->fetch_assoc();;
+            $stmt->close();
+            return $result;
+        }
+        return false;
+        
+    }
+    /*
      * Inserts a new user into the database. Returns false if something went wrong.
      */
     private function insertUser(string $email, string $password, $profilePhoto, string $type) {

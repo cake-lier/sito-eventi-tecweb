@@ -3,7 +3,7 @@
         <h1><?php echo $templateParams["event"]["name"]; ?></h1>
         <p>Luogo: <?php echo $templateParams["event"]["place"]; ?></p>
         <p>Data e ora: <?php echo $templateParams["event"]["dateTime"]; ?></p>
-        <p>Organizzato da: <?php echo $templateParams["event"]["organizationName"]; ?></p>
+        <p>Organizzato da: <a href="http://localhost/search.php?keyword=&tags=&place=&promoter=<?php echo $event["organizationName"]; ?>&date=&posti=free&search=Cerca"><?php echo $event["organizationName"]; ?></a></p> 
     </header>
     <section id="purchase_section" class="info_section">
         <p>

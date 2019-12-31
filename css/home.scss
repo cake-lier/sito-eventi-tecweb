@@ -227,6 +227,11 @@ a.button > img {
     @include button(30%, 1em);
     margin-bottom: 1%;
 }
+   
+.event p > a {
+    color: $mainText;
+    text-decoration: underline;
+}
 
 /* menu */
 nav {
@@ -370,10 +375,6 @@ nav > ul > li > a > img, nav > ul > li > a > p {
         font-size: 125%;
         padding: 0 1em;
         margin: 0;
-    }
-
-    section.info_section > p > a {
-        color: $mainText;
     }
 
     a.button > img {
