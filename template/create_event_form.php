@@ -18,7 +18,7 @@
             <input type="text" id="categories" name="categories" />
         </fieldset>
         <fieldset id="categories_section">
-            <section class="seat_category">
+            <section class="seat_category_section">
                 <label for="sCatName_0">Tipologia posto: </label>
                 <input type="text" id="sCatName_0" name="name" required />
                 <label for="sCatQuantity_0">Quantità biglietti: </label>

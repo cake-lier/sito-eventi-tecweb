@@ -394,8 +394,15 @@ form p, form h2 {
 #categories_section button {
     font-size: 100%;
     border-radius: 0.5em;
-    float: left;
     margin: 2% 0;
+}
+
+.seat_category_section {
+    display: inline-block;
+}
+
+.seat_category_section:not(:last-of-type) {
+    border-bottom: thin solid $mainText;
 }
 
 form input[type=submit], form button {
