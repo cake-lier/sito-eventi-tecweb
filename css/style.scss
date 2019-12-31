@@ -891,6 +891,12 @@ section.event_tickets > footer {
         margin-left: 55%;
     }
 
+    section.event:first-child, section.event:first-child ~ section.event {
+        width: 60%;
+        margin: 0 20% 5% 20%;
+        box-sizing: border-box;
+    }
+
     #filters_button {
         display: none;
     }
