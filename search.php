@@ -6,7 +6,8 @@ $free = isset($_GET["posti"]) && $_GET["posti"] === "free";
 $place = isset($_GET["place"]) ? $_GET["place"] : "";
 $date = isset($_GET["date"]) ? $_GET["date"] : "";
 if (isset($_GET["promoter"]) && $_GET["promoter"] !== "" && $dbh->getUsersManager()->getPromoterEmail($_GET["promoter"]) !== false) {
-    $promoter = $dbh->getUsersManager()->getPromoterEmail($_GET["promoter"])["email "];
+    $promoter = $dbh->getUsersManager()->getPromoterEmail($_GET["promoter"]);
+    $promoter = $promoter !== false && $promoter !== null ? $promoter["email"] : "";
 } else {
     $promoter = "";
 }

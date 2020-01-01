@@ -838,21 +838,21 @@ section.event_tickets > footer {
     }
 
     /* there is only one large section */
-    main > section:only-of-type:first-child {
+    main > section:only-of-type:first-child:not(#search_section) {
         width: 60%;
         margin: 0 20% 5% 20%;
         box-sizing: border-box;
     }
 
     /* there is more than one section or element */
-    main > section:not(:only-of-type), main > section:not(:first-child), #search_section ~ footer, #user_area_menu {
+    main > section:not(:only-of-type), main > section:not(:first-child), #search_section ~ footer, #user_area_menu, #search_section {
         width: 40%;
         margin: 0 5% 5% 5%;
         box-sizing: border-box;
     }
 
     /* the first section must float left */
-    main > section:not(:only-of-type):first-child, #user_area_menu {
+    main > section:not(:only-of-type):first-child, #user_area_menu, #search_section {
         float: left;
         margin-top: -2em;
     }
