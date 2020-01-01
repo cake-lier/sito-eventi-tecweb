@@ -199,7 +199,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             $parameters[] = $place;
         }
         if ($date !== "") {
-            $condition .= " AND date = ?";
+            $condition .= " AND e.dateTime = ?";
             $bindings = $bindings . "s";
             $parameters[] = $date;
         }
