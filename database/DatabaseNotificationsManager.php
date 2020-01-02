@@ -103,6 +103,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
         $usersStmt->close();
         array_walk($result, function($e) use ($message) {
             if ($e["allowMails"] === 1) {
+                /* TODO: activate this when mail server is working
                 mail($e["customerEmail"],
                      "SeatHeat - Nuova notifica per un evento a cui sei iscritto",
                      wordwrap(str_replace("\n", "\r\n", $message), 70, "\r\n"),
@@ -110,6 +111,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
                          "From" => "notifiche@seatheat.it",
                          "Reply-To" => "notifiche@seatheat.it"
                      ]);
+                     */
             }
         });
         $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)

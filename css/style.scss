@@ -787,6 +787,10 @@ section.event_tickets > footer {
     background-color: $mainText;
 }
 
+.notification > input[type=checkbox] {
+    width: 1.25em;
+}
+
 #admin_message_section > p {
     margin-bottom: 1em;
 }
