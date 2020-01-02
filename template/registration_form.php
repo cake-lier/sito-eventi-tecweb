@@ -7,7 +7,6 @@
         <input type="radio" id="check_promoter" name="registration_type" value="promoter" />
     </fieldset>
     <fieldset>
-        <!-- TODO: check for email existence in db with ajax -->
         <?php
             if (isset($_SESSION["registrationError"])) {
                 echo "<p>" . $_SESSION["registrationError"] . "</p>";

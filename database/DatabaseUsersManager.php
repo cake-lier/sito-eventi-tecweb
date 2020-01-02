@@ -252,7 +252,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         try {
             if ($this->checkLogin($email, $password)) {
                 $query = "DELETE FROM users
-                          WHERE email = ?"; // TODO: set up on delete cascade in the db
+                          WHERE email = ?";
                 $stmt = $this->prepareBindExecute($query, "s", $email);
                 if ($stmt === false) {
                     throw new \Exception(self::QUERY_ERROR);
@@ -338,6 +338,21 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         if ($rows !== 1 && $rows !== 0) {
             throw new \Exception(self::QUERY_ERROR);
         }
+    }
+    /*
+     * Checks if a VATid is already present in the database.
+     */
+    public function checkVATidPresence(string $VATid) {
+        $query = "SELECT *
+                  FROM promoters
+                  WHERE VATid = ?";
+        $stmt = $this->prepareBindExecute($query, "s", $VATid);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $result = $stmt->get_result()->fetch_assoc();;
+        $stmt->close();
+        return $result === null ? false : true;
     }
     /*
      * Inserts a new user into the database. Returns false if something went wrong.

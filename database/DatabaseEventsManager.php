@@ -149,22 +149,6 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         return array_column($data, "place");
     }
     /*
-     * Returns all the possible types of the events. Throws an exception if something went wrong.
-     */
-    // TODO: Are we sure this will be needed?
-    public function getEventsTypes() {
-        $query = "SELECT DISTINCT name
-                  FROM eventCategories";
-        // No risk of SQL injection
-        $result = $this->query($query);
-        if ($result === false) {
-            throw new \Exception(self::QUERY_ERROR);
-        }
-        $data = $result->fetch_all(MYSQLI_ASSOC);
-        $result->close();
-        return array_column($data, "name");
-    }
-    /*
      * Returns the number of events currently disponible to purchasing.
      */
     public function getEventsCount() {

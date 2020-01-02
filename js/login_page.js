@@ -9,8 +9,6 @@ function showRightForm() {
         $(".promoter, .promoter_non_req").show();
         $(".customer").prop("required", false);
         $(".customer, .customer_non_req").hide();
-    } else {
-        //TODO: What happens here?
     }
 }
 
