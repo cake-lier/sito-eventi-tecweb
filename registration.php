@@ -31,10 +31,16 @@ if (isset($_POST["email"])
                 $current = isset($_POST["current"]) ? $_POST["current"] : null;
                 $telephone = isset($_POST["telephone"]) ? $_POST["telephone"] : null;
                 try {
-                    $dbh->getUsersManager()->insertCustomer($email, $password, $imgData, $billing, $birthdate,$birthplace, $name,
-                                                            $surname, $username, $telephone, $current);
-                    $_SESSION["email"] = $email;
-                    $location = "index.php";
+                    if ($dbh->getUsersManager()->isPromoter($email) 
+                            || $dbh->getUsersManager()->isCustomer($email) 
+                            || $dbh->getUsersManager()->isAdmin($email)) {
+                        $_SESSION["registrationError"] = "Mail già in uso";
+                    } else {
+                        $dbh->getUsersManager()->insertCustomer($email, $password, $imgData, $billing, $birthdate,$birthplace, $name,
+                                                                $surname, $username, $telephone, $current);
+                        $_SESSION["email"] = $email;
+                        $location = "index.php";
+                    }
                 } catch (\Exception $e) {
                     $_SESSION["registrationError"] = "Problema con il database";
                 }                                    
@@ -45,13 +51,23 @@ if (isset($_POST["email"])
                 $name = $_POST["organization_name"];
                 $vat = $_POST["vat_id"];
                 $website = isset($_POST["website"]) ? $_POST["website"] : null;
-                try {
-                    $dbh->getUsersManager()->insertPromoter($email, $password, $imgData, $name, $vat, $website);
-                    $_SESSION["email"] = $email;
-                    $location = "index.php";
-                } catch (\Exception $e) {
-                    $_SESSION["registrationError"] = "Problema con il database";
-                }                                
+                if ($dbh->getUsersManager()->isPromoter($email) 
+                        || $dbh->getUsersManager()->isCustomer($email) 
+                        || $dbh->getUsersManager()->isAdmin($email)) {
+                    $_SESSION["registrationError"] = "Mail già in uso";
+                } else if ($dbh->getUsersManager()->getPromoterEmail($name) !== null) {
+                    $_SESSION["registrationError"] = "Nome organizzazione già in uso";
+                } else if ($dbh->getUsersManager()->checkVATidPresence($vat) === true) {
+                    $_SESSION["registrationError"] = "VATid già in uso";
+                } else {
+                    try {
+                        $dbh->getUsersManager()->insertPromoter($email, $password, $imgData, $name, $vat, $website);
+                        $_SESSION["email"] = $email;
+                        $location = "index.php";
+                    } catch (\Exception $e) {
+                        $_SESSION["registrationError"] = "Problema con il database";
+                    }       
+                }                         
             } else if ($imgData === false) {
                 $_SESSION["registrationError"] = "L'immagine di profilo non va bene!";
             }
