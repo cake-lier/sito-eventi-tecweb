@@ -4,7 +4,8 @@
     }
 ?>
 <footer>
-    <a class="button" id="previous_page"><img src="<?php echo IMG_DIR; ?>back.png" alt="Pagina precedente"/></a><!--
+    <a class="button" id="previous_page"><img src="<?php echo IMG_DIR; ?>back.png" alt="Pagina precedente"/></a>
+    <label for="event_count">Eventi per pagina</label><!--
     --><select id="event_count">
         <option value="5">5</option>
         <option value="10">10</option>

@@ -920,6 +920,10 @@ section.event_tickets > footer {
         box-sizing: border-box;
     }
 
+    label[for=event_count] {
+        display: none;
+    }
+
     #filters_button {
         display: none;
     }
