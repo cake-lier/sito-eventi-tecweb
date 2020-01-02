@@ -46,7 +46,7 @@ $(() => {
                                               })));
         }
         if ($("#telephone").val() !== ""
-            && (isNaN($("telephone").val()) || $("telephone").val().includes(".") || $("telephone").val().includes(","))) {
+            && (isNaN($("#telephone").val()) || $("#telephone").val().includes(".") || $("#telephone").val().includes(","))) {
             e.preventDefault();
             $("main").prepend($("<section>", {class: "alert"})
                                   .append($("<p>", {text: "Numero di telefono non corretto"}),
