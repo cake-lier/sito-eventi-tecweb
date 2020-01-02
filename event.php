@@ -7,6 +7,7 @@ try {
         $templateParams["event"] = $dbh->getEventsManager()->getEventInfo($id);
         $templateParams["event"]["dateTime"] = convertDateTimeToLocale($templateParams["event"]["dateTime"]);
         $templateParams["places"] = $dbh->getEventsManager()->getEventsPlaces();
+        $templateParams["promoters"] = array_column($dbh->getUsersManager()->getPromoters(), "organizationName");
         $templateParams["name"] = "search_form.php";
         $templateParams["searchSecondSection"] = "event_display.php";
         $templateParams["title"] = "SeatHeat - Evento: " . $templateParams["event"]["name"];
