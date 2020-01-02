@@ -1,4 +1,4 @@
-<form class="login" id="login_form" method="POST" action="login.php" autocomplete>
+<form class="login" id="login_form" method="POST" action="login.php" autocomplete="on">
     <?php
         if (isset($_SESSION["loginError"])) {
             echo "<p>" . $_SESSION["loginError"] . "</p>";
