@@ -255,6 +255,36 @@ function showDeleteAccountForm() {
                       })));
 }
 
+function setNotificationPrefForm(data) {
+    const mainSection = $("<section>").appendTo($("main"));
+    if (data.result !== false) {
+        mainSection.append($("<form>")
+                               .append($("<fieldset>")
+                                           .append($("<label>",
+                                                     {
+                                                         for: "allow_mails",
+                                                         text: "Inviami un'email quando arriva una nuova notifica: "
+                                                     }),
+                                                   $("<input>",
+                                                     {
+                                                         type: "checkbox",
+                                                         name: "allow_mails",
+                                                         id: "allow_mails",
+                                                     })
+                                                       .prop("checked", data.userData.allowMails === 1),
+                                         $("<input>", {type: "submit", value: "Modifica impostazioni", class: "button_no_image"})))
+                               .submit(function(e) {
+                                   e.preventDefault();
+                                   $.post("change_user_data.php", {allow_mails: $("#allow_mails").prop("checked")}, data => {
+                                           $("form > p").remove();
+                                           $(this).prepend($("<p>", {text: data.resultMessage}));
+                                       });
+                                   }));
+    } else {
+        mainSection.append($("<p>", {text: "Si è verificato un errore, impossibile visualizzare i dati dell'utente"}));
+    }
+}
+
 function hideMenu() {
     if ($(window).width() < 768) {
         $("#user_area_menu > ul").slideUp();
@@ -303,6 +333,13 @@ $(() => {
         $("#delete_account_button").addClass("selected");
         $("main > section:nth-child(n+2)").remove();
         showDeleteAccountForm();
+        hideMenu();
+    });
+    $("#notifications_pref_button").click(() => {
+        $(".selected").removeClass("selected");
+        $("#notifications_pref_button").addClass("selected");
+        $("main > section:nth-child(n+2)").remove();
+        $.get("get_user_data.php", setNotificationPrefForm);
         hideMenu();
     });
     $("#user_area_menu > a").click(() => {

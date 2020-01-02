@@ -9,8 +9,8 @@ require_once("./database/DatabaseServiceManager.php");
  * property of a notification.
  */
 class DatabaseNotificationsManager extends DatabaseServiceManager { 
-    private const QUERY_ERROR = "An error occured while executing the query";
-    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
+    private const QUERY_ERROR = "An error occured while executing the query\n";
+    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so\n";
     /*
      *  Default constructor.
      */
@@ -91,6 +91,27 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
         if ($notificationId === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
+        $usersQuery = "SELECT DISTINCT customerEmail, allowMails
+                       FROM purchases p, customers c
+                       WHERE eventId = ? AND p.customerEmail = c.email";
+        $usersStmt = $this->prepareBindExecute($usersQuery, "i", $eventId);
+        if ($usersStmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $result = $usersStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        $result;
+        $usersStmt->close();
+        array_walk($result, function($e) use ($message) {
+            if ($e["allowMails"] === 1) {
+                mail($e["customerEmail"],
+                     "SeatHeat - Nuova notifica per un evento a cui sei iscritto",
+                     wordwrap(str_replace("\n", "\r\n", $message), 70, "\r\n"),
+                     [
+                         "From" => "notifiche@seatheat.it",
+                         "Reply-To" => "notifiche@seatheat.it"
+                     ]);
+            }
+        });
         $query = "INSERT INTO usersNotifications(email, dateTime, notificationId, visualized)
                   SELECT DISTINCT customerEmail, CURRENT_TIMESTAMP, ?, false
                   FROM purchases

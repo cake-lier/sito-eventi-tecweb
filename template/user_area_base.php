@@ -5,7 +5,12 @@
         <li id="user_area_button">Dati personali</li>
         <li id="change_password_button">Cambia password</li>
         <li id="change_data_button">Modifica dati</li>
-        <?php 
+        <?php
+            if ($templateParams["isCustomer"]):
+        ?>
+            <li id="notifications_pref_button">Impostazioni notifiche</li>
+        <?php
+            endif;
             if (!$templateParams["isAdmin"]):
         ?>
             <li id="events_button">I miei eventi</li>

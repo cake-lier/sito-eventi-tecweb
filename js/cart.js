@@ -73,15 +73,35 @@ $(() => {
         $("section#payment_types > ul > li").filter((_i, e) => $(e).hasClass("selected")).removeClass("selected");
         $(this).addClass("selected");
     });
+    let finalizePurchase = false;
+    $("#cart_payment_section > section > section:first-child").hide();
     $("#buy_button").click(() => {
-        if ($("section#payment_types > ul > li").filter((_i, e) => $(e).hasClass("selected")).length == 0) {
-            $("main").prepend($("<section>", {class: "alert"})
-                                  .append($("<p>", {text: "Selezionare una modalità di pagamento"}),
-                                          $("<a>", {href: "#"})
-                                              .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
-                                              .click(function() {
-                                                  $(this).parent().remove();
-                                              })));
+        const paymentSection = $("#cart_payment_section");
+        if (!finalizePurchase) {
+            if ($("section#payment_types > ul > li").filter((_i, e) => $(e).hasClass("selected")).length == 0) {
+                $("main").prepend($("<section>", {class: "alert"})
+                                      .append($("<p>", {text: "Selezionare una modalità di pagamento"}),
+                                              $("<a>", {href: "#"})
+                                                  .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
+                                                  .click(function() {
+                                                      $(this).parent().remove();
+                                                  })));
+            } else {
+                const header = paymentSection.children("header");
+                header.children("p:first-child").css("font-weight", "normal");
+                header.children("p:last-of-type").css("font-weight", "bold");
+                header.children("svg").children("g").children("circle").animate({"cx": "429"});
+                const body = paymentSection.children("section");
+                body.children("section:first-child").show();
+                const paymentTypesSection = body.children("section:last-of-type");
+                paymentTypesSection.children("h1").hide();
+                paymentTypesSection.children("ul").children("li").filter((_i, e) => !$(e).hasClass("selected")).hide();
+                paymentSection.children("section").children("a").text("Compra e paga");
+                const tickets = $("#tickets > section");
+                tickets.children("section").children("a").hide();
+                tickets.children("footer").hide();
+                finalizePurchase = true;
+            }
         } else {
             window.location.href = "buy_tickets.php";
         }

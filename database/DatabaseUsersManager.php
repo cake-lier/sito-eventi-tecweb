@@ -5,9 +5,9 @@ namespace it\unibo\tecweb\seatheat;
 require_once("./database/DatabaseServiceManager.php");
 
 class DatabaseUsersManager extends DatabaseServiceManager {
-    private const QUERY_ERROR = "An error occured while executing the query";
-    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so";
-    private const FILE_ERROR = "Cannot access file contents";
+    private const QUERY_ERROR = "An error occured while executing the query\n";
+    private const PRIVILEGE_ERROR = "The user performing the operation hasn't enough privileges to do so\n";
+    private const FILE_ERROR = "Cannot access file contents\n";
     private const CUSTOMER_TYPE_CODE = "c";
     private const PROMOTER_TYPE_CODE = "p";
     private const HASH_COST = 11;
@@ -29,8 +29,8 @@ class DatabaseUsersManager extends DatabaseServiceManager {
             throw new \Exception(self::QUERY_ERROR);
         }
         $query = "INSERT INTO customers(email, billingAddress, birthDate, birthplace, name, surname, username,
-                              telephone, currentAddress)
-                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                              telephone, currentAddress, allowMails)
+                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, true)";
         $stmt = $this->prepareBindExecute($query, "sssssssss", $email, $billingAddress, $birthDate, $birthplace,
                                           $name, $surname, $username, $telephone, $currentAddress);
         if ($stmt === false) {
@@ -179,7 +179,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
         }
     }
     /*
-     * Changes the the data of the customer logged in. Throws an exception if something went wrong.
+     * Changes the data of the promoter logged in. Throws an exception if something went wrong.
      */
     public function changePromoterData(string $website) {
         $email = $this->getLoggedUserEmail();
@@ -317,7 +317,27 @@ class DatabaseUsersManager extends DatabaseServiceManager {
             return $result;
         }
         return false;
-        
+    }
+    /*
+     * Changes the preferences for the currently logged in customer.
+     */
+    public function changeCustomerPreferences(bool $allowMails) {
+        $email = $this->getLoggedUserEmail();
+        if ($email === false || !$this->isCustomer($email)) {
+            throw new \Exception(self::PRIVILEGE_ERROR);
+        }
+        $query = "UPDATE customers
+                  SET allowMails = ?
+                  WHERE email = ?";
+        $stmt = $this->prepareBindExecute($query, "is", $allowMails, $email);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $rows = $stmt->affected_rows;
+        $stmt->close();
+        if ($rows !== 1 && $rows !== 0) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
     }
     /*
      * Inserts a new user into the database. Returns false if something went wrong.
@@ -360,7 +380,7 @@ class DatabaseUsersManager extends DatabaseServiceManager {
      */
     private function getLongCustomerProfile(string $email) {
         $query = "SELECT username, name, surname, birthDate, birthplace, profilePhoto, currentAddress, billingAddress,
-                         telephone, u.email
+                         telephone, u.email, allowMails
                   FROM users u, customers c 
                   WHERE u.email = ? AND u.email = c.email";
         $stmt = $this->prepareBindExecute($query, "s", $email);

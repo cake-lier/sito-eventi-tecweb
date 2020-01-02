@@ -10,10 +10,14 @@ try {
             $dbh->getUsersManager()->changeProfilePhoto($imgData);
         }
         if ($dbh->getUsersManager()->isCustomer($_SESSION["email"])) {
-            $dbh->getUsersManager()->changeCustomerData($_POST["username"], $_POST["name"], $_POST["surname"],
-                                                        $_POST["birthDate"], $_POST["birthplace"], $_POST["billingAddress"],
-                                                        $_POST["currentAddress"] === "" ? null : $_POST["currentAddress"],
-                                                        $_POST["telephone"] === "" ? null : $_POST["telephone"]);
+            if (isset($_POST["allow_mails"])) {
+                $dbh->getUsersManager()->changeCustomerPreferences($_POST["allow_mails"] === "true");
+            } else {
+                $dbh->getUsersManager()->changeCustomerData($_POST["username"], $_POST["name"], $_POST["surname"],
+                                                            $_POST["birthDate"], $_POST["birthplace"], $_POST["billingAddress"],
+                                                            $_POST["currentAddress"] === "" ? null : $_POST["currentAddress"],
+                                                            $_POST["telephone"] === "" ? null : $_POST["telephone"]);
+            }
         } else if ($dbh->getUsersManager()->isPromoter($_SESSION["email"])) {
             $dbh->getUsersManager()->changePromoterData($_POST["website"]);
         }
