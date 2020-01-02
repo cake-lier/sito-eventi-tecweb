@@ -74,7 +74,6 @@ function deleteNotification(notificationId, notificationDateTime) {
 
 function organizeUserData(data) {
     const mainSection = $("main");
-    console.log(data); // DEBUG:
     if (data.result !== false) {
         userData = data.userData;
         // this part is common to every type of user
@@ -206,7 +205,7 @@ function setChangeDataForm(data) {
         form.append($("<input>", {type: "submit", value: "Modifica dati", class: "button_no_image"}))
             .submit(function(e) {
                 e.preventDefault();
-                if ($("#profile_photo")[0].files.item(0).size > 12000000) {
+                if ($("#profile_photo").val() && $("#profile_photo")[0].files.item(0).size > 12000000) {
                     $("main").prepend($("<section>", {class: "alert"})
                              .append($("<p>", {text: "Immagine troppo grande"}), $("<a>", {href: "#"})
                              .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
@@ -231,7 +230,7 @@ function setChangeDataForm(data) {
                         contentType: false,
                         success: data => {
                             $("form > p").remove();
-                            $(this).prepend($("<p>", {text: data.resultMessage}));
+                            $(this).append($("<p>", {text: data.resultMessage}));
                             $.get("get_user_data.php", data => {
                                 if (data.result !== false) {
                                     userData = data.userData;
