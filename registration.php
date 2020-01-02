@@ -32,7 +32,7 @@ if (isset($_POST["email"])
                 $telephone = isset($_POST["telephone"]) ? $_POST["telephone"] : null;
                 try {
                     $dbh->getUsersManager()->insertCustomer($email, $password, $imgData, $billing, $birthdate,$birthplace, $name,
-                                                            $surname, $username, $current, $telephone);
+                                                            $surname, $username, $telephone, $current);
                     $_SESSION["email"] = $email;
                     $location = "index.php";
                 } catch (\Exception $e) {
