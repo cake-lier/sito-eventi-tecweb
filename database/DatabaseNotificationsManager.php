@@ -25,7 +25,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
         if ($email === false) {
             throw new \Exception(self::PRIVILEGE_ERROR);
         }
-        $query = "SELECT notificationId, dateTime, visualized, message
+        $query = "SELECT notificationId, dateTime, visualized, message, eventId
                   FROM usersNotifications, notifications
                   WHERE notificationId = id AND email = ?";
         $stmt = $this->prepareBindExecute($query, "s", $email);
@@ -87,7 +87,7 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
      * arise, throws an exception.
      */
     public function sendNotificationToEventPurchasers(int $eventId, string $message) {
-        $notificationId = $this->insertNewNotification($message);
+        $notificationId = $this->insertNewNotification($message, $eventId);
         if ($notificationId === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
@@ -99,7 +99,6 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
             throw new \Exception(self::QUERY_ERROR);
         }
         $result = $usersStmt->get_result()->fetch_all(MYSQLI_ASSOC);
-        $result;
         $usersStmt->close();
         array_walk($result, function($e) use ($message) {
             if ($e["allowMails"] === 1) {
@@ -159,10 +158,10 @@ class DatabaseNotificationsManager extends DatabaseServiceManager {
     /* 
      * Insert a new type of notification into the database. If problems arise, returns false.
      */
-    private function insertNewNotification(string $message) {
-        $query = "INSERT INTO notifications(message)
-                  VALUES (?)";
-        $stmt = $this->prepareBindExecute($query, "s", $message);
+    private function insertNewNotification(string $message, int $eventId = null) {
+        $query = "INSERT INTO notifications(message, eventId)
+                  VALUES (?, ?)";
+        $stmt = $this->prepareBindExecute($query, "si", $message, $eventId);
         if ($stmt !== false) {
             $result = $stmt->affected_rows !== 1 ? false : $stmt->insert_id;
             $stmt->close();

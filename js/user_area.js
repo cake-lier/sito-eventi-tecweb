@@ -1,3 +1,19 @@
+function toLocaleDateTime(dateTime) {
+    return dateTime.toLocaleDateString("it-IT", 
+                                       {
+                                            day: "numeric",
+                                            month: "long",
+                                            year: "numeric",
+                                       })
+           + " ore "
+           + dateTime.toLocaleTimeString("it-IT",
+                                         {
+                                              hour: "2-digit",
+                                              minute: "2-digit"
+                                         });
+}
+
+
 function organizeUserNotifications(data) {
     const mainSection = $("main");
     if (data["result"] === false) {
@@ -10,25 +26,28 @@ function organizeUserNotifications(data) {
         return;
     }
     notifications = data.notifications;
+    console.log(data.notifications);
     if (notifications.length > 0) {
         Object.values(notifications).forEach(notification => {
-            const dateTime = new Date(notification.dateTime);
-            const dateString = dateTime.toLocaleDateString("it-IT", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-            }) + " ore " + dateTime.toLocaleTimeString("it-IT", {
-                hour: "2-digit",
-                minute: "2-digit"
-            });
+            const dateString = toLocaleDateTime(new Date(notification.dateTime));
+            const eventDateString = toLocaleDateTime(new Date(notification.event.dateTime));
             mainSection.append(
                 $("<section>", {id: notification.notificationId})
                     .addClass("notification")
                     .addClass((_i, c) => {
                         return notification.visualized === 1 ? c + " visualized" : c;
                     })
-                    .append($("<p>", {text: dateString}), 
-                            $("<p>", {text: notification.message}),
+                    .append($("<section>").append($("<p>", {text: dateString}), 
+                                                  $("<p>", {text: notification.message})),
+                            $("<section>").append($("<h3>", {text: "Per l'evento: "})
+                                                      .append($("<a>",
+                                                                {
+                                                                    text: notification.event.name,
+                                                                    href: "event.php?id=" + notification.event.id
+                                                                })),
+                                                  $("<p>", {text: "Luogo: " + notification.event.place}),
+                                                  $("<p>", {text: "Data: " + eventDateString}),
+                                                  $("<p>", {text: "Organizzato da: " + notification.event.organizationName})),
                             $("<label>", {for: "check_" + notification.notificationId, text: "Visualizzata"}),
                             $("<input>", {
                                 id: "check_" + notification.notificationId, 

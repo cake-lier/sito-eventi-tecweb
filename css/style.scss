@@ -186,7 +186,7 @@ main > section > header > h2 {
     font-size: 1.7em;
 }
 
-main > section:not(#cart_payment_section) > section:not(.info_section) {
+main > section:not(#cart_payment_section):not(.notification) > section:not(.info_section) {
     margin: 0 5% 2em 5%;
     width: 80%;
     background-color: $sectionBackground;
@@ -775,7 +775,12 @@ section.event_tickets > footer {
     vertical-align: middle;
 }
 
-.notification > p {
+.notification > section {
+    text-align: left;
+    margin-bottom: 1em;
+}
+
+.notification > section:first-of-type > p:not(:last-of-type) {
     margin-bottom: 1em;
 }
 
