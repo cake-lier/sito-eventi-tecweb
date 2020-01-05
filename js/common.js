@@ -11,7 +11,7 @@ function bodyHandlerMobile(e) {
 function mobileMenuBehavior() {
     cleanHandlers();
     $("#menu_icon").css("width", $("#logo").height());
-    $("#menu_icon").click(e => {
+    $("#menu_icon").on("click", e => {
         e.preventDefault();
         e.stopPropagation();
         if ($("body > div > nav > ul").is(":visible")) {
@@ -25,17 +25,17 @@ function mobileMenuBehavior() {
             $("body > div > nav > ul").slideDown();
         }
     });   
-    $("body > div > nav > ul").click(e => {
+    $("body > div > nav > ul").on("click", e => {
         e.stopPropagation();
     });
-    $("body").click(bodyHandlerMobile);
+    $("body").on("click", bodyHandlerMobile);
 }
 
 function cleanHandlers() {
     $("#menu_icon").off("click");
     $("body > div > nav > ul").off("click")
                               .removeAttr("style");     
-    $("body").off("click", "body", bodyHandlerMobile);
+    $("body").off("click");
 }
 
 $(window).on("load", () => {
