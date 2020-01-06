@@ -309,8 +309,8 @@ function setNotificationPrefForm(data) {
                                                          name: "allow_mails",
                                                          id: "allow_mails",
                                                      })
-                                                       .prop("checked", data.userData.allowMails === 1),
-                                         $("<input>", {type: "submit", value: "Modifica impostazioni", class: "button_no_image"})))
+                                                       .prop("checked", data.userData.allowMails === 1)),
+                                         $("<input>", {type: "submit", value: "Modifica impostazioni", class: "button_no_image"}))
                                .submit(function(e) {
                                    e.preventDefault();
                                    $.post("change_user_data.php", {allow_mails: $("#allow_mails").prop("checked")}, data => {

@@ -9,7 +9,8 @@
             <label for="place">Luogo: </label>
             <input type="text" id="place" name="place" required />
             <label for="dateTime">Data e ora: </label>
-            <input type="datetime-local" max="9999-12-31T23:59" id="dateTime" name="dateTime" required />
+            <input type="datetime-local" max="9999-12-31T23:59" id="dateTime" name="dateTime" 
+                   value="<?php echo date("Y-m-d") . "T" . date("H:m")?>" required/>
             <label for="description">Descrizione: </label>
             <textarea id="description" name="description" rows=4 cols=50 required></textarea>
             <label for="website">Sito web: </label>

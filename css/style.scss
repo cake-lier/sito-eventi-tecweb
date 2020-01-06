@@ -872,7 +872,7 @@ section.event_tickets > footer {
     /* there is only one large section */
     main > section:only-of-type:first-child:not(#search_section) {
         width: 60%;
-        margin: 0 20% 5% 20%;
+        margin: -2em 20% 5% 20%;
         box-sizing: border-box;
     }
 
@@ -917,6 +917,15 @@ section.event_tickets > footer {
     main > footer > a.button > img {
         width: 5%;
         padding: 0.5% 0.5%;
+    }
+
+    main > footer > select {
+        background-color: $mainRed;
+        border: 0;
+    }
+
+    main > footer > select, main > footer > select > option {
+        color: $sectionBackground;
     }
 
     section ~ section:nth-of-type(n+4), #search_section ~ section:nth-of-type(n+3) ~ footer {
@@ -1016,6 +1025,6 @@ section.event_tickets > footer {
 
     main > section.alert {
         left: 0;
-        width: 90%;
+        width: 92.5%;
     }
 }
