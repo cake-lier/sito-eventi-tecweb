@@ -1,9 +1,9 @@
 <section class="event">
     <header>
         <h1><?php echo $templateParams["event"]["name"]; ?></h1>
-        <p>Luogo: <?php echo $templateParams["event"]["place"]; ?></p>
+        <p>Luogo: <a href="search.php?place=<?php echo $templateParams["event"]["place"]; ?>&posti=free"><?php echo $templateParams["event"]["place"]; ?></a></p>
         <p>Data e ora: <?php echo $templateParams["event"]["dateTime"]; ?></p>
-        <p>Organizzato da: <a href="http://localhost/search.php?keyword=&tags=&place=&promoter=<?php echo $templateParams["event"]["organizationName"]; ?>&date=&posti=free&search=Cerca"><?php echo $templateParams["event"]["organizationName"]; ?></a></p> 
+        <p>Organizzato da: <a href="search.php?promoter=<?php echo $templateParams["event"]["organizationName"]; ?>&posti=free"><?php echo $templateParams["event"]["organizationName"]; ?></a></p> 
     </header>
     <section id="purchase_section" class="info_section">
         <p>
@@ -12,7 +12,7 @@
         </p>
         <p>
             <?php foreach($templateParams["event"]["categories"] as $category): ?>
-                <a href="search.php?keyword=&tags=%23<?php echo $category ?>&place=&date=&posti=free&search=Cerca">#<?php echo $category; ?></a>
+                <a href="search.php?tags=%23<?php echo $category ?>&posti=free">#<?php echo $category; ?></a>
             <?php endforeach; ?>
         </p>
         <p><?php echo $templateParams["event"]["description"]; ?></p>
