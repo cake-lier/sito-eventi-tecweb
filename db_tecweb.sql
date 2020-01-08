@@ -20,7 +20,7 @@ USE `my_seatheat`;
 --
 
 CREATE TABLE IF NOT EXISTS `administrators` (
-  `email` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   PRIMARY KEY (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -33,7 +33,7 @@ CREATE TABLE IF NOT EXISTS `administrators` (
 CREATE TABLE IF NOT EXISTS `carts` (
   `eventId` int(11) NOT NULL,
   `seatId` int(11) NOT NULL,
-  `customerEmail` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `customerEmail` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `amount` int(11) NOT NULL,
   PRIMARY KEY (`eventId`,`seatId`,`customerEmail`),
   KEY `FK_CUSTOMER` (`customerEmail`),
@@ -47,14 +47,14 @@ CREATE TABLE IF NOT EXISTS `carts` (
 --
 
 CREATE TABLE IF NOT EXISTS `customers` (
-  `email` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `username` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `name` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `surname` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `username` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `name` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `surname` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `birthDate` date NOT NULL,
-  `birthplace` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `currentAddress` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `billingAddress` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `birthplace` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `currentAddress` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `billingAddress` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `telephone` varchar(11) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   `allowMails` tinyint(1) NOT NULL,
   PRIMARY KEY (`email`)
@@ -68,7 +68,7 @@ CREATE TABLE IF NOT EXISTS `customers` (
 
 CREATE TABLE IF NOT EXISTS `eventCategories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `name` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2 ;
 
@@ -80,12 +80,12 @@ CREATE TABLE IF NOT EXISTS `eventCategories` (
 
 CREATE TABLE IF NOT EXISTS `events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `place` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `name` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `place` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `dateTime` datetime NOT NULL,
   `description` mediumtext CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `site` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `promoterEmail` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `site` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `promoterEmail` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_PROMOTER` (`promoterEmail`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
@@ -124,10 +124,10 @@ CREATE TABLE IF NOT EXISTS `notifications` (
 --
 
 CREATE TABLE IF NOT EXISTS `promoters` (
-  `email` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `organizationName` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `organizationName` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `VATid` char(11) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `website` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `website` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
   PRIMARY KEY (`email`),
   UNIQUE KEY `ID_PROMOTER` (`VATid`),
   UNIQUE KEY `organizationName` (`organizationName`)
@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS `promoters` (
 CREATE TABLE IF NOT EXISTS `purchases` (
   `eventId` int(11) NOT NULL,
   `seatId` int(11) NOT NULL,
-  `customerEmail` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `customerEmail` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `amount` int(11) NOT NULL,
   `dateTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`eventId`,`seatId`,`customerEmail`,`dateTime`),
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS `purchases` (
 CREATE TABLE IF NOT EXISTS `seatCategories` (
   `eventId` int(11) NOT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `name` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `price` decimal(13,2) NOT NULL,
   `seats` int(11) NOT NULL,
   PRIMARY KEY (`id`, `eventId`),
@@ -173,7 +173,7 @@ CREATE TABLE IF NOT EXISTS `seatCategories` (
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `email` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `profilePhoto` longtext CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `type` enum('c','p','a') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
@@ -188,7 +188,7 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `usersNotifications` (
   `notificationId` int(11) NOT NULL,
-  `email` varchar(30) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
   `dateTime` datetime NOT NULL,
   `visualized` tinyint(1) NOT NULL,
   PRIMARY KEY (`notificationId`,`email`,`dateTime`),
