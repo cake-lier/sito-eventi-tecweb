@@ -3,13 +3,22 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Dic 17, 2019 alle 09:04
+-- Generation Time: Gen 09, 2020 alle 00:55
 -- Versione del server: 5.6.33-log
 -- PHP Version: 5.3.10
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Database: `my_seatheat`
+--
 CREATE DATABASE IF NOT EXISTS `my_seatheat` DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;
 USE `my_seatheat`;
 
@@ -20,9 +29,9 @@ USE `my_seatheat`;
 --
 
 CREATE TABLE IF NOT EXISTS `administrators` (
-  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(30) NOT NULL,
   PRIMARY KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -33,12 +42,11 @@ CREATE TABLE IF NOT EXISTS `administrators` (
 CREATE TABLE IF NOT EXISTS `carts` (
   `eventId` int(11) NOT NULL,
   `seatId` int(11) NOT NULL,
-  `customerEmail` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `customerEmail` varchar(30) NOT NULL,
   `amount` int(11) NOT NULL,
   PRIMARY KEY (`eventId`,`seatId`,`customerEmail`),
-  KEY `FK_CUSTOMER` (`customerEmail`),
-  KEY `seatId` (`seatId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `FK_CUSTOMER` (`customerEmail`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -47,18 +55,18 @@ CREATE TABLE IF NOT EXISTS `carts` (
 --
 
 CREATE TABLE IF NOT EXISTS `customers` (
-  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `username` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `name` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `surname` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(30) NOT NULL,
+  `username` varchar(30) NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `surname` varchar(30) NOT NULL,
   `birthDate` date NOT NULL,
-  `birthplace` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `currentAddress` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `billingAddress` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `telephone` varchar(11) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `birthplace` varchar(30) NOT NULL,
+  `currentAddress` varchar(30) DEFAULT NULL,
+  `billingAddress` varchar(30) NOT NULL,
+  `telephone` varchar(11) DEFAULT NULL,
   `allowMails` tinyint(1) NOT NULL,
   PRIMARY KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -68,9 +76,10 @@ CREATE TABLE IF NOT EXISTS `customers` (
 
 CREATE TABLE IF NOT EXISTS `eventCategories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=2 ;
+  `name` varchar(30) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=22 ;
 
 -- --------------------------------------------------------
 
@@ -80,15 +89,15 @@ CREATE TABLE IF NOT EXISTS `eventCategories` (
 
 CREATE TABLE IF NOT EXISTS `events` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `place` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `name` varchar(30) NOT NULL,
+  `place` varchar(30) NOT NULL,
   `dateTime` datetime NOT NULL,
-  `description` mediumtext CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `site` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
-  `promoterEmail` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `description` mediumtext NOT NULL,
+  `site` varchar(30) DEFAULT NULL,
+  `promoterEmail` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_PROMOTER` (`promoterEmail`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=17 ;
 
 -- --------------------------------------------------------
 
@@ -101,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `eventsToCategories` (
   `eventId` int(11) NOT NULL,
   PRIMARY KEY (`categoryId`,`eventId`),
   KEY `FK_EVENT` (`eventId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -111,11 +120,11 @@ CREATE TABLE IF NOT EXISTS `eventsToCategories` (
 
 CREATE TABLE IF NOT EXISTS `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `message` mediumtext CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `message` mediumtext NOT NULL,
   `eventId` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_NOTIFICATION_EVENT` (`eventId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=37 ;
 
 -- --------------------------------------------------------
 
@@ -124,14 +133,13 @@ CREATE TABLE IF NOT EXISTS `notifications` (
 --
 
 CREATE TABLE IF NOT EXISTS `promoters` (
-  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `organizationName` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `VATid` char(11) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `website` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs DEFAULT NULL,
+  `email` varchar(30) NOT NULL,
+  `organizationName` varchar(30) NOT NULL,
+  `VATid` char(11) NOT NULL,
+  `website` varchar(30) DEFAULT NULL,
   PRIMARY KEY (`email`),
-  UNIQUE KEY `ID_PROMOTER` (`VATid`),
-  UNIQUE KEY `organizationName` (`organizationName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  UNIQUE KEY `ID_PROMOTER` (`VATid`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -142,13 +150,12 @@ CREATE TABLE IF NOT EXISTS `promoters` (
 CREATE TABLE IF NOT EXISTS `purchases` (
   `eventId` int(11) NOT NULL,
   `seatId` int(11) NOT NULL,
-  `customerEmail` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `customerEmail` varchar(30) NOT NULL,
   `amount` int(11) NOT NULL,
   `dateTime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`eventId`,`seatId`,`customerEmail`,`dateTime`),
-  KEY `FK_CUSTOMER` (`customerEmail`),
-  KEY `seatId` (`seatId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  KEY `FK_CUSTOMER` (`customerEmail`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -159,12 +166,11 @@ CREATE TABLE IF NOT EXISTS `purchases` (
 CREATE TABLE IF NOT EXISTS `seatCategories` (
   `eventId` int(11) NOT NULL,
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `name` varchar(30) NOT NULL,
   `price` decimal(13,2) NOT NULL,
   `seats` int(11) NOT NULL,
-  PRIMARY KEY (`id`, `eventId`),
-  KEY `FK_EVENT` (`eventId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
+  PRIMARY KEY (`eventId`,`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -173,12 +179,12 @@ CREATE TABLE IF NOT EXISTS `seatCategories` (
 --
 
 CREATE TABLE IF NOT EXISTS `users` (
-  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `password` varchar(255) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `profilePhoto` longtext CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
-  `type` enum('c','p','a') CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(30) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `profilePhoto` longtext NOT NULL,
+  `type` enum('c','p','a') NOT NULL,
   PRIMARY KEY (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -188,73 +194,13 @@ CREATE TABLE IF NOT EXISTS `users` (
 
 CREATE TABLE IF NOT EXISTS `usersNotifications` (
   `notificationId` int(11) NOT NULL,
-  `email` varchar(50) CHARACTER SET latin1 COLLATE latin1_general_cs NOT NULL,
+  `email` varchar(30) NOT NULL,
   `dateTime` datetime NOT NULL,
   `visualized` tinyint(1) NOT NULL,
   PRIMARY KEY (`notificationId`,`email`,`dateTime`),
   KEY `FK_USER` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
---
--- Limiti per le tabelle scaricate
---
-
---
--- Limiti per la tabella `administrators`
---
-ALTER TABLE `administrators`
-  ADD CONSTRAINT `administrators_ibfk_1` FOREIGN KEY (`email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Limiti per la tabella `carts`
---
-ALTER TABLE `carts`
-  ADD CONSTRAINT `carts_ibfk_1` FOREIGN KEY (`eventId`) REFERENCES `events` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `carts_ibfk_2` FOREIGN KEY (`seatId`) REFERENCES `seatCategories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `carts_ibfk_3` FOREIGN KEY (`customerEmail`) REFERENCES `customers` (`email`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Limiti per la tabella `customers`
---
-ALTER TABLE `customers`
-  ADD CONSTRAINT `customers_ibfk_1` FOREIGN KEY (`email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Limiti per la tabella `events`
---
-ALTER TABLE `events`
-  ADD CONSTRAINT `events_ibfk_1` FOREIGN KEY (`promoterEmail`) REFERENCES `promoters` (`email`) ON DELETE SET NULL ON UPDATE SET NULL;
-
---
--- Limiti per la tabella `eventsToCategories`
---
-ALTER TABLE `eventsToCategories`
-  ADD CONSTRAINT `eventsToCategories_ibfk_1` FOREIGN KEY (`categoryId`) REFERENCES `eventCategories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `eventsToCategories_ibfk_2` FOREIGN KEY (`eventId`) REFERENCES `events` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Limiti per la tabella `promoters`
---
-ALTER TABLE `promoters`
-  ADD CONSTRAINT `promoters_ibfk_1` FOREIGN KEY (`email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Limiti per la tabella `purchases`
---
-ALTER TABLE `purchases`
-  ADD CONSTRAINT `purchases_ibfk_1` FOREIGN KEY (`customerEmail`) REFERENCES `customers` (`email`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `purchases_ibfk_2` FOREIGN KEY (`eventId`) REFERENCES `events` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `purchases_ibfk_3` FOREIGN KEY (`seatId`) REFERENCES `seatCategories` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Limiti per la tabella `seatCategories`
---
-ALTER TABLE `seatCategories`
-  ADD CONSTRAINT `seatCategories_ibfk_1` FOREIGN KEY (`eventId`) REFERENCES `events` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Limiti per la tabella `usersNotifications`
---
-ALTER TABLE `usersNotifications`
-  ADD CONSTRAINT `usersNotifications_ibfk_1` FOREIGN KEY (`notificationId`) REFERENCES `notifications` (`id`),
-  ADD CONSTRAINT `usersNotifications_ibfk_2` FOREIGN KEY (`email`) REFERENCES `users` (`email`) ON DELETE CASCADE ON UPDATE CASCADE;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
