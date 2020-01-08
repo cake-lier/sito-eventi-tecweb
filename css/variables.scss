@@ -1,0 +1,41 @@
+@import "imports";
+
+$standardFont: 'Open Sans', sans-serif;
+$titlesFont: 'Righteous', cursive;
+
+$mainRed: #DC2002;
+$textOnMainRed: #FFFFFF;
+$formText: #757575;
+$mainText: #79353F;
+$boxShadows: #111111;
+$mainBackground: #FFF5EB;
+$sectionBackground: #FFFFFF;
+$sectionShadow: #FBCEC4;
+
+$titleGradient: linear-gradient(rgba($mainRed, 255) 0%, rgba($mainRed, 255) 50%, rgba($mainRed, 0) 100%);
+
+@mixin upperBorder($image) {
+    border-top: 20px solid $mainRed;   
+    border-image: url($image);
+    border-image-slice: 33% 33%;
+    border-image-repeat: repeat;
+    border-image-outset: 1;
+    border-image-width: 2.5;
+    padding-bottom: 20px;
+}
+
+@mixin button($buttonWidthPerc, $textSizeEm) {
+    border: none;
+    background-color: $mainRed;
+    border-radius: $textSizeEm + 0em;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    color: $textOnMainRed;
+    font-size: $textSizeEm + 0em;
+    min-width: $buttonWidthPerc + 0%;
+    box-sizing: border-box;
+    padding: $textSizeEm / 6 + 0em $textSizeEm / 4 + 0em;
+    box-shadow: 2px 2px 2px rgba($boxShadows, 0.7);
+    cursor: pointer;
+}

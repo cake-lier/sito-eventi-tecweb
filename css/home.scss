@@ -1,0 +1,397 @@
+@import "variables";
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: $standardFont;
+    background: $mainBackground;
+    display: flex;
+    flex-direction: column;
+}
+
+div#wrapper {
+    flex: 1 0 auto;
+}
+
+body > div > header, body > footer {
+    background: $mainRed;
+    color: $textOnMainRed;
+    width: 100%;
+}
+
+body > div > header a, body > footer a {
+    color: $textOnMainRed;
+    text-decoration: none;
+}
+
+body > footer {
+    text-align: center;
+    @include upperBorder("../img/red_circles.svg");
+    flex-shrink: 0;
+}
+
+body > div > header {
+    background: $titleGradient;
+    height: 15em;
+    position: absolute;
+    z-index: 1;
+}
+
+.home_links {
+    font-family: $titlesFont;
+    font-size: larger;
+}
+
+img.icon, #menu_icon, img.profile_icon {
+    max-height: 50px;
+}
+
+img.profile_icon {
+    border-radius: 50%;
+    border: 0.15em solid $sectionBackground;
+}
+
+#home {
+    display: none;
+    max-width: 15%;
+    max-height: 25%;
+}
+
+#logo {
+    max-width: 100%;
+    padding: 3% 1%;
+    max-height: 3em;
+}
+
+#menu_icon {
+    padding: 0.2em 0.2em;
+    cursor: pointer;
+}
+
+header > a {
+    max-width: 50%;
+    max-height: 3em;
+    display: inline-block;
+}
+
+#profile_photo_img {
+    max-height: 100px;
+}
+
+/* title */
+section.home:first-of-type {
+    background: url("../img/home.jpg") no-repeat 35% center scroll;
+    background-size: cover;
+    height: 40em;
+}
+
+section.home:first-of-type > h1 {
+    position: absolute;
+    width: 80%;
+    margin: 7% 10% 0 10%;
+    text-align: center;
+    font-family: $titlesFont;
+    color: $textOnMainRed;
+    font-size: 2em;
+    padding: 40px 0px;
+    box-shadow: $boxShadows;
+    z-index: 2;
+}
+
+/* search */
+section.home:nth-of-type(2) {
+    position: relative;
+    top: -5em;
+    z-index: 0;
+}
+
+form, input {
+    color: $formText;
+}
+
+#main_search {
+    width: 100%;
+    text-align: center;
+}
+
+#main_search > input {
+    width: 70%;
+    height: 2em;
+    border-radius: 2em;
+    box-shadow: $boxShadows;
+    border: 0px; 
+    text-indent: 2.5em;  
+}
+
+#main_search > label {
+    position: relative;
+    left: 2em;
+    top: 0.3em;
+}
+
+#main_search > label > img {
+    height: 1.25em;
+}
+
+/* main section */
+#main_section {
+    @include upperBorder("../img/pink_circles.svg");
+    margin: 3% 0 0 0;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    top: -2.75em;
+    color: $mainText;
+} 
+
+#main_section > section > header {
+    margin: 3% 5%;
+    text-align: left;
+}   
+
+#main_section > section > header > h2 {
+    font-family: $titlesFont;
+    color: $mainRed;
+    font-size: 1.7em;
+}
+
+#main_section > section > section, #main_section > p {
+    width: 80%;
+    background-color: $sectionBackground;
+    padding: 3% 5%;
+    border-radius: 5px;
+    box-shadow: 2px 2px 3px $sectionShadow;
+    color: $mainText;
+    box-sizing: border-box;
+}
+
+#main_section > section > section {
+    margin: 0 10% 2em 10%;
+    text-align: left;
+}
+
+#main_section > section:last-of-type > section {
+    margin: 0 10% 0 10%;
+    text-align: left;
+}
+
+#main_section > p {
+    margin: 5% 10% 1% 10%;
+}
+
+#main_section > p {
+    text-align: center;
+}
+
+#main_section > section > section > header > h3 {
+    padding-bottom: 20px;
+    font-weight: bold;
+    font-size: 1.3em;
+}
+
+#main_section > section > section > header > h3 > a {
+    color: $mainText;
+    text-decoration: none;
+}
+
+#main_section > section > section > section {
+    padding-bottom: 3%;
+}
+
+#main_section > section > section > footer {
+    margin: 0 5% 0 5%;
+    width: 90%;
+    text-align: right;
+}
+
+a.button > img {
+    background: $mainRed;
+    padding: 2.5% 2.5%;
+    width: 13%;
+    border-radius: 5px;
+    box-sizing: border-box;
+    box-shadow: 2px 2px 2px rgba($boxShadows, 0.7);
+    cursor: pointer;
+}
+
+#discover_link {
+    @include button(30%, 1em);
+    margin-bottom: 1%;
+}
+   
+.event p > a {
+    color: $mainText;
+    text-decoration: underline;
+}
+
+/* menu */
+nav {
+    width: 50%;
+    text-align: right;
+    position: absolute;
+    left: 50%;
+    z-index: 3;
+}
+
+nav > ul {
+    display: none;
+    background: $mainRed;
+    width: 100%;
+    padding-inline-start: 0;
+    text-align: left;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+nav > ul > li {
+    list-style: none;
+    padding: 10px 0px;
+    margin: 0 20px;
+}
+
+nav > ul > li:not(:last-of-type) {
+    border-bottom: thin solid $textOnMainRed;
+}
+
+nav > ul > li > a {
+    width: inherit;
+    display: block;
+    color: $textOnMainRed;
+    text-decoration: none;
+}
+
+nav > ul > li > a > p {
+    display: inline-block;
+}
+
+nav > ul > li > a > img, nav > ul > li > a > p {
+    vertical-align: middle;
+    margin: 2px 5px;
+}
+
+@media only screen and (min-width: 768px) {
+    #home {
+        width: 10%;
+        max-height: 3.1em;
+        padding: 3% 0 3% 1%;
+        display: inline-block;
+    }
+
+    #logo {
+        display: inline-block;
+        max-height: 3.5em;
+        max-width: 90%;
+        padding: 3% 0;
+    }
+
+    #menu_icon {
+        display: none;
+    }
+
+    nav {
+        width: 50%;
+        text-align: right;
+        position: absolute;
+        left: 50%;
+        z-index: 3;
+        height: 3.5em;
+    }
+    
+    nav > ul {
+        display: inline-block;
+        background: $mainRed;
+        width: 100%;
+        padding-inline-start: 0;
+        text-align: right;
+    }
+    
+    nav > ul > li {
+        display: inline-block;
+        list-style: none;
+        margin: 0 1%;
+    }
+    
+    nav > ul > li:not(:last-of-type) {
+        border-bottom: 0;
+    }
+    
+    nav > ul > li > a {
+        width: inherit;
+        display: block;
+        color: $textOnMainRed;
+        text-decoration: none;
+    }
+    
+    nav > ul > li > a > p {
+        display: none;
+    }
+
+    #main_search > input {
+        height: 2em;
+        font-size: 150%;
+    }
+
+    #main_search > label {
+        top: 0.15em;
+        left: 2.5em;
+    }
+
+    #main_search > label > img {
+        height: 1.5em;
+    }
+
+    #main_section {
+        @include upperBorder("../img/pink_circles.svg");
+        margin: -0.25em 0 0 0;
+    }
+
+    section.home:nth-of-type(2) {
+        top: -7.5em;
+    }
+    
+    section.home:first-of-type > h1 {
+        font-size: 2.5em;
+    }
+
+    #main_section > section.top_event {
+        width: 40%;
+        display: inline-block;
+        margin-bottom: 2em;
+    }
+
+    #discover_link {
+        @include button(20%, 1em);
+        display: inline;
+        vertical-align: bottom;
+        font-size: 125%;
+        padding: 0 1em;
+        margin: 0;
+    }
+
+    a.button > img {
+        background: $mainRed;
+        padding: 1% 1%;
+        width: 7%;
+        border-radius: 5px;
+        box-sizing: border-box;
+        box-shadow: 2px 2px 2px rgba($boxShadows, 0.7);
+        cursor: pointer;
+    }
+
+    #main_section > section > section, #main_section > p {
+        padding: 2% 3%;
+    }
+
+    #main_section > section > section > section {
+        padding-bottom: 1%;
+    }
+}
