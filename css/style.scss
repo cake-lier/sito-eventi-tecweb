@@ -249,7 +249,7 @@ main > footer {
 }
 
 main > footer > *:not(:first-child) {
-    margin-left: 28%;
+    margin-left: 25%;
 }
 
 main > footer > *:not(a) {
@@ -466,8 +466,8 @@ button, input, select, label {
 }
 
 #search_section > form > fieldset > label:not(:first-of-type) {
-    max-width: 30%;
-    min-width: 30%;
+    max-width: 100%;
+    min-width: 100%;
 }
 
 #search_section > form > fieldset > input {
@@ -498,8 +498,8 @@ button, input, select, label {
 }
 
 #search_section > form > fieldset > input:not(:last-child):not([type=text]), #search_section > form > fieldset > select {
-    max-width: 70%;
-    min-width: 70%;
+    max-width: 100%;
+    min-width: 100%;
     margin: 2% 0;
 }
 
@@ -800,6 +800,18 @@ section.event_tickets > footer {
     margin-bottom: 1em;
 }
 
+label[for=event_count] {
+    display: none;
+}
+
+main > footer > select {
+    background-color: $mainRed;
+    border: 0;
+}
+
+main > footer > select, main > footer > select > option {
+    color: $sectionBackground;
+}
 
 @media only screen and (min-width: 768px) {
     #home {
@@ -919,15 +931,6 @@ section.event_tickets > footer {
         padding: 0.5% 0.5%;
     }
 
-    main > footer > select {
-        background-color: $mainRed;
-        border: 0;
-    }
-
-    main > footer > select, main > footer > select > option {
-        color: $sectionBackground;
-    }
-
     section ~ section:nth-of-type(n+4), #search_section ~ section:nth-of-type(n+3) ~ footer {
         margin-left: 55%;
     }
@@ -936,10 +939,6 @@ section.event_tickets > footer {
         width: 60%;
         margin: 0 20% 5% 20%;
         box-sizing: border-box;
-    }
-
-    label[for=event_count] {
-        display: none;
     }
 
     #filters_button {

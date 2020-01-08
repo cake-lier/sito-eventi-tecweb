@@ -5,6 +5,7 @@ try {
     //Base Template
     $templateParams["title"] = "SeatHeat - Info";
     $templateParams["name"] = "info_section.php";
+    $templateParams["js"] = ["https://code.jquery.com/jquery-3.4.1.min.js", JS_DIR . "common.js"];
     if (!isset($_SESSION["email"])) {
         $templateParams["user_area_link"] = "login_page.php";
         $templateParams["user_area_alt"] = "Login";
