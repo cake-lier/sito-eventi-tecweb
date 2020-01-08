@@ -13,7 +13,6 @@
                 <img id="home" src="<?php echo IMG_DIR; ?>home-icon.png" alt="home"/>
                 <img id="logo" src="<?php echo IMG_DIR; ?>SeatHeat.png" alt="SeatHeat logo"/>
             </a>
-            <img id="menu_icon" class="icon" src="<?php echo IMG_DIR; ?>menu.png" alt="menu" />
         </header>
         <main>
         <?php
