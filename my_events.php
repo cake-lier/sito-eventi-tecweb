@@ -6,14 +6,20 @@ try {
         //Base Template
         $templateParams["title"] = "SeatHeat - I miei eventi";
         $templateParams["name"] = "events_list_display.php";
+        $templateParams["js"] = [
+                                     "https://code.jquery.com/jquery-3.4.1.min.js",
+                                     JS_DIR . "common.js"
+                                ];
         $templateParams["events"] = array();
         if ($dbh->getUsersManager()->isCustomer($_SESSION["email"])) {
             $eventIds = array_column($dbh->getEventsManager()->getPurchasedEvents(), "id");
+            $templateParams["js"][] = JS_DIR . "change_displayed_purchased_events.js";
         } else {
             // it's necessarily a promoter
             $min = isset($_GET["min"]) ? $_GET["min"] : 0;
             $count = isset($_GET["count"]) ? $_GET["count"] : 5;
             $eventIds = $dbh->getEventsManager()->getEventIdsFiltered($min, $min + $count, "", false, "", "", $_SESSION["email"]);
+            $templateParams["js"][] = JS_DIR . "change_displayed_created_events.js";
         }
         array_walk($eventIds, function($id) use (&$templateParams, $dbh) {
             $info = $dbh->getEventsManager()->getEventInfo($id);
@@ -22,11 +28,6 @@ try {
                 = array_merge(["id" => $id, "isLoggedUserEventOwner" => $dbh->getEventsManager()->isLoggedUserEventOwner($id)],
                               $info);
         });
-        $templateParams["js"] = [
-                                     "https://code.jquery.com/jquery-3.4.1.min.js",
-                                     JS_DIR . "common.js",
-                                     JS_DIR . "change_displayed_events.js",
-                                ];
         $templateParams["user_area_link"] = "user_area.php";
         $templateParams["user_area_alt"] = "Area personale";
         $templateParams["user_area_img"] = getProfileImage($dbh, $_SESSION["email"]);

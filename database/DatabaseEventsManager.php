@@ -165,6 +165,44 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         return $data["num"];
     }
     /*
+     * Returns the number of events already purchased by the currently logged customer.
+     */
+    public function getPurchasedEventsCount() {
+        $email = $this->getLoggedUserEmail();
+        if ($email === false || !$this->isCustomer($email)) {
+            throw new \Exception(self::PRIVILEGE_ERROR);
+        }
+        $query = "SELECT COUNT(DISTINCT eventId) AS num
+                  FROM purchases
+                  WHERE customerEmail = ?";
+        $stmt = $this->prepareBindExecute($query, "s", $email);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $data["num"];
+    }
+    /*
+     * Returns the number of events created by the currently logged promoter.
+     */
+    public function getCreatedEventsCount() {
+        $email = $this->getLoggedUserEmail();
+        if ($email === false || !$this->isPromoter($email)) {
+            throw new \Exception(self::PRIVILEGE_ERROR);
+        }
+        $query = "SELECT COUNT(*) AS num
+                  FROM events
+                  WHERE promoterEmail = ?";
+        $stmt = $this->prepareBindExecute($query, "s", $email);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $data["num"];
+    }
+    /*
      * Returns all the ids of the events in the given $place, or on the given $date, or with free or not seats, or with a title
      * containing a specific keyword, or organized by a specific promoter. If the specified keyword is an empty string, this 
      * method will ignore the keyword constraint.

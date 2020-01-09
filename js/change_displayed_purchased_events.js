@@ -11,7 +11,7 @@ $(() => {
         queryParams.set("count", eventCountSelect.val() === null ? 5 : eventCountSelect.val());
         window.location.search = queryParams.toString();
     });
-    $.getJSON("get_events_count.php?type=1", data => {
+    $.getJSON("get_events_count.php?type=2", data => {
         if (data["result"] === false) {
             $("main").prepend($("<section>", {class: "alert"})
                                   .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
