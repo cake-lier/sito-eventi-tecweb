@@ -1,7 +1,7 @@
 function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
     const searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.has("id")) {
-        $("main").prepend($("<section>", {class: "alert"})
+        $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                               .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
                                       $("<a>", {href: "#"})
                                           .append($("<img>", {src: "img/close.png", alt: "Chiudi"}))));
@@ -10,7 +10,7 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
     const id = searchParams.get("id");
     $.getJSON("get_seat_categories.php?id=" + id, data => {
         if (data["result"] === false) {
-            $("main").prepend($("<section>", {class: "alert"})
+            $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                   .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
                                           $("<a>", {href: "#"})
                                               .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
@@ -58,7 +58,7 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
                                   + seatCategoriesSent[index]["eventId"] + "&amount=" + ticketsAmount,
                                   data => {
                                       if (data["result"] === true) {
-                                          $("main").prepend($("<section>", {class: "alert"})
+                                          $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                                                 .append($("<p>", 
                                                                           {
                                                                               text: "Operazione effettuata con successo"
@@ -74,7 +74,7 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
                                                                           })));
                                           addTicketSpinner.attr("max", parseInt(addTicketSpinner.attr("max")) - ticketsAmount);
                                       } else {
-                                          $("main").prepend($("<section>", {class: "alert"})
+                                          $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                                                 .append($("<p>",
                                                                           {
                                                                                text: "Si è verificato un errore. Si prega di \
@@ -116,7 +116,7 @@ function toEventDescription(purchaseSection, purchaseButton, purchaseSectionCont
     const freeSeatsPar = purchaseSection.children()[0];
     const searchParams = new URLSearchParams(window.location.search);
     if (!searchParams.has("id")) {
-        $("main").prepend($("<section>", {class: "alert"})
+        $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                               .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
                                       $("<a>", {href: "#"})
                                           .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
@@ -127,7 +127,7 @@ function toEventDescription(purchaseSection, purchaseButton, purchaseSectionCont
     }
     $.getJSON("get_event_seats.php?eventId=" + searchParams.get("id"), seats => {
         if (seats["status"] === false) {
-            $("main").prepend($("<section>", {class: "alert"})
+            $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                   .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
                                           $("<a>", {href: "#"})
                                               .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))

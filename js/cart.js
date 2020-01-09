@@ -18,7 +18,7 @@ $(() => {
                 removeSectionIfEmpty($(this).parent().parent());
                 $("#cart_payment_section > section > p").text("Totale " + data["total"] + "€");
             } else {
-                $("main").prepend($("<section>", {class: "alert"})
+                $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                       .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
                                               $("<a>", {href: "#"})
                                                   .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
@@ -42,7 +42,7 @@ $(() => {
                 }
                 $("#cart_payment_section > section > p").text("Totale " + data["total"] + "€");
             } else {
-                $("main").prepend($("<section>", {class: "alert"})
+                $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                       .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
                                               $("<a>", {href: "#"})
                                                   .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
@@ -62,7 +62,7 @@ $(() => {
                 amountLabel.text(amount + " biglietti");
                 $("#cart_payment_section > section > p").text("Totale " + data["total"] + "€");
             } else {
-                $("main").prepend($("<section>", {class: "alert"})
+                $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                       .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
                                               $("<a>", {href: "#"})
                                                   .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
@@ -82,7 +82,7 @@ $(() => {
         const paymentSection = $("#cart_payment_section");
         if (!finalizePurchase) {
             if ($("section#payment_types > ul > li").filter((_i, e) => $(e).hasClass("selected")).length == 0) {
-                $("main").prepend($("<section>", {class: "alert"})
+                $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                       .append($("<p>", {text: "Selezionare una modalità di pagamento"}),
                                               $("<a>", {href: "#"})
                                                   .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
