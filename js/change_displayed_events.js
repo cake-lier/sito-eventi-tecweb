@@ -48,26 +48,4 @@ $(() => {
             }
         });
     });
-    let formUpdated = false;
-    $("#search_section > form").submit(function() {
-        if (!formUpdated) {
-            const queryParams = new URLSearchParams(window.location.search);
-            if (queryParams.has("min") && queryParams.has("count")) {
-                $("#search_section > form").append($("<input>",
-                                                     {
-                                                         type: "hidden",
-                                                         name: "min",
-                                                         value: queryParams.get("min")
-                                                     }),
-                                                   $("<input>", 
-                                                     {
-                                                         type: "hidden",
-                                                         name: "count",
-                                                         value: queryParams.get("count")
-                                                     }));
-            }
-            formUpdated = true;
-            $(this).submit();
-        }
-    });
 });

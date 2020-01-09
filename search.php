@@ -15,16 +15,21 @@ $tags = isset($_GET["tags"]) && $_GET["tags"] !== "" ? explode(" ", str_replace(
 $min = isset($_GET["min"]) ? $_GET["min"] : 0;
 $count = isset($_GET["count"]) ? $_GET["count"] : 5;
 try {
-    $eventIdsUncategorized = $dbh->getEventsManager()->getEventIdsFiltered($min, $min + $count, $keyword, $free, $place, $date, $promoter);
-    $templateParams["events"] = array();
-    array_walk($eventIdsUncategorized, function($id) use ($dbh, $tags, &$templateParams) {
+    $eventIdsUncategorized = $dbh->getEventsManager()->getEventIdsFiltered(-1, -1, $keyword, $free, $place, $date, $promoter);
+    $filteredIds = array();
+    array_walk($eventIdsUncategorized, function($id) use ($dbh, $tags, &$filteredIds) {
         if ($dbh->getEventsManager()->hasEventCategories($id, ...$tags)) {
-            $eventInfo = $dbh->getEventsManager()->getEventInfo($id);
-            $eventInfo["dateTime"] = convertDateTimeToLocale($eventInfo["dateTime"]);
-            $templateParams["events"][] 
-                = array_merge(["id" => $id, "isLoggedUserEventOwner" => $dbh->getEventsManager()->isLoggedUserEventOwner($id)], 
-                              $eventInfo);
+            array_push($filteredIds, $id);
         }
+    });
+    $filteredIds = array_slice($filteredIds, $min, $count);
+    $templateParams["events"] = array();
+    array_walk($filteredIds, function($id) use ($dbh, &$templateParams) {
+        $eventInfo = $dbh->getEventsManager()->getEventInfo($id);
+        $eventInfo["dateTime"] = convertDateTimeToLocale($eventInfo["dateTime"]);
+        $templateParams["events"][] 
+            = array_merge(["id" => $id, "isLoggedUserEventOwner" => $dbh->getEventsManager()->isLoggedUserEventOwner($id)], 
+                            $eventInfo);
     });
     $templateParams["places"] = $dbh->getEventsManager()->getEventsPlaces();
     $templateParams["promoters"] = array_column($dbh->getUsersManager()->getPromoters(), "organizationName");

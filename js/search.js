@@ -23,7 +23,6 @@ $(() => {
     if ($(window).width() < 768) {
         collapseSearch();
     }
-
     $(window).resize(() => {
         if ($(window).width() > 768) {
             displaySearch();
