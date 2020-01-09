@@ -190,7 +190,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         }
         $query .= " WHERE e.dateTime >= CURRENT_TIMESTAMP" . $condition;
         if ($free) {
-            $query = "SELECT SUM(num) FROM (" . $query . ") AS X";
+            $query = "SELECT SUM(num) AS num FROM (" . $query . ") AS X";
         }
         $stmt = $this->prepareBindExecute($query, $bindings, ...$parameters);
         if ($stmt === false) {
