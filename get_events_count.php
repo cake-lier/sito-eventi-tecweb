@@ -7,12 +7,13 @@ try {
     if (isset($_GET["type"])) {
         $type = intval($_GET["type"]);
         $promoterEmail = "";
-        if (isset($_GET["promoter"])) {
+        if (isset($_GET["promoter"]) && $_GET["promoter"] !== "") {
             $promoters = $dbh->getUsersManager()->getPromoters();
-            $promoter = array_filter($promoters, function($p) {
-                return $p["organizationName"] === $_GET["promoter"];
+            array_walk($promoters, function($p) use (&$promoterEmail) {
+                if($p["organizationName"] === $_GET["promoter"]) {
+                    $promoterEmail = $p["email"];
+                }
             });
-            $promoterEmail = $promoter[0]["email"];
         }
         $data["count"] = $type === 1
                          ? $dbh->getEventsManager()->getEventsCount(isset($_GET["keyword"]) ? $_GET["keyword"] : "",
