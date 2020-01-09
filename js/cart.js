@@ -16,6 +16,7 @@ $(() => {
         $.getJSON("manage_tickets.php?seatId=" + seatId + "&eventId=" + eventId + "&actionType=0", data => {
             if (data["result"] === true) {
                 removeSectionIfEmpty($(this).parent().parent());
+                $("#cart_payment_section > section > p").text("Totale " + data["total"] + "€");
             } else {
                 $("main").prepend($("<section>", {class: "alert"})
                                       .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
@@ -39,6 +40,7 @@ $(() => {
                 } else {
                     amountLabel.text(amount + " bigliett" + (amount > 1 ? "i" : "o"));
                 }
+                $("#cart_payment_section > section > p").text("Totale " + data["total"] + "€");
             } else {
                 $("main").prepend($("<section>", {class: "alert"})
                                       .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
@@ -58,6 +60,7 @@ $(() => {
                 const amountLabel = $(this).prev();
                 const amount = parseInt(amountLabel.text()) + 1;
                 amountLabel.text(amount + " biglietti");
+                $("#cart_payment_section > section > p").text("Totale " + data["total"] + "€");
             } else {
                 $("main").prepend($("<section>", {class: "alert"})
                                       .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
