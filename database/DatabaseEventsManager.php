@@ -151,17 +151,91 @@ class DatabaseEventsManager extends DatabaseServiceManager {
     /*
      * Returns the number of events currently disponible to purchasing.
      */
-    public function getEventsCount() {
-        $query = "SELECT COUNT(*) AS num
-                  FROM events
-                  WHERE dateTime >= CURRENT_TIMESTAMP";
-        // No risk of SQL injection
-        $result = $this->query($query);
-        if ($result === false) {
+    public function getEventsCount(string $keyword = "", bool $free = true, string $place = "", string $date = "",
+                                   string $promoterEmail = "") {
+        $condition = "";
+        $bindings = "";
+        $parameters = array();
+        if ($place !== "") {
+            $condition .= " AND place = ?";
+            $bindings = "s";
+            $parameters[] = $place;
+        }
+        if ($date !== "") {
+            $condition .= " AND e.dateTime = ?";
+            $bindings = $bindings . "s";
+            $parameters[] = $date;
+        }
+        if ($keyword !== "") {
+            $condition .= " AND INSTR(e.name, ?) > 0";
+            $bindings = $bindings . "s";
+            $parameters[] = $keyword;
+        }
+        if ($promoterEmail !== "") {
+            $condition .= " AND promoterEmail = ?";
+            $bindings = $bindings . "s";
+            $parameters[] = $promoterEmail;
+        }
+        $query = "SELECT COUNT(DISTINCT e.id) AS num
+                  FROM events e";
+        if ($free) {
+            $query .= ", seatCategories s";
+            $condition .= " AND e.id = s.eventId
+                            GROUP BY e.id, e.name
+                            HAVING SUM(s.seats) > (SELECT IFNULL(SUM(IFNULL(p.amount, 0)) + SUM(IFNULL(c.amount, 0)), 0)
+                                                   FROM events e1, seatCategories s1, purchases p, carts c
+                                                   WHERE e1.id = e.id AND p.seatId = s1.id AND p.eventId = s1.eventId 
+                                                         AND c.seatId = s1.id AND c.eventId = s1.eventId
+                                                         AND s1.eventId = e1.id)";
+        }
+        $query .= " WHERE e.dateTime >= CURRENT_TIMESTAMP" . $condition;
+        if ($free) {
+            $query = "SELECT SUM(num) FROM (" . $query . ") AS X";
+        }
+        $stmt = $this->prepareBindExecute($query, $bindings, ...$parameters);
+        if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);
         }
-        $data = $result->fetch_assoc();
-        $result->close();
+        $result = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $result["num"];
+    }
+    /*
+     * Returns the number of events already purchased by the currently logged customer.
+     */
+    public function getPurchasedEventsCount() {
+        $email = $this->getLoggedUserEmail();
+        if ($email === false || !$this->isCustomer($email)) {
+            throw new \Exception(self::PRIVILEGE_ERROR);
+        }
+        $query = "SELECT COUNT(DISTINCT eventId) AS num
+                  FROM purchases
+                  WHERE customerEmail = ?";
+        $stmt = $this->prepareBindExecute($query, "s", $email);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $data["num"];
+    }
+    /*
+     * Returns the number of events created by the currently logged promoter.
+     */
+    public function getCreatedEventsCount() {
+        $email = $this->getLoggedUserEmail();
+        if ($email === false || !$this->isPromoter($email)) {
+            throw new \Exception(self::PRIVILEGE_ERROR);
+        }
+        $query = "SELECT COUNT(*) AS num
+                  FROM events
+                  WHERE promoterEmail = ?";
+        $stmt = $this->prepareBindExecute($query, "s", $email);
+        if ($stmt === false) {
+            throw new \Exception(self::QUERY_ERROR);
+        }
+        $data = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
         return $data["num"];
     }
     /*

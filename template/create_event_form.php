@@ -25,7 +25,7 @@
                 <label for="sCatQuantity_0">Quantità biglietti: </label>
                 <input type="number" step="1" min="1" id="sCatQuantity_0" name="seats" required />
                 <label for="sCatPrice_0">Prezzo biglietti: </label>
-                <input type="number" step="any" min="0" id="sCatPrice_0" name="price" required />
+                <input type="number" step="any" min="0" id="sCatPrice_0" name="price" placeholder="€" required />
             </section>
             <button class="button_no_image" type="button">Aggiungi tipologia posto</button>
         </fieldset>

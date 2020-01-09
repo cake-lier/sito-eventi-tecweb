@@ -21,13 +21,15 @@ $(() => {
                                                  type: "number",
                                                  step: "any",
                                                  id: "sCatPrice_" + seatCategoryCount,
-                                                 name: "price"
+                                                 name: "price",
+                                                 placeholder: "€"
                                                }),
                                              $("<button>", {type: "button", text: "Rimuovi categoria", class: "button_no_image"})
                                                  .click(function() { 
                                                      $(this).parent().remove();
                                                      seatCategoryCount--;
                                                  })));
+        $(".seat_category_section > input").prop("required", true);
         seatCategoryCount++;
     });
     $("#categories").on("input", () => {

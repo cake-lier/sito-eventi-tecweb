@@ -7,12 +7,6 @@
         <input type="radio" id="check_promoter" name="registration_type" value="promoter" />
     </fieldset>
     <fieldset>
-        <?php
-            if (isset($_SESSION["registrationError"])) {
-                echo "<p>" . $_SESSION["registrationError"] . "</p>";
-                unset($_SESSION["registrationError"]);
-            }
-        ?>
         <label for="email_register">Email:</label>
         <input type="email" id="email_register" name="email" required/>
         <label class="customer" for="name">Nome:</label>
@@ -31,12 +25,6 @@
         <input class="customer_non_req" type="text" id="current" name="current"/>
         <label class="customer_non_req" for="telephone">Telefono: </label>
         <input class="customer_non_req" type="text" id="telephone" name="telephone"/>
-        <label class="promoter" for="organization_name">Nome organizzazione:</label>
-        <input class="promoter" type="text" id="organization_name" name="organization_name"/>
-        <label class="promoter" for="vat_id">VATid:</label>
-        <input class="promoter" type="text" id="vat_id" name="vat_id"/>
-        <label class="promoter_non_req" for="website">Sito internet:</label>
-        <input class="promoter_non_req" type="text" id="website" name="website"/>
         <label for="profile_photo">Foto profilo <span>(formato png, jpg o jpeg, massimo 10MB)</span>:</label>
         <input type="file" id="profile_photo" name="profile_photo" accept="image/jpg,image/png,image/jpeg" required/>
         <label for="password_register">Password:</label>
