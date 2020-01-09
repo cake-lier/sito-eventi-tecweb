@@ -246,6 +246,7 @@ function setChangeDataForm(data) {
                                             $(this).parent().remove();
                                         })));
                 } else if ($("#telephone").val() !== ""
+                            && $("#telephone").val() !== undefined
                             && (isNaN($("#telephone").val()) 
                                 || $("#telephone").val().includes(".") 
                                     || $("#telephone").val().includes(","))) {
