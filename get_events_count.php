@@ -7,7 +7,11 @@ try {
     if (isset($_GET["type"])) {
         $type = intval($_GET["type"]);
         $data["count"] = $type === 1
-                         ? $dbh->getEventsManager()->getEventsCount()
+                         ? $dbh->getEventsManager()->getEventsCount(isset($_GET["keyword"]) ? $_GET["keyword"] : "",
+                                                                    isset($_GET["free"]) ? $_GET["free"] : true,
+                                                                    isset($_GET["place"]) ? $_GET["place"] : "",
+                                                                    isset($_GET["date"]) ? $_GET["date"] : "",
+                                                                    isset($_GET["promoterEmail"]) ? $_GET["promoterEmail"] : "")
                          : ($type === 2
                             ? $dbh->getEventsManager()->getPurchasedEventsCount()
                             : ($type === 3
