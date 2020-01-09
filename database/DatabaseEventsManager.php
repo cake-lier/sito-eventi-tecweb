@@ -119,7 +119,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
      * Returns informations about a specific seat category with this $seatId for the event with given $eventId.
      */
     public function getSeatInfo(int $eventId, int $seatId) {
-        $query = "SELECT s.name AS name, CAST(s.price AS FLOAT) AS price, s.seats AS seats,
+        $query = "SELECT s.name AS seatName, CAST(s.price AS FLOAT) AS price, s.seats AS seats,
                          CAST(SUM(IFNULL(p.amount, 0)) + SUM(IFNULL(c.amount, 0)) AS INT) AS occupiedSeats
                   FROM (seatCategories s LEFT OUTER JOIN purchases p ON s.id = p.seatId AND s.eventId = p.eventId)
                        LEFT OUTER JOIN carts c ON c.seatId = s.id AND c.eventId = s.eventId
@@ -443,10 +443,11 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         if ($email === false) {
             throw new \Exception(self::PRIVILEGE_ERROR);
         }
-        $query = "SELECT DISTINCT e.id AS id, e.name AS name, e.place AS place, e.dateTime AS dateTime,
-                                  e.description AS description, e.site AS site, pr.organizationName AS organizationName
+        $query = "SELECT e.id AS id, p.seatId as seatId, SUM(p.amount) AS amount, e.name AS name, e.place AS place, e.dateTime AS dateTime,
+                         e.description AS description, e.site AS site, pr.organizationName AS organizationName
                   FROM events e, purchases p, promoters pr
-                  WHERE p.customerEmail = ? AND e.id = p.eventId AND e.promoterEmail = pr.email";
+                  WHERE p.customerEmail = ? AND e.id = p.eventId AND e.promoterEmail = pr.email
+                  GROUP BY e.id, p.seatId, e.name, e.place, e.dateTime, e.description, e.site, pr.organizationName";
         $stmt = $this->prepareBindExecute($query, "s", $email);
         if ($stmt === false) {
             throw new \Exception(self::QUERY_ERROR);

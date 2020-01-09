@@ -15,6 +15,15 @@
             endforeach;
         ?>
         </p>
+        <?php 
+            if (isset($templateParams["isUser"]) && $templateParams["isUser"] && isset($event["tickets"])) {
+                echo "<p>Posti acquistati:</p><ul id=\"purchased_tickets_list\">";
+                foreach ($event["tickets"] as $ticket) {
+                    echo "<li>".$ticket["seatQuantity"]." ".$ticket["seatName"]."</li>";
+                }
+                echo "</ul>";
+            }
+        ?>
     </section>
     <footer>
     <?php if ($event["isLoggedUserEventOwner"]): ?>

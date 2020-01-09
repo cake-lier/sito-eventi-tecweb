@@ -813,6 +813,16 @@ main > footer > select, main > footer > select > option {
     color: $sectionBackground;
 }
 
+#purchased_tickets_list {
+    list-style: none;
+    margin-left: 5%;
+}
+
+#purchased_list_title {
+    margin-bottom: 0.25em;
+    margin-top: 1em;
+}
+
 @media only screen and (min-width: 768px) {
     #home {
         width: 10%;

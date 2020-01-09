@@ -23,7 +23,7 @@ function toSeatsTable(purchaseSection, purchaseButton, purchaseSectionContent) {
         const seatCategoriesSent = data["seatCategories"];
         seatCategoriesSent.forEach((row, index) => {
             const tableRow = {
-                "Categoria": row["name"],
+                "Categoria": row["seatName"],
                 "Posti liberi su totali": (row["seats"] - row["occupiedSeats"]) + " su " + row["seats"],
                 "Prezzo": row["price"].toFixed(2) + "€"
             };

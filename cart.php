@@ -20,7 +20,7 @@ try {
                                                         "eventPlace" => $event["place"],
                                                         "dateTime" => convertDateTimeToLocale($event["dateTime"]),
                                                         "amount" => $amount,
-                                                        "category" => $seat["name"],
+                                                        "category" => $seat["seatName"],
                                                         "price" => $seat["price"]
                                                     ]; 
                 });
