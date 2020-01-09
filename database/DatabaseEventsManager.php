@@ -302,10 +302,7 @@ class DatabaseEventsManager extends DatabaseServiceManager {
             }
         }
         $categoriesQuery = "INSERT INTO eventCategories(name)
-                            SELECT * FROM (SELECT ?) AS tmp
-                            WHERE NOT EXISTS (
-                                SELECT name FROM eventCategories WHERE name = ?
-                            ) LIMIT 1";
+                            VALUES (?)";
         $categoryIdQuery = "SELECT id
                             FROM eventCategories
                             WHERE name = ?
@@ -313,30 +310,30 @@ class DatabaseEventsManager extends DatabaseServiceManager {
         $categoriesEventsQuery = "INSERT INTO eventsToCategories(eventId, categoryId)
                                   VALUES (?, ?)";
         foreach ($eventCategories as $eventCategory) {
-            $categoriesStmt = $this->prepareBindExecute($categoriesQuery, "ss", $eventCategory, $eventCategory);
-            if ($categoriesStmt === false) {
+            $categoryIdStmt = $this->prepareBindExecute($categoryIdQuery, "s", $eventCategory);
+            if ($categoryIdStmt === false) {
                 throw new \Exception(self::QUERY_ERROR);
-            } 
-            $categoryId = -1;
-            switch ($categoriesStmt->affected_rows) {
-                case 1:
-                    $categoryId = $categoriesStmt->insert_id;
-                    break;
-                case 0:
-                    $categoryIdStmt = $this->prepareBindExecute($categoryIdQuery, "s", $eventCategory);
-                    if ($categoryIdStmt === false) {
-                        throw new \Exception(self::QUERY_ERROR);
-                    }
-                    $categoryIdStmt->bind_result($categoryId);
-                    $categoryIdStmt->fetch();
-                    if ($categoryId === -1) {
-                        throw new \Exception(self::QUERY_ERROR);
-                    }
-                default:
-                    throw new \Exception(self::QUERY_ERROR);
-                    break;
             }
-            $categoriesStmt->close();
+            $categoryId = -1;
+            $ids = $categoryIdStmt->get_result();
+            if ($ids->num_rows >= 1) {
+                /* already exists */
+                $categoryId = $ids->fetch_assoc()["id"];
+                if ($categoryId === -1) {
+                    throw new \Exception(self::QUERY_ERROR);
+                }
+            } else {
+                $categoriesStmt = $this->prepareBindExecute($categoriesQuery, "s", $eventCategory);
+                if ($categoriesStmt === false) {
+                    throw new \Exception(self::QUERY_ERROR);
+                }
+                if ($categoriesStmt->affected_rows === 1) {
+                    $categoryId = $categoriesStmt->insert_id;
+                } else {
+                    throw new \Exception(self::QUERY_ERROR);
+                }
+            }
+            $categoryIdStmt->close();
             $categoriesEventsStmt = $this->prepareBindExecute($categoriesEventsQuery, "ii", $eventId, $categoryId);
             if ($categoriesEventsStmt === false) {
                 throw new \Exception(self::QUERY_ERROR);

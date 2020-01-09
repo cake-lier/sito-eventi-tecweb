@@ -11,7 +11,9 @@ try {
             $eventIds = array_column($dbh->getEventsManager()->getPurchasedEvents(), "id");
         } else {
             // it's necessarily a promoter
-            $eventIds = $dbh->getEventsManager()->getEventIdsFiltered(0, 4, "", false, "", "", $_SESSION["email"]);
+            $min = isset($_GET["min"]) ? $_GET["min"] : 0;
+            $count = isset($_GET["count"]) ? $_GET["count"] : 5;
+            $eventIds = $dbh->getEventsManager()->getEventIdsFiltered($min, $min + $count, "", false, "", "", $_SESSION["email"]);
         }
         array_walk($eventIds, function($id) use (&$templateParams, $dbh) {
             $info = $dbh->getEventsManager()->getEventInfo($id);
