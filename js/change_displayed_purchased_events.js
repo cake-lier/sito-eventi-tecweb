@@ -13,7 +13,7 @@ $(() => {
     });
     $.getJSON("get_events_count.php?type=2", data => {
         if (data["result"] === false) {
-            $("main").prepend($("<section>", {class: "alert"})
+            $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                   .append($("<p>", {text: "Si è verificato un errore. Si prega di ricaricare la pagina"}),
                                           $("<a>", {href: "#"})
                                               .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))

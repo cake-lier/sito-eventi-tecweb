@@ -58,7 +58,7 @@ $(() => {
     $("#registration_form").submit(e => {
         if ($("#profile_photo")[0].files.item(0).size > 12000000) {
             e.preventDefault();
-            $("main").prepend($("<section>", {class: "alert"})
+            $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                   .append($("<p>", {text: "Immagine troppo grande"}),
                                           $("<a>", {href: "#"})
                                               .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
@@ -70,7 +70,7 @@ $(() => {
             && $("#telephone").val() !== ""
             && (isNaN($("#telephone").val()) || $("#telephone").val().includes(".") || $("#telephone").val().includes(","))) {
             e.preventDefault();
-            $("main").prepend($("<section>", {class: "alert"})
+            $("main").prepend(($("section.alert").length > 0 ? $("section.alert").html("") : $("<section>", {class: "alert"}))
                                   .append($("<p>", {text: "Numero di telefono non corretto"}),
                                           $("<a>", {href: "#"})
                                               .append($("<img/>", {src: "img/close.png", alt: "Chiudi"}))
