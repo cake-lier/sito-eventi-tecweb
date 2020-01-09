@@ -1,8 +1,8 @@
 <section class="event">
     <header>
         <h3><a href="event.php?id=<?php echo $event["id"]; ?>"><?php echo $event["name"]; ?></a></h3>
-        <p><a href="search.php?place=<?php echo $event["place"]; ?>&posti=free"><?php echo $event["place"]; ?></a>, <?php echo $event["dateTime"]; ?></p>
-        <p>Organizzato da <a href="search.php?promoter=<?php echo $event["organizationName"]; ?>&posti=free"><?php echo $event["organizationName"]; ?></a></p> 
+        <p><a href="search.php?place=<?php echo urlencode($event["place"]); ?>&posti=free"><?php echo $event["place"]; ?></a>, <?php echo $event["dateTime"]; ?></p>
+        <p>Organizzato da <a href="search.php?promoter=<?php echo urlencode($event["organizationName"]); ?>&posti=free"><?php echo $event["organizationName"]; ?></a></p> 
     </header>
     <section class="info_section">
         <p>Posti ancora disponibili: <?php echo $event["freeSeats"]; ?> su <?php echo $event["totalSeats"]; ?></p>

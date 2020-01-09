@@ -2,6 +2,7 @@
 require_once "bootstrap.php";
 
 $data["result"] = false;
+$data["total"] = 0;
 header("Content-type: application/json");
 if (isset($_GET["seatId"]) && isset($_GET["eventId"]) && isset($_GET["actionType"])) {
     $eventId = intval($_GET["eventId"]);
@@ -41,6 +42,14 @@ if (isset($_GET["seatId"]) && isset($_GET["eventId"]) && isset($_GET["actionType
                     }
                 }
                 break;
+        }
+        if ($data["result"] === true) {
+            $tickets = $dbh->getCartsManager()->getLoggedUserTickets();
+            $partialCosts = array();
+            array_walk($tickets, function($e, $i) use (&$tickets, &$partialCosts) {
+                $partialCosts[] = $e["amount"] * $e["price"];
+            });
+            $data["total"] = number_format(array_sum($partialCosts), 2);
         }
     } catch (\Exception $e) {
         error_log($e->getMessage(), 3, LOG_FILE);
