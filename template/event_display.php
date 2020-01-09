@@ -1,9 +1,9 @@
 <section class="event">
     <header>
         <h1><?php echo $templateParams["event"]["name"]; ?></h1>
-        <p>Luogo: <a href="search.php?place=<?php echo $templateParams["event"]["place"]; ?>&posti=free"><?php echo $templateParams["event"]["place"]; ?></a></p>
+        <p>Luogo: <a href="search.php?place=<?php echo urlencode($templateParams["event"]["place"]); ?>&posti=free"><?php echo $templateParams["event"]["place"]; ?></a></p>
         <p>Data e ora: <?php echo $templateParams["event"]["dateTime"]; ?></p>
-        <p>Organizzato da: <a href="search.php?promoter=<?php echo $templateParams["event"]["organizationName"]; ?>&posti=free"><?php echo $templateParams["event"]["organizationName"]; ?></a></p> 
+        <p>Organizzato da: <a href="search.php?promoter=<?php echo urlencode($templateParams["event"]["organizationName"]); ?>&posti=free"><?php echo $templateParams["event"]["organizationName"]; ?></a></p> 
     </header>
     <section id="purchase_section" class="info_section">
         <p>
