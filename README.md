@@ -15,3 +15,8 @@ sezione "downloads" di questa repository come file pdf (_relazione.pdf_).
 I mock-up sono presenti nella sezione "downloads" come file di Adobe XD (_seatheat-mobile.xd_ e _seatheat-desktop.xd_),  
 ma è possibile vederli direttamente cliccando sui seguenti link per la versione [mobile](https://xd.adobe.com/view/0053f224-56c3-4755-4b49-9c0192a8ec07-7662/?fullscreen&hints=off)
 e per la versione [desktop](https://xd.adobe.com/view/14d5619f-1190-41e5-5355-750decbfcc45-62e4/?fullscreen&hints=off).
+
+Inoltre, il sito può essere visto funzionante al seguente [link](https://seatheat.altervista.org). Per accedere come
+clienti basterà utilizzare l'account mail  
+"client@mail.com", per accedere come promoter è presente "promoter@mail.com" e infine per accedere come admin si può  
+usare l'account "m@mail.com". Tutti questi account hanno la stessa password che è "password".
