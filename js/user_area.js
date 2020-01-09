@@ -30,36 +30,41 @@ function organizeUserNotifications(data) {
     if (notifications.length > 0) {
         Object.values(notifications).forEach(notification => {
             const dateString = toLocaleDateTime(new Date(notification.dateTime));
-            const eventDateString = toLocaleDateTime(new Date(notification.event.dateTime));
-            mainSection.append(
-                $("<section>", {id: notification.notificationId})
-                    .addClass("notification")
-                    .addClass((_i, c) => {
-                        return notification.visualized === 1 ? c + " visualized" : c;
-                    })
-                    .append($("<section>").append($("<p>", {text: dateString}), 
-                                                  $("<p>", {text: notification.message})),
-                            $("<section>").append($("<h3>", {text: "Per l'evento: "})
-                                                      .append($("<a>",
-                                                                {
-                                                                    text: notification.event.name,
-                                                                    href: "event.php?id=" + notification.event.id
-                                                                })),
-                                                  $("<p>", {text: "Luogo: " + notification.event.place}),
-                                                  $("<p>", {text: "Data: " + eventDateString}),
-                                                  $("<p>", {text: "Organizzato da: " + notification.event.organizationName})),
-                            $("<label>", {for: "check_" + notification.notificationId, text: "Visualizzata"}),
-                            $("<input>", {
-                                id: "check_" + notification.notificationId, 
-                                type: "checkbox",
-                                change: () => toggleNotificationView(notification.notificationId, notification.dateTime)
-                            })
-                                .prop("checked", notification.visualized === 1),
-                            $("<a>", {
-                                class: "button_no_image",
-                                text: "Elimina",
-                                click: () => deleteNotification(notification.notificationId, notification.dateTime)
-                            })));
+            const notificationSection = $("<section>", {id: notification.notificationId})
+                                            .addClass("notification")
+                                            .addClass((_i, c) => {
+                                                return notification.visualized === 1 ? c + " visualized" : c;
+                                            })
+                                            .append($("<section>").append($("<p>", {text: dateString}), 
+                                                                          $("<p>", {text: notification.message})));
+            if ("event" in notification) {
+                const eventDateString = toLocaleDateTime(new Date(notification.event.dateTime));
+                notificationSection.append($("<section>").append($("<h3>", {text: "Per l'evento: "})
+                                                         .append($("<a>",
+                                                                   {
+                                                                      text: notification.event.name,
+                                                                      href: "event.php?id=" + notification.event.id
+                                                                   })),
+                                                                 $("<p>", 
+                                                                   {text: "Luogo: " + notification.event.place}),
+                                                                 $("<p>", 
+                                                                   {text: "Data: " + eventDateString}),
+                                                                 $("<p>", 
+                                                                   {text: "Organizzato da: " + notification.event.organizationName})));
+            }
+            notificationSection.append($("<label>", {for: "check_" + notification.notificationId, text: "Visualizzata"}),
+                                       $("<input>", {
+                                           id: "check_" + notification.notificationId, 
+                                           type: "checkbox",
+                                           change: () => toggleNotificationView(notification.notificationId, notification.dateTime)
+                                       })
+                                           .prop("checked", notification.visualized === 1),
+                                       $("<a>", {
+                                           class: "button_no_image",
+                                           text: "Elimina",
+                                           click: () => deleteNotification(notification.notificationId, notification.dateTime)
+                                       }));
+            mainSection.append(notificationSection);
         });
     } else {
         mainSection.append(
