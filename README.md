@@ -19,4 +19,4 @@ e per la versione [desktop](https://xd.adobe.com/view/14d5619f-1190-41e5-5355-75
 Inoltre, il sito può essere visto funzionante al seguente [link](https://seatheat.altervista.org). Per accedere come
 clienti basterà utilizzare l'account mail  
 "client@mail.com", per accedere come promoter è presente "promoter@mail.com" e infine per accedere come admin si può  
-usare l'account "m@mail.com". Tutti questi account hanno la stessa password che è "password".
+usare l'account "admin@mail.com". Tutti questi account hanno la stessa password che è "password".
