@@ -66,7 +66,8 @@ $(() => {
                                                   $(this).parent().remove();
                                               })));
         }
-        if ($("#telephone").val() !== ""
+        if ($("#telephone").length > 0
+            && $("#telephone").val() !== ""
             && (isNaN($("#telephone").val()) || $("#telephone").val().includes(".") || $("#telephone").val().includes(","))) {
             e.preventDefault();
             $("main").prepend($("<section>", {class: "alert"})
