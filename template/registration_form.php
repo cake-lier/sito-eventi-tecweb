@@ -7,12 +7,6 @@
         <input type="radio" id="check_promoter" name="registration_type" value="promoter" />
     </fieldset>
     <fieldset>
-        <?php
-            if (isset($_SESSION["registrationError"])) {
-                echo "<p>" . $_SESSION["registrationError"] . "</p>";
-                unset($_SESSION["registrationError"]);
-            }
-        ?>
         <label for="email_register">Email:</label>
         <input type="email" id="email_register" name="email" required/>
         <label class="customer" for="name">Nome:</label>
